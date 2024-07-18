@@ -36,6 +36,7 @@ tmtagsHistory
 
 # Repo specific #
 ######################
+tests/test_exotic_uvis_data/
 .ipynb_checkpoints
 *.p
 *.txt

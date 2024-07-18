@@ -1,7 +1,6 @@
 import os
 import shutil
 import unittest
-import numpy as np
 from astroquery.mast import Observations
 
 from exotic_uvis import stage_0
@@ -47,6 +46,27 @@ class TestStage0(unittest.TestCase):
         for mdf in self.mast_data_files:
             self.assertTrue(os.path.exists(os.path.join(
                 self.local_data_path, mdf)))
+
+    def test_organise_downloaded_files(self):
+        """ Collect, move, and label downloaded files. """
+        spec_flt, spec_spt, direct_flt, direct_spt, misc_files = \
+            stage_0.collect_files(self.local_data_path)
+        self.assertEqual(len(spec_flt), 4)
+        self.assertEqual(len(spec_spt), 4)
+        self.assertEqual(len(direct_flt), 1)
+        self.assertEqual(len(direct_spt), 1)
+        self.assertEqual(len(misc_files), 0)
+
+        stage_0.identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files)
+        stage_0.move_files(self.local_data_path, self.local_data_path)
+        self.assertTrue(os.path.exists(os.path.join(
+            self.local_data_path, "directimages", "or01dr001_flt.fits")))
+        for orbit in ["01", "02"]:
+            for exposure in ["001", "002"]:
+                for f_type in ["flt", "spt"]:
+                    self.assertTrue(os.path.exists(os.path.join(
+                        self.local_data_path, "specimages", "or{}fm{}_{}.fits"
+                            .format(orbit, exposure, f_type))))
 
 
 if __name__ == '__main__':
