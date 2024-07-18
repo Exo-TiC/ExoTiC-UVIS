@@ -2,7 +2,7 @@ import os
 
 from astroquery.mast import Observations as Obs
 
-def do(programID, target_name, visit_number, outdir, extensions):
+def get_files_from_mast(programID, target_name, visit_number, outdir, extensions=None):
     '''
     Queries MAST database and downloads *flt and *spt fits files from specified program, target, and visit number.
     

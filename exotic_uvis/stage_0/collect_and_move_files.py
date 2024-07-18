@@ -19,8 +19,8 @@ def move_files(fromdir, outdir):
 
     # Sort files by spec, direct, and misc.
     files = sorted(glob.glob(os.path.join(fromdir, "*")))
-    spec_files = [f for f in files if ("frm" in f and ".fits" in f)]
-    direct_files = [f for f in files if "dir" in f]
+    spec_files = [f for f in files if ("fm" in f and ".fits" in f)]
+    direct_files = [f for f in files if ("dr" in f and ".fits" in f)]
     misc_files = [f for f in files if (f not in spec_files and f not in direct_files)]
 
     for files, target in zip((spec_files, direct_files, misc_files),("specimages","directimages","miscfiles")):
@@ -58,8 +58,8 @@ def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files):
     bundle = [(i,j,) for i,j, in zip(starts,prefixes)]
     bundle = sorted(bundle, key = lambda x: x[0]) # sorted by exposure time
 
-    # Create association between iexr##xxxx and orbt#frm#.
-    rename = {bundle[0][1]:"orbt1frm1"}
+    # Create association between iexr##xxxx and or##fm###.
+    rename = {bundle[0][1]:"or01fm001"}
 
     # Now detect jumps in exposure start time, which are expected to be separated by >45 minutes.
     orbit_N = 1
@@ -73,10 +73,12 @@ def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files):
         else:
             # We are still in the same orbit, so increment the frame number.
             frame_N += 1
-        rename[bundle[i][1]] = "orbt{}frm{}".format(orbit_N,frame_N)
+        o_type = str(orbit_N).zfill(2)
+        f_type = str(frame_N).zfill(3)
+        rename[bundle[i][1]] = "or{}fm{}".format(o_type,f_type)
     print("Detected %.0f orbits and created new filenames to update." % orbit_N)
 
-    # Now we need to replace instances of iexr##xxxx in filenames with orbt#frm#.
+    # Now we need to replace instances of iexr##xxxx in filenames with or##fm###.
     print("Renaming spec and misc files.")
     for prefix in prefixes:
         for files in (spec_flt, spec_spt, misc_files):
@@ -97,8 +99,8 @@ def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files):
     bundle = [(i,j,) for i,j, in zip(starts,prefixes)]
     bundle = sorted(bundle, key = lambda x: x[0]) # sorted by exposure time
 
-    # Create association between iexr##xxxx and orbt#dir#.
-    rename = {bundle[0][1]:"orbt1dir1"}
+    # Create association between iexr##xxxx and or##dr###.
+    rename = {bundle[0][1]:"or01dr001"}
 
     if len(direct_flt) == 1:
         # There is only one direct image, so no more work required.
@@ -116,10 +118,12 @@ def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files):
             else:
                 # We are still in the same orbit, so increment the direct frame number.
                 frame_N += 1
-            rename[bundle[i][1]] = "orbt{}dir{}".format(orbit_N,frame_N)
+            o_type = str(orbit_N).zfill(2)
+            f_type = str(frame_N).zfill(3)
+            rename[bundle[i][1]] = "or{}dr{}".format(o_type,f_type)
     print("Detected %.0f orbits and created new filenames to update." % orbit_N)
 
-    # Now we need to replace instances of iexr##xxxx in filenames with orbt#dir#.
+    # Now we need to replace instances of iexr##xxxx in filenames with or##dr###.
     print("Renaming spec and misc files.")
     for prefix in prefixes:
         for files in (direct_flt, direct_spt, misc_files):
@@ -128,7 +132,7 @@ def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files):
                 f_new = str.replace(f, prefix, rename[prefix])
                 shutil.move(f, f_new)
     
-    print("Renamed all files to follow orbt#frm# or orbt#dir# convention.")
+    print("Renamed all files to follow or##fm### (for spec frames) or or##dr### (for direct frames) convention.")
 
 def collect_files(search_dir):
     '''
