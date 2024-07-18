@@ -4,10 +4,11 @@ import glob
 
 from astropy.io import fits
 
-def move_files(fromdir, outdir):
+def collect_and_move_files(visit_number, fromdir, outdir):
     '''
-    Moves the spec, direct, and misc files to the right directories.
+    Collects, renames, and moves the spec, direct, visit-related, and misc files to the right directories.
 
+    :param visit_number: str. The visit number that we want to look at.
     :param fromdir: str. The directory where the orbitNframeN, orbitNdirectN, and misc files are kept.
     :param outdir: str. Where the files will be moved to.
     :return: files removed from their current path and sent to the target_dir. No callables.
@@ -16,14 +17,30 @@ def move_files(fromdir, outdir):
     if not os.path.exists(outdir):
         print("Creating output directory {}...".format(outdir))
         os.makedirs(outdir)
+    
+    # Collect and sort files from the fromdir that are in the right visit.
+    spec_flt, spec_spt, direct_flt, direct_spt, misc_files = collect_files(fromdir, visit_number)
 
-    # Sort files by spec, direct, and misc.
+    # Then sort by orbit.
+    identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files)
+    
+    # Now re-sort using the updated filenames.
     files = sorted(glob.glob(os.path.join(fromdir, "*")))
-    spec_files = [f for f in files if ("fm" in f and ".fits" in f)]
-    direct_files = [f for f in files if ("dr" in f and ".fits" in f)]
-    misc_files = [f for f in files if (f not in spec_files and f not in direct_files)]
 
-    for files, target in zip((spec_files, direct_files, misc_files),("specimages","directimages","miscfiles")):
+    # First, catch spec files (marked with fm) and only take spt and flt file.
+    spec_files = [f for f in files if ("fm" in f and ".fits" in f and "hst_" not in f)]
+    spec_files = [f for f in spec_files if ("flt.fits" in f or "spt.fits" in f)]
+    # Then, catch direct files (marked with dr) and only take spt and flt files.
+    direct_files = [f for f in files if ("dr" in f and ".fits" in f and "hst_" not in f)]
+    direct_files = [f for f in direct_files if ("flt.fits" in f or "spt.fits" in f)]
+    # Now catch files that weer at least identified with an orbit of interest.
+    visit_files = [f for f in files if ("or" in f and "hst_" not in f)]
+    visit_files = [f for f in visit_files if ("fm" in f or "dr" in f)]
+    visit_files = [f for f in visit_files if (f not in spec_files and f not in direct_files)]
+    # Finally, filter everything else.
+    misc_files = [f for f in files if (f not in spec_files and f not in direct_files and f not in visit_files)]
+
+    for files, target in zip((spec_files, direct_files, visit_files, misc_files),("specimages","directimages","visitfiles","miscfiles")):
         targetdir = os.path.join(outdir,target)
         if not os.path.exists(targetdir):
             os.makedirs(targetdir)
@@ -134,14 +151,21 @@ def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files):
     
     print("Renamed all files to follow or##fm### (for spec frames) or or##dr### (for direct frames) convention.")
 
-def collect_files(search_dir):
+def collect_files(search_dir, visit_number):
     '''
-    Searches the search_dir for files.
+    Searches the search_dir for files of the right visit_number.
 
+    :param visit_number: str. The visit number that we want to look at.
     :param search_dir: str. The directory that you want to locate files in.
     :return: lists of filepaths inside of the directory sorted by direct/spec/misc.
     '''
+    # Start the routine
     print("Collecting and categorizing files from {}...".format(search_dir))
+
+    # Define some filename info that is an immediate reject
+    reject = ("f_flt","f_spt","hst_")
+    # And some info that must be present to retain
+    require = (".fits",visit_number)
     
     # Initialize lists
     # Spectroscopic image files using the G280, split by flt and spt
@@ -156,39 +180,56 @@ def collect_files(search_dir):
     # Glob files
     files = sorted(glob.glob(os.path.join(search_dir, "*")))
     
-    # Sort files into direct, spec, and misc.
+    # Sort files into direct, spec, and misc
     for f in files:
-        if "fits" not in f:
-            # Immediately identify as misc file
-            misc_files.append(f)
-            continue
-        with fits.open(f) as fits_file:
-            if "spt.fits" in f:
-                filter_type = fits_file[0].header["SS_FILT"]
-                if filter_type == "G280":
-                    # Spec type
-                    spec_spt.append(f)
-                elif "F" in filter_type:
-                    # Direct type
-                    direct_spt.append(f)
-                else:
-                    # Unrecognized filter
-                    misc_files.append(f)
-            elif "flt.fits" in f:
-                filter_type = fits_file[0].header["FILTER"]
-                if filter_type == "G280":
-                    # Spec type
-                    spec_flt.append(f)
-                elif "F" in filter_type:
-                    # Direct type
-                    direct_flt.append(f)
-                    # Direct type
-                else:
-                    # Unrecognized filter
-                    misc_files.append(f)
-            else:
-                # Unrecognizd file type
+        try:
+            if any(txt in f for txt in reject):
+                # It's a file we do not want.
                 misc_files.append(f)
+                continue
+            if any(txt not in f for txt in require):
+                # It's a file we do not want.
+                misc_files.append(f)
+                continue
+            # Otherwise, we can look at it a little closer.
+            with fits.open(f) as fits_file:
+                try:
+                    if fits_file[0].header["DETECTOR"] != "UVIS":
+                        # Wrong detector so put it in misc
+                        misc_files.append(f)
+                        continue
+                except KeyError:
+                    # It has no detector at all so put it in misc
+                    misc_files.append(f)
+                    continue
+                if "spt.fits" in f:
+                    filter_type = fits_file[0].header["SS_FILT"]
+                    if filter_type == "G280":
+                        # Spec type
+                        spec_spt.append(f)
+                    elif "F" in filter_type:
+                        # Direct type
+                        direct_spt.append(f)
+                    else:
+                        # Unrecognized filter
+                        misc_files.append(f)
+                elif "flt.fits" in f:
+                    filter_type = fits_file[0].header["FILTER"]
+                    if filter_type == "G280":
+                        # Spec type
+                        spec_flt.append(f)
+                    elif "F" in filter_type:
+                        # Direct type
+                        direct_flt.append(f)
+                    else:
+                        # Unrecognized filter
+                        misc_files.append(f)
+                else:
+                    # Unrecognizd file type
+                    misc_files.append(f)
+        except:
+            print(f)
+            print(1/0)
 
     print("Collected spec, direct, and misc files.")
     return spec_flt, spec_spt, direct_flt, direct_spt, misc_files
