@@ -182,54 +182,50 @@ def collect_files(search_dir, visit_number):
     
     # Sort files into direct, spec, and misc
     for f in files:
-        try:
-            if any(txt in f for txt in reject):
-                # It's a file we do not want.
-                misc_files.append(f)
-                continue
-            if any(txt not in f for txt in require):
-                # It's a file we do not want.
-                misc_files.append(f)
-                continue
-            # Otherwise, we can look at it a little closer.
-            with fits.open(f) as fits_file:
-                try:
-                    if fits_file[0].header["DETECTOR"] != "UVIS":
-                        # Wrong detector so put it in misc
-                        misc_files.append(f)
-                        continue
-                except KeyError:
-                    # It has no detector at all so put it in misc
+        if any(txt in f for txt in reject):
+            # It's a file we do not want.
+            misc_files.append(f)
+            continue
+        if any(txt not in f for txt in require):
+            # It's a file we do not want.
+            misc_files.append(f)
+            continue
+        # Otherwise, we can look at it a little closer.
+        with fits.open(f) as fits_file:
+            try:
+                if fits_file[0].header["DETECTOR"] != "UVIS":
+                    # Wrong detector so put it in misc
                     misc_files.append(f)
                     continue
-                if "spt.fits" in f:
-                    filter_type = fits_file[0].header["SS_FILT"]
-                    if filter_type == "G280":
-                        # Spec type
-                        spec_spt.append(f)
-                    elif "F" in filter_type:
-                        # Direct type
-                        direct_spt.append(f)
-                    else:
-                        # Unrecognized filter
-                        misc_files.append(f)
-                elif "flt.fits" in f:
-                    filter_type = fits_file[0].header["FILTER"]
-                    if filter_type == "G280":
-                        # Spec type
-                        spec_flt.append(f)
-                    elif "F" in filter_type:
-                        # Direct type
-                        direct_flt.append(f)
-                    else:
-                        # Unrecognized filter
-                        misc_files.append(f)
+            except KeyError:
+                # It has no detector at all so put it in misc
+                misc_files.append(f)
+                continue
+            if "spt.fits" in f:
+                filter_type = fits_file[0].header["SS_FILT"]
+                if filter_type == "G280":
+                    # Spec type
+                    spec_spt.append(f)
+                elif "F" in filter_type:
+                    # Direct type
+                    direct_spt.append(f)
                 else:
-                    # Unrecognizd file type
+                    # Unrecognized filter
                     misc_files.append(f)
-        except:
-            print(f)
-            print(1/0)
+            elif "flt.fits" in f:
+                filter_type = fits_file[0].header["FILTER"]
+                if filter_type == "G280":
+                    # Spec type
+                    spec_flt.append(f)
+                elif "F" in filter_type:
+                    # Direct type
+                    direct_flt.append(f)
+                else:
+                    # Unrecognized filter
+                    misc_files.append(f)
+            else:
+                # Unrecognizd file type
+                misc_files.append(f)
 
     print("Collected spec, direct, and misc files.")
     return spec_flt, spec_spt, direct_flt, direct_spt, misc_files
