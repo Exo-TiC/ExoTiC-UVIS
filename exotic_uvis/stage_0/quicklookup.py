@@ -19,26 +19,23 @@ def get_images(data_dir):
     # initialize image and exposure time arrays
     images, exp_times, sum_flux = [], [], []
 
+    # get spectra directory
+    specs_dir = os.path.join(data_dir, 'specimages/')
+ 
     # iterate over all files in directory
-    for filename in np.sort(os.listdir(data_dir)):
+    for filename in np.sort(os.listdir(specs_dir)):
 
         # open flt files but avoid f_flt files (embedded) if created
         if (filename[-9:] == '_flt.fits') and (filename[-10] != 'f'):
 
             # open fits and image data
-            hdul = fits.open(os.path.join(data_dir, filename))
+            hdul = fits.open(os.path.join(specs_dir, filename))
             image = np.array(hdul[1].data)
 
-            # save direct image separetly 
-            if hdul[0].header['FILTER'] != 'G280':
-                direct_image = image
-
-            # save image and exposure data
-            else: 
-                exp_times.append((hdul[0].header['EXPSTART'] + hdul[0].header['EXPEND'])/2)
-                exp_duration = hdul[0].header["EXPTIME"]
-                images.append(image) 
-                sum_flux.append(np.sum(image))
+            # append image and exposure data
+            exp_times.append((hdul[0].header['EXPSTART'] + hdul[0].header['EXPEND'])/2)
+            images.append(image) 
+            sum_flux.append(np.sum(image))
 
     # convert to numpy arrays
     images = np.array(images)
@@ -50,7 +47,7 @@ def get_images(data_dir):
 
 
 
-def get_transit():
+def get_transit(exp_times, images):
 
     """
     
@@ -59,12 +56,17 @@ def get_transit():
     """
 
 
+
+
+
+
+
     return 0
 
 
 
 
-def create_gif(images, exp_times, output_dir):
+def create_gif(exp_times, images, output_dir):
 
 
     """
@@ -117,12 +119,12 @@ def create_gif(images, exp_times, output_dir):
         return 
         
     # create and plot animation
-    animation = FuncAnimation(fig, animation_func, init_func = init, frames = np.shape(images)[0], interval = 10)
+    animation = FuncAnimation(fig, animation_func, init_func = init, frames = np.shape(images)[0], interval = 20)
     plt.tight_layout()
     plt.show()
 
     # save animation
-    #animation.save(output_dir + 'quicklookup_wasp63_v3close.gif', writer = 'ffmpeg', fps = 30)
+    animation.save(os.path.join(output_dir, 'quicklookup.gif'), writer = 'ffmpeg', fps = 10)
 
     return 0
 
@@ -134,10 +136,10 @@ def quicklookup(data_dir, output_dir):
     images, exp_times = get_images(data_dir)
 
     # get transit
-    #get_transit(images, exp_times)
+    #get_transit(exp_times, images)
 
     # create animation gif
-    create_gif(images, exp_times, output_dir)
+    create_gif(exp_times, images, output_dir)
 
 
     return 0

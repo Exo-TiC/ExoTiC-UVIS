@@ -16,8 +16,9 @@ class TestStage0(unittest.TestCase):
         if os.path.exists(cls.local_data_path):
             shutil.rmtree(cls.local_data_path)
 
-        # Download lightweight test data.
-        # First two exposures of first two orbits of W31, proposal_id=17183.
+        # Download lightweight test data. First two exposures of first two
+        # orbits of W31, proposal_id=17183, visit=16.
+        cls.visit_number = "16"
         cls.mast_data_files = [
             "iexr16ljq_flt.fits",  # Direct images.
             "iexr16ljq_spt.fits",
@@ -49,16 +50,9 @@ class TestStage0(unittest.TestCase):
 
     def test_organise_downloaded_files(self):
         """ Collect, move, and label downloaded files. """
-        spec_flt, spec_spt, direct_flt, direct_spt, misc_files = \
-            stage_0.collect_files(self.local_data_path)
-        self.assertEqual(len(spec_flt), 4)
-        self.assertEqual(len(spec_spt), 4)
-        self.assertEqual(len(direct_flt), 1)
-        self.assertEqual(len(direct_spt), 1)
-        self.assertEqual(len(misc_files), 0)
+        stage_0.collect_and_move_files(
+            self.visit_number, self.local_data_path, self.local_data_path)
 
-        stage_0.identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files)
-        stage_0.move_files(self.local_data_path, self.local_data_path)
         self.assertTrue(os.path.exists(os.path.join(
             self.local_data_path, "directimages", "or01dr001_flt.fits")))
         for orbit in ["01", "02"]:
