@@ -1,7 +1,6 @@
 import os
 import shutil
 import unittest
-import numpy as np
 from astroquery.mast import Observations
 
 from exotic_uvis import stage_0
@@ -17,8 +16,9 @@ class TestStage0(unittest.TestCase):
         if os.path.exists(cls.local_data_path):
             shutil.rmtree(cls.local_data_path)
 
-        # Download lightweight test data.
-        # First two exposures of first two orbits of W31, proposal_id=17183.
+        # Download lightweight test data. First two exposures of first two
+        # orbits of W31, proposal_id=17183, visit=16.
+        cls.visit_number = "16"
         cls.mast_data_files = [
             "iexr16ljq_flt.fits",  # Direct images.
             "iexr16ljq_spt.fits",
@@ -47,6 +47,20 @@ class TestStage0(unittest.TestCase):
         for mdf in self.mast_data_files:
             self.assertTrue(os.path.exists(os.path.join(
                 self.local_data_path, mdf)))
+
+    def test_organise_downloaded_files(self):
+        """ Collect, move, and label downloaded files. """
+        stage_0.collect_and_move_files(
+            self.visit_number, self.local_data_path, self.local_data_path)
+
+        self.assertTrue(os.path.exists(os.path.join(
+            self.local_data_path, "directimages", "or01dr001_flt.fits")))
+        for orbit in ["01", "02"]:
+            for exposure in ["001", "002"]:
+                for f_type in ["flt", "spt"]:
+                    self.assertTrue(os.path.exists(os.path.join(
+                        self.local_data_path, "specimages", "or{}fm{}_{}.fits"
+                            .format(orbit, exposure, f_type))))
 
 
 if __name__ == '__main__':
