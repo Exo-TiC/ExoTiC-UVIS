@@ -1,8 +1,8 @@
 __all__ = [
-    "embed",
-    "read_data"
+    "read_data",
+    "laplacian_edge_detection"
 
 ]
 
-from .embed import embed
 from .load_data import read_data
+from .laplacian_edge_detection import laplacian_edge_detection
