@@ -1,7 +1,11 @@
+from tqdm import tqdm
+import xarray as xr
 from astropy.io import fits
 import numpy as np
 from scipy.optimize import least_squares
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
+
 
 def full_frame_bckg_subtraction(obs, bin_number=1e5, fit='coarse', value='mode'):
     '''
@@ -58,6 +62,7 @@ def full_frame_bckg_subtraction(obs, bin_number=1e5, fit='coarse', value='mode')
     print("All frames sky-subtracted by {} {} method.".format(fit, value))
     return obs, bckgs
 
+
 def Pagul_bckg_subtraction(obs, Pagul_path, masking_parameter=0.001, median_on_columns=True):
     '''
     Scales the Pagul+ 2023 G280 sky image to each frame and subtracts the scaled image as background.
@@ -109,3 +114,124 @@ def Pagul_bckg_subtraction(obs, Pagul_path, masking_parameter=0.001, median_on_c
         obs.images[k] = obs.images[k].where(obs.images[k].values == d, d)
     print("All frames sky-subtracted by Pagul+ 2023 method.")
     return obs, scaling_parameters, modes
+
+
+def Gauss1D(x, H, A, x0, sigma):
+
+    """
+
+    Function to return a 1D Gaussian profile 
+
+    """
+
+    return H + A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
+
+
+def calculate_mode(array, hist_min, hist_max, hist_bins, fit = None, check_all = False):
+
+    """
+    
+    Function to return the mode of an image
+    
+    """
+
+    # create a histogram of counts 
+    hist, bin_edges = np.histogram(array, bins = np.linspace(hist_min, hist_max, hist_bins))
+    bin_cents = (bin_edges[:-1] + bin_edges[1:])/2
+
+    # if true, fit gaussian to histogram and find center
+    if fit == 'Gaussian':
+        # fit a Gaussian profile
+        popt, pcov = curve_fit(Gauss1D, 
+                                bin_cents, 
+                                hist, 
+                                p0 = [0, np.amax(hist), bin_cents[np.argmax(hist)], (hist_max - hist_min)/4],
+                                maxfev = 2000)
+        
+        bkg_val = popt[2]
+
+    elif fit == 'Median':
+        bkg_val = np.median(array)
+
+    else:
+        bkg_val = (bin_edges[np.argmax(hist)] + bin_edges[np.argmax(hist) + 1])/2
+    
+    # if true, plot histrogram and location of maximum
+    if check_all:
+        plt.figure(figsize = (10, 7))
+        plt.hist(array, bins = np.linspace(hist_min, hist_max, hist_bins), color = 'indianred', alpha = 0.7, density=False)
+        plt.axvline(bkg_val, color = 'gray', linestyle = '--')
+
+        if fit ==  'Gaussian':
+            plt.plot(bin_cents, Gauss1D(bin_cents, popt[0], popt[1], popt[2], popt[3]))
+
+        plt.axvline(np.median(array), linestyle = '--', color = 'black')
+        plt.axvline((bin_edges[np.argmax(hist)] + bin_edges[np.argmax(hist) + 1])/2, linestyle = '--', color = 'blue')
+        plt.xlabel('Pixel Value')
+        plt.ylabel('Counts')
+        #plt.savefig('PLOTS/bkg_KELT7b_3.png', bbox_inches = 'tight', dpi = 300)
+        plt.show()
+
+    return bkg_val
+
+
+def corner_bkg_subtraction(obs, plot = False, check_all = False, fit = None, 
+                           bounds = None, hist_min = -60, hist_max = 60, hist_bins = 1000):
+
+    """
+
+    Function to remove the background flux
+
+    """
+
+    # copy images
+    images = obs.images.data.copy() 
+
+    # initialize background values
+    bkg_vals = []
+
+    # iterate over all images
+    for i, image in enumerate(tqdm(images, desc = 'Removing background... Progress:')):
+        
+        # calculate image background from histogram
+        if bounds:
+            if len(bounds) == 1:
+                bound = bounds[0]
+                img_bkg = calculate_mode(image[bound[0]:bound[1], bound[2]:bound[3]].flatten(), 
+                                         hist_min, hist_max, hist_bins, fit = fit, check_all = check_all)
+            else:
+                image_vals = []
+
+                for bound in bounds:       
+                    image_vals = np.concatenate((image_vals, image[bound[0]:bound[1], bound[2]:bound[3]].flatten()))
+
+                img_bkg = calculate_mode(image_vals, hist_min, hist_max, hist_bins, fit = fit, check_all = check_all)
+                
+        else:
+            img_bkg = calculate_mode(image.flatten(), hist_min, hist_max, hist_bins, fit = fit, check_all = check_all)
+
+        # append background value
+        bkg_vals.append(img_bkg)
+        
+        # substract background from image
+        image -= img_bkg
+
+    # save background values
+    obs['bkg_vals'] = xr.DataArray(data = bkg_vals, dims = ['exp_time'])
+
+    # if true, plot calculated background values
+    if plot:
+        plt.figure(figsize = (13, 9))
+        plt.plot(range(obs.dims['exp_time']), bkg_vals, '-o')
+        plt.xlabel('Exposure')
+        plt.ylabel('Background Counts')
+        plt.title('Image background per exposure')
+        #plt.savefig('PLOTS/bkg_KELT7b_1.png', bbox_inches = 'tight', dpi = 300)
+        plt.show()
+
+
+        #utils.plot_image([obs.images.data[1], images[1]], title = 'Background Removal Example')
+
+    obs.images.data = images
+
+    return 0

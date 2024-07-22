@@ -1,11 +1,10 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from astropy.io import fits
 from wfc3tools import sub2full
+import matplotlib.pyplot as plt
 import xarray as xr
 from tqdm import tqdm
 import os
-
 
 
 def read_data(data_dir, verbose = 2):
@@ -71,7 +70,7 @@ def read_data(data_dir, verbose = 2):
         data_vars=dict(
             images=(["exp_time", "x", "y"], images),
             errors=(["exp_time", "x", "y"], errors),
-            subarr_coords=(["exp_time","index"],subarr_coords),
+            subarr_coords=(["exp_time", "index"],subarr_coords),
             direct_image = (["x", "y"], direct_image),
             badpix_mask = (["exp_time", "x", "y"], np.ones_like(images, dtype = 'bool')),
             data_quality = (["exp_time", "x", "y"], data_quality),
@@ -80,12 +79,11 @@ def read_data(data_dir, verbose = 2):
         coords=dict(
             exp_time=exp_time,
             exp_time_UT = (["exp_time"], exp_time_UT),
-            index=["left edge","right edge","bottom edge","top edge"],
+            index=["left edge", "right edge", "bottom edge", "top edge"],
         ),
         attrs = dict(
             target_posx = target_posx,
             target_posy = target_posy,
-            #subarray_lims = subarray_lims,
         )
     )
 
