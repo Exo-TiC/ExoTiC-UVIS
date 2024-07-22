@@ -5,6 +5,7 @@ from exotic_uvis.stage_1 import corner_bkg_subtraction
 from exotic_uvis.stage_1 import track_bkgstars
 from exotic_uvis.plotting import plot_exposure
 from exotic_uvis.stage_0 import quicklookup
+from exotic_uvis.stage_1 import free_iteration_rejection
 
 # data directory of the form '/path to directory with flt files/'
 data_dir = '/Users/carlos/Documents/PhD/WASP178/INPUT/'
@@ -22,6 +23,8 @@ obs = read_data(data_dir, verbose = 0)
 image = obs.images.data[0]
 plot_exposure([image])
 
+# correct cosmic rays
+free_iteration_rejection(obs, threshold = 3.5, plot = True, check_all = False)
 
 # try stars displacements
 bkg_stars = [[98, 220], 

@@ -1,5 +1,6 @@
 import numpy as np
 from tqdm import tqdm
+from exotic_uvis.plotting import plot_exposure, plot_corners
 
 def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None):
     '''
@@ -55,3 +56,74 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None):
         bad_pix_removed += bad_pix_this_sigma
     print("All iterations complete. Total pixels corrected: %.0f out of %.0f" % (bad_pix_removed, S.shape[0]*S.shape[1]))
     return obs
+
+
+def array1D_clip(array, threshold = 3.5, mode = 'median'): 
+
+    """
+
+    Function to detect and replace outliers in a 1D array above or below a certain sigma threshold imposed
+
+    
+    """
+    
+    # define outlier flag and mask
+    found_outlier = 1
+    mask = np.ones_like(array).astype(bool)
+
+    # iterate while flag is true
+    while found_outlier:
+        
+        # compute median and std of masked array
+        n_hits = np.sum(mask)
+        median = np.median(array[mask])
+        sigma = np.std(array[mask])
+
+        # mask values below threshold
+        mask = np.abs(array - median) < threshold * sigma     
+        found_outlier = n_hits - np.sum(mask)
+    
+    # replace masked values with median
+    array[~mask] = median
+
+    return array, ~mask
+
+
+def free_iteration_rejection(obs, threshold = 3.5, plot = False, check_all = False):
+
+    """
+
+    Function to replace outliers in the temporal dimension
+    
+    """
+    
+    # copy images and define hit map
+    images = obs.images.data.copy()
+    hit_map = np.zeros_like(images)
+
+    # iterate over all rows
+    for i in tqdm(range(obs.dims['x']), desc = 'Removing cosmic rays and bad pixels... Progress:'):
+
+        #iterate over all columns
+        for j in range(obs.dims['y']):
+            
+            # check that sum of pixel along temporal dimension is non-zero (i.e., that the pixel is inside the subarray)
+            if np.sum(images[:, i, j]):
+                _, hit_map[:, i, j] = array1D_clip(images[:, i, j], threshold, mode = 'median')
+    
+    # if true, plot one exposure and draw location of all detected cosmic rays in all exposures
+    if plot:
+        thits, xhits, yhits = np.where(hit_map == 1)
+        plot_exposure([obs.images.data[0], images[0]], min = 0, title = 'Temporal Bad Pixel removal Example')
+        plot_exposure([obs.images.data[0]], scatter_data=[yhits, xhits], min = 0, title = 'Location of corrected pixels', mark_size = 1)
+
+    # if true, check each exposure separately
+    if check_all:
+        for i in range(len(images)):
+            xhits, yhits = np.where(hit_map[i] == 1)
+            plot_exposure([obs.images.data[i]], scatter_data=[yhits, xhits], min = 0)
+    
+    # modify original images
+    obs.images.data = images
+
+    return 0
