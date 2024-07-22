@@ -41,6 +41,9 @@ def locate_target(direct_image):
                 if (((ind1-bestx)**2 + (ind2-besty)**2)**0.5 < search_radius):
                     possible_sources.append((ind1, ind2))
             print("Located %.0f possible sources." % len(possible_sources))
+            if len(possible_sources) == 0:
+                # Restart the loop because no options were found.
+                continue
             print("Please select the source from this list:")
             for ind, item in enumerate(possible_sources):
                 print(str(ind) + "     " + str(item))
