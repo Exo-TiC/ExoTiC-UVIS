@@ -30,24 +30,24 @@ def read_data(data_dir, verbose = 2):
         if filename[-9:] == '_flt.fits':
 
             # open file and save image and error
-            hdul = fits.open(os.path.join(specs_dir, filename))
-            image = np.array(hdul[1].data)
-            error = np.array(hdul[2].data)
+            with fits.open(os.path.join(specs_dir, filename)) as hdul:
+                image = np.array(hdul[1].data)
+                error = np.array(hdul[2].data)
 
-            #print(repr(hdul[0].header))
-            exp_time.append((hdul[0].header['EXPSTART'] + hdul[0].header['EXPEND'])/2)
-            exp_time_UT.append((hdul[0].header['TIME-OBS']))
-            data_quality.append(hdul[3].data)
-            exp_duration.append(hdul[0].header["EXPTIME"])
+                #print(repr(hdul[0].header))
+                exp_time.append((hdul[0].header['EXPSTART'] + hdul[0].header['EXPEND'])/2)
+                exp_time_UT.append((hdul[0].header['TIME-OBS']))
+                data_quality.append(hdul[3].data)
+                exp_duration.append(hdul[0].header["EXPTIME"])
 
-            #run file through sub2full
-            y1,y2,x1,x2 = sub2full(os.path.join(specs_dir, filename), fullExtent=True)[0]
-            
-            # append data
-            images.append(image) 
-            errors.append(error) 
-            read_noise.append(np.median(np.sqrt(error**2 - image))) 
-            subarr_coords.append(np.array([y1,y2,x1,x2]))
+                #run file through sub2full
+                y1,y2,x1,x2 = sub2full(os.path.join(specs_dir, filename), fullExtent=True)[0]
+                
+                # append data
+                images.append(image) 
+                errors.append(error) 
+                read_noise.append(np.median(np.sqrt(error**2 - image))) 
+                subarr_coords.append(np.array([y1,y2,x1,x2]))
 
 
 
@@ -58,12 +58,12 @@ def read_data(data_dir, verbose = 2):
 
         if filename[-9:] == '_flt.fits':
 
-            hdul = fits.open(os.path.join(directimages_dir, filename))
-            image = np.array(hdul[1].data)
-            
-            direct_image = image
-            target_posx = (direct_image.shape[1])/2 - hdul[0].header['POSTARG1']
-            target_posy = (direct_image.shape[0])/2 - hdul[0].header['POSTARG2']
+            with fits.open(os.path.join(directimages_dir, filename)) as hdul:
+                image = np.array(hdul[1].data)
+                
+                direct_image = image
+                target_posx = (direct_image.shape[1])/2 - hdul[0].header['POSTARG1']
+                target_posy = (direct_image.shape[0])/2 - hdul[0].header['POSTARG2']
 
 
     # Create x-array
