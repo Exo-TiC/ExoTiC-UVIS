@@ -5,6 +5,7 @@ import numpy as np
 from scipy.optimize import least_squares
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
+from exotic_uvis.plotting import plot_exposure, plot_corners
 
 
 def full_frame_bckg_subtraction(obs, bin_number=1e5, fit='coarse', value='mode'):
@@ -221,16 +222,17 @@ def corner_bkg_subtraction(obs, plot = False, check_all = False, fit = None,
 
     # if true, plot calculated background values
     if plot:
-        plt.figure(figsize = (13, 9))
+
+        plot_corners([images[0]], bounds)
+
+        plt.figure(figsize = (10, 7))
         plt.plot(range(obs.dims['exp_time']), bkg_vals, '-o')
         plt.xlabel('Exposure')
         plt.ylabel('Background Counts')
         plt.title('Image background per exposure')
-        #plt.savefig('PLOTS/bkg_KELT7b_1.png', bbox_inches = 'tight', dpi = 300)
         plt.show()
 
-
-        #utils.plot_image([obs.images.data[1], images[1]], title = 'Background Removal Example')
+        plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example')
 
     obs.images.data = images
 
