@@ -1,7 +1,7 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
+from wfc3tools import sub2full
 import xarray as xr
 from tqdm import tqdm
 import os
@@ -17,7 +17,7 @@ def read_data(data_dir, verbose = 2):
     """
 
     # initialize data structures
-    images, errors, data_quality = [], [], []
+    images, errors, data_quality, subarr_coords = [], [], [], []
     exp_time, exp_time_UT, exp_duration, read_noise = [], [], [], []
     
     # iterate over all files in specs directory
@@ -39,11 +39,15 @@ def read_data(data_dir, verbose = 2):
             exp_time_UT.append((hdul[0].header['TIME-OBS']))
             data_quality.append(hdul[3].data)
             exp_duration.append(hdul[0].header["EXPTIME"])
+
+            #run file through sub2full
+            y1,y2,x1,x2 = sub2full(os.path.join(specs_dir, filename), fullExtent=True)[0]
             
             # append data
             images.append(image) 
             errors.append(error) 
             read_noise.append(np.median(np.sqrt(error**2 - image))) 
+            subarr_coords.append(np.array([y1,y2,x1,x2]))
 
 
 
@@ -67,6 +71,7 @@ def read_data(data_dir, verbose = 2):
         data_vars=dict(
             images=(["exp_time", "x", "y"], images),
             errors=(["exp_time", "x", "y"], errors),
+            subarr_coords=(["exp_time","index"],subarr_coords),
             direct_image = (["x", "y"], direct_image),
             badpix_mask = (["exp_time", "x", "y"], np.ones_like(images, dtype = 'bool')),
             data_quality = (["exp_time", "x", "y"], data_quality),
@@ -75,6 +80,7 @@ def read_data(data_dir, verbose = 2):
         coords=dict(
             exp_time=exp_time,
             exp_time_UT = (["exp_time"], exp_time_UT),
+            index=["left edge","right edge","bottom edge","top edge"],
         ),
         attrs = dict(
             target_posx = target_posx,
