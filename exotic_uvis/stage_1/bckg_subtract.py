@@ -31,24 +31,24 @@ def full_frame_bckg_subtraction(obs, bin_number=1e5, fit='coarse', value='mode')
 
         # If you want the median, take it here.
         if value == 'median':
+            print('did median')
             bckg = np.median(finite)
             bckgs.append(bckg)
-            continue
-        # Build the histogram of the frame out of its finite (non-NaN) values.
-        hist, bin_edges = np.histogram(finite, bins=int(bin_number))
+        
+        elif value == 'mode':
+            # Build the histogram of the frame out of its finite (non-NaN) values.
+            hist, bin_edges = np.histogram(finite, bins=int(bin_number))
 
-        # If you want a coarse mode, take it here.
-        if fit == 'coarse':
-            ind = np.argmax(hist)
-            bckg = (bin_edges[ind]+bin_edges[ind+1])/2
-            bckgs.append(bckg)
-            continue
+            # If you want a coarse mode, take it here.
+            if fit == 'coarse':
+                ind = np.argmax(hist)
+                bckg = (bin_edges[ind]+bin_edges[ind+1])/2
+                bckgs.append(bckg)
 
-        # Else, take the fit.
-        elif fit == 'fine':
-            # For Carlos!
-            bckgs.append(bckg)
-            continue
+            # Else, take the fit.
+            elif fit == 'fine':
+                # For Carlos!
+                bckgs.append(bckg)
 
         # Build a frame to correct the data with.
         d -= bckgs[k]*np.ones_like(d)
