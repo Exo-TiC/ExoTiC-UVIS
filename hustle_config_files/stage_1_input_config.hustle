@@ -3,7 +3,6 @@
 # Step 1: Read in the data
 data_dir        './'                                        # Str. This is the path to the top-level directory containing the specimages/, directimages/, etc. folders with your data.
 verbose         2                                           # Int from 0 to 2. How often and how detailed you want the output log to be.
-output_dir      './'                                        # Str. This is the path where the output xarrays will be saved after all corrections are made.
 
 # Step 2: Reject cosmic rays with time iteration
 # Step 2a: Fixed iteration parameters
@@ -57,5 +56,8 @@ do_0thCOM       True                                        # Bool. Whether to t
 # Step 5b: Background star tracking
 do_bkg_stars    True                                        # Bool. Whether to track frame displacements by centroiding background stars.
 # WIP
+
+# Step 6: Save outputs
+output_dir      './'                                        # Str. This is the path where the output xarrays will be saved after all corrections are made.
 
 # ENDPARSE
