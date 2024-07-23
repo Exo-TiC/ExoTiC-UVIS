@@ -12,7 +12,7 @@ from exotic_uvis.stage_0 import locate_target
 
 from exotic_uvis.stage_1 import read_data
 from exotic_uvis.stage_1 import corner_bkg_subtraction
-#from exotic_uvis.stage_1 import full_frame_bckg_subtraction
+from exotic_uvis.stage_1 import full_frame_bckg_subtraction
 from exotic_uvis.stage_1 import track_bkgstars
 from exotic_uvis.stage_1 import free_iteration_rejection
 from exotic_uvis.stage_1 import fixed_iteration_rejection
@@ -74,14 +74,12 @@ def run_pipeline(config_files_dir):
                                  contrast_factor = stage1_dict['contrast_factor'])
 
 
-    # background subtraction 
-    '''
+    # background subtraction
     if stage1_dict['do_full_frame']:
         full_frame_bckg_subtraction(obs, 
                                     bin_number = stage1_dict['bin_number'], 
                                     fit=stage1_dict['fit'], 
                                     value=stage1_dict['value'])
-    '''
     
     if stage1_dict['do_corners']:
         corner_bkg_subtraction(obs, bounds=stage1_dict['bounds'], 
