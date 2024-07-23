@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from exotic_uvis.plotting import plot_exposure
 
-def get_trace_region(obs, order, source_pos, refine_calibration, path_to_cal):
+def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal):
     '''
     Pulls the region of each image that has the trace in it, with wavelength solution provided by GRISMCONF.
 
