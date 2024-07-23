@@ -10,7 +10,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal):
     '''
     Pulls the region of each image that has the trace in it, with wavelength solution provided by GRISMCONF.
 
-    :param subarr_coords: lst of int. Used to trick the configuration into thinking it is embedded.
+    :param obs: xarray. Its obs.images DataSet contains the images and its obs.subarr_coords DataSet is used to trick the configuration into thinking it is embedded.
     :param order: str. Options are "+1", "-1", "+2", "-2", etc. Which order you want to pull.
     :param source_pos: tuple of float. The x, y position of the source in the unembedded direct image.
     :param refine_calibration: bool. If True, uses Gaussian fitting to improve the location of the trace.
