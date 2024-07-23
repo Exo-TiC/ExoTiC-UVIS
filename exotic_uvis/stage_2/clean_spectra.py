@@ -1,6 +1,6 @@
 import numpy as np
 
-def do(oneD_spec, sigma):
+def clean_spectra(oneD_spec, sigma):
     '''
     Compares all 1D spectra to a median spectra and replaces outliers with the median of that spectral point in time.
     
@@ -10,6 +10,8 @@ def do(oneD_spec, sigma):
     '''
     # Track outliers removed.
     bad_spex_removed = 0
+
+    # Iteration stop condition. As long as outliers are being found, we have to keep iterating.
     outlier_found = True
     while outlier_found:
         # Define median spectrum in time and extend its size to include all time.
@@ -27,10 +29,10 @@ def do(oneD_spec, sigma):
         bad_spex_removed += bad_spex_this_step
 
         if bad_spex_this_step == 0:
-             # We can break the loop now.
+             # No more outliers found! We can break the loop now.
             outlier_found = False
         
-        # Correct outliers.
+        # Correct outliers and loop once more.
         oneD_spec = np.where(S == 1, med_spec, oneD_spec)
     print("1D spectral cleaning complete. Removed %.0f spectral outliers." % bad_spex_removed)
     return oneD_spec
