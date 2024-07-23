@@ -1,5 +1,9 @@
+import os
+import glob
 import numpy as np
 import matplotlib.pyplot as plt
+
+from exotic_uvis.parser import parse_config
 
 from exotic_uvis.stage_0 import quicklookup
 from exotic_uvis.stage_0 import collect_and_move_files
@@ -21,17 +25,18 @@ def run_pipeline(config_files_dir):
 
 
     ######## Run Stage 0 ########
-    stage0_dict = read_configfile()
+    stage0_config = glob.glob(os.path.join(config_files_dir,"stage_0*"))[0]
+    stage0_dict = parse_config(stage0_config)
 
     # run data download
     if stage0_dict['do_download']:
         get_files_from_mast(stage0_dict['programID'], stage0_dict['target_name'], 
-                            stage0_dict['visit_number'], stage0_dict['MASToutput_dir'], extensions=None)
+                            stage0_dict['visit_number'], stage0_dict['MASToutput_dir'], extensions=stage0_dict['extensions'])
    
     # collect and move files
-    if stage0_dict['do_movefiles']:
+    if stage0_dict['do_organize']:
         collect_and_move_files(stage0_dict['visit_number'], 
-                               stage0_dict['filesfrom_dir'], stage0_dict['filesto_dr'])
+                            stage0_dict['filesfrom_dir'], stage0_dict['filesto_dir'])
     
     # locate target in direct image
     if stage0_dict['do_locate']:
@@ -43,7 +48,8 @@ def run_pipeline(config_files_dir):
 
 
     ####### Run Stage 1 #######
-    stage1_dict = read_configfile()
+    stage1_config = glob.glob(os.path.join(config_files_dir,"stage_1*"))[0]
+    stage1_dict = parse_config(stage1_config)
 
 
     # read data
@@ -68,7 +74,7 @@ def run_pipeline(config_files_dir):
                                  contrast_factor = stage1_dict['contrast_factor'])
 
 
-    # background subtraction 
+    # background subtraction
     if stage1_dict['do_full_frame']:
         full_frame_bckg_subtraction(obs, 
                                     bin_number = stage1_dict['bin_number'], 

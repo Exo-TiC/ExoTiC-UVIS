@@ -6,22 +6,23 @@ programID       '12345'                                     # ID of the observin
 target_name     'PLANET-B'                                  # Name of the target object you want to query data from. On MAST, referred to as "target_name".
 visit_number    '00'                                        # The visit number you want to download, e.g. "01", "02", etc.
 MASToutput_dir  './'                                        # The directory you want the files downloaded to.
-extension       ['_flt.fits','_spt.fits']                   # lst of str or None. File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified.
+extensions      ['_flt.fits','_spt.fits']                   # lst of str or None. File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified. _flt.fits, _spt.fits recommended as minimum working case.
 
 # Step 2: Organizing files
+do_organize     True                                        # Bool. Whether to perform this step.
 visit_number    '00'                                        # The visit number you want to operate on.
 filesfrom_dir   './'                                        # The directory you want to source data from.
                                                             # If you downloaded data in Step 1, this should be the same directory as "MASToutput_dir" above.
                                                             # If you have a folder of pre-downloaded data and did not use Step 1, you should point to that folder instead.
-filesto_dr      './files'                                   # The directory you want to relocate data to. Can be the same as the "filesfrom_dir".
+filesto_dir     './files'                                   # The directory you want to relocate data to. Can be the same as the "filesfrom_dir".
 
 # Step 3: Locating the target star
 do_locate       True                                        # Bool. Whether to perform this step.
-direct_image    './files/directimages/or01r001_flt.fits'    # str. Path to the direct image (e.g. the one taken through F300X or a similar photometric filter), used to locate the target star for later calibration.
+direct_image    './files/directimages/or01dr001_flt.fits'   # str. Path to the direct image (e.g. the one taken through F300X or a similar photometric filter), used to locate the target star for later calibration.
 
 # Step 4: Quality quicklook
 do_quicklook    True                                        # Bool. Whether to perform this step.
-data_dir        './files/specimages'                        # str. Path to the images you want to create a quality-check gif of.
+data_dir        './files'                                   # str. Path to the images you want to create a quality-check gif of.
 gif_dir          ./'                                        # str. Where to save the quicklook gif to.
 
-# ENDPARSE
+# ENDPARS
