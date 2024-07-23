@@ -19,7 +19,6 @@ filesto_dr      './files'                                   # The directory you 
 # Step 3: Locating the target star
 perform_step    True                                        # Bool. Whether to perform this step.
 direct_image    './files/directimages/or01r001_flt.fits'    # str. Path to the direct image (e.g. the one taken through F300X or a similar photometric filter), used to locate the target star for later calibration.
-location        None                                        # None or lst of ints. After running Stage 0, this will be overwritten with the determined location of the target.
 
 # Step 4: Quality quicklook
 data_dir        './files/specimages'                        # str. Path to the images you want to create a quality-check gif of.

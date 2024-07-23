@@ -1,0 +1,38 @@
+# ExoTiC-UVIS config file for launching Stage 2: Extraction
+
+# Step 1: Read in the data
+data_dir        './'                                        # Str. This is the path to the xarray containing the reduced data from Stage 1.
+verbose         2                                           # Int from 0 to 2. How often and how detailed you want the output log to be.
+output_dir      './'                                        # Str. This is the path where the output light curves xarray will be saved to.
+
+# Step 2: Trace configuration
+config          'GRISMCONF'                                 # Str. The type of configuration you are using. Options are 'aXe' or 'GRISMCONF'.
+path_to_config  './'                                        # Str. The absolute path to the .conf file used by aXe or GRISMCONF.
+traces_to_conf  ('+1','-1')                                 # Lst of str. The traces you want to configure and extraction from.
+
+# Step 3: 1D spectral extraction
+method          'box'                                       # Str. Options are 'box' (draw a box around the trace and sum without weights) or 'optimum' (weight using Horne 1986 methods).
+subtract_contam False                                       # Bool. Whether to model the contaminating orders and subtract them from your trace during extraction. Sometimes works, sometimes just adds lots of scatter.
+sens_correction False                                       # Bool. Whether to correct for the G280's changing sensitivity as a function of wavelength. Since absolute calibrated spectra aren't needed in exoplanetary sciences, you can skip this safely.
+
+# Step 3a: Box extraction parameters
+determine_hw    True                                        # Bool. If True, automatically determines preferred half-width for each order by minimizing out-of-transit/eclipse residuals.
+halfwidths      (12,12)                                     # Lst of ints. The half-width of extraction aperture to use for each order. Input here is ignored if 'determine_hw' is True.
+
+# Step 3b: Optimum extraction parameters
+aperture_type   'median'                                    # Str. Type of aperture to draw. Options are 'row_polyfit', 'column_polyfit', 'column_gaussfit', 'column_moffatfit', 'median', 'smooth'.
+halfwidths      (12,12)                                     # Lst of ints. The half-width of extraction aperture to use for each order. For optimum extraction, you should make this big (>12 pixels at least). There is no 'preferred' half-width in optimum extraction due to the weights.
+
+# Step 4: 1D spectral cleaning and aligning
+outlier_sigma   3.5                                         # Float. Sigma at which to reject spectral outliers in time. Outliers are replaced with median of timeseries.
+align           True                                        # Bool. If True, uses cross-correlation to align spectra to keep wavelength solution consistent.
+
+# Step 5: Light curve extraction
+bin_method      'wavelengths'                               # Str. How to bin the light curves. Options are 'columns' (bin N columns at a time) or 'wavelengths' (bin from wavelength1 to wavelength2).
+wavelength_bins np.linspace(2000,8100,100)                  # Lst of floats or numpy array. If bin_method is 'wavelengths', defines edges of each wavelength bin.
+N_columns       10                                          # Int. If bin_method is 'columns', how many columns go into each bin.
+time_binning    None                                        # Int or None. If int, how many frames in time should be binned. Reduces computation time but degrades time resolution.
+sigma_clip      3.5                                         # Float or None. If float, the sigma at which to mask outliers in sigma clipping.
+normalize       True                                        # Bool. If True, normalizes curves by out-of-transit/eclipse flux.
+
+# ENDPARSE
