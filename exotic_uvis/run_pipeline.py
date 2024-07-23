@@ -53,12 +53,12 @@ def run_pipeline(config_files_dir):
 
 
     # read data
-    obs = read_data(stage1_dict['data_dir'], stage1_dict['output_dir'], verbose = stage1_dict['verbose'])
+    obs = read_data(stage1_dict['data_dir'], verbose = stage1_dict['verbose'])
 
 
     # temporal removal fixed iterations
     if stage1_dict['do_fixed_iter']:
-        fixed_iteration_rejection(obs, stage1_dict['sigmas'], stage1_dict['replacement'])
+        fixed_iteration_rejection(obs, stage1_dict['fixed_sigmas'], stage1_dict['replacement'])
     
     # temporal removal free iterations
     if stage1_dict['do_free_iter']:
