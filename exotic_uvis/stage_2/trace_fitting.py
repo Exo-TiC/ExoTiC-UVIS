@@ -2,8 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
 from scipy.stats import norm
+from scipy.interpolate import interp1d
+from scipy.misc import derivative
 from scipy import optimize
 from photutils.centroids import centroid_com, centroid_2dg
+import grismconf
 from tqdm import tqdm
 from astropy.modeling.models import Moffat1D
 from scipy.special import voigt_profile
@@ -24,9 +27,72 @@ def get_calibration_trace():
 
     return 0
 
+def config_order_to_parameters(order, config):
+    if order == "+1":
+        dxs = (-550, 0)
+    
+    if order == "-1":
+        dxs = (225, 775)
+    
+    if order == "+2":
+        dxs = (-700, -150) # is this right?
 
+    if order == "-2":
+        dxs = (225+150, 225+150+550) # is this right?
+    
+    if order == "+3":
+        dxs = (-950, -300) # is this right?
+    
+    if order == "-3":
+        dxs = (625, 625+550) # is this right?
 
+    if order == "+4":
+        dxs = (-1300, -1300+550) # is this right?
+    
+    if order == "-4":
+        dxs = (875, 875+550) # is this right?
 
+    if config == "aXe":
+        letters = {"+1":"A",
+                   "-1":"B",
+                   "+2":"C",
+                   "-2":"D",
+                   "+3":"E",
+                   "-3":"F",
+                   "+4":"G",
+                   "-4":"H"}
+
+    if config == "GRISM":
+        letters = {"+1":"+1",
+                   "-1":"-1",
+                   "+2":"+2",
+                   "-2":"-2",
+                   "+3":"+3",
+                   "-3":"-3",
+                   "+4":"+4",
+                   "-4":"-4"}
+    
+    return dxs, letters
+
+def configure_with_GRISM(letter,x0,y0,dxs,path_to_config):
+    C = grismconf.Config(path_to_config)
+    # Need to get dxs to find ts and then dys.
+    dxs = np.arange(dxs[0],dxs[1],1)
+
+    # Compute the t values corresponding to the exact offsets
+    ts = C.INVDISPX(letter,x0,y0,dxs)
+    # Compute the dys values for the same pixels
+    dys = C.DISPY(letter,x0,y0,ts)
+    # Compute wavelength of each of the pixels
+    wavs = C.DISPL(letter,x0,y0,ts)
+    
+    xs = [i+x0 for i in dxs]
+    ys = [i+y0 for i in dys]
+
+    s = C.SENS[letter]
+    fs = s.f
+
+    return xs, ys, wavs, fs
 
 def Gauss1D(x, H, A, x0, sigma):
 
