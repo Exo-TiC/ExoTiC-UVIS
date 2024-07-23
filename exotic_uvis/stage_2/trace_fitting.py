@@ -15,7 +15,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal):
     :param source_pos: tuple of float. The x, y position of the source in the unembedded direct image.
     :param refine_calibration: bool. If True, uses Gaussian fitting to improve the location of the trace.
     :param path_to_cal: str. Path to the GRISMCONF calibration file used to locate the trace.
-    :return:
+    :return: the trace x and y positions for each image, with wavelength solutions and optional sensitivity corrections.
     '''
     # Use the order and calibration software information to get the x range.
     dxs = get_x_range(order)
