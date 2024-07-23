@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import xarray as xr
+import os
 
 #define plotting parameters
 plt.rc('font', family='serif')
@@ -12,7 +13,7 @@ plt.rc('legend',**{'fontsize':11})
 
 
 def plot_exposure(images, line_data = None, scatter_data = None, filename = None, extent = None,
-                title = None, min = -3, max = 4, mark_size = 30, show = True):
+                title = None, min = -3, max = 4, mark_size = 30, show = True, output_dir = None):
 
     """
     Function to plot an image given certain parameters 
@@ -44,12 +45,19 @@ def plot_exposure(images, line_data = None, scatter_data = None, filename = None
             plt.savefig(filename[i], bbox_inches = 'tight')
         
     if show:
-        plt.show()
+
+        plotsdir = os.path.join(output_dir, 'plots/')
+
+        if not os.path.exists(plotsdir):
+                os.makedirs(plotsdir)
+                
+        plt.savefig(os.path.join(plotsdir, 'test.png'))
+        #plt.show()
     
     return
 
 
-def plot_corners(images, corners):
+def plot_corners(images, corners, output_dir = None):
 
     """
     
@@ -61,12 +69,10 @@ def plot_corners(images, corners):
     ax = plt.gca()
 
     for corner in corners:
-
         rect = patches.Rectangle((corner[2], corner[0]), corner[3] - corner[2], 
                                  corner[1] - corner[0], linewidth=1, edgecolor='r', facecolor='none')
 
         ax.add_patch(rect)
-    
     plt.show()
 
     return 

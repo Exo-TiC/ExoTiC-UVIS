@@ -11,6 +11,7 @@ from exotic_uvis.stage_0 import get_files_from_mast
 from exotic_uvis.stage_0 import locate_target
 
 from exotic_uvis.stage_1 import read_data
+from exotic_uvis.stage_1 import save_data
 from exotic_uvis.stage_1 import corner_bkg_subtraction
 from exotic_uvis.stage_1 import full_frame_bckg_subtraction
 from exotic_uvis.stage_1 import track_bkgstars
@@ -89,6 +90,10 @@ def run_pipeline(config_files_dir):
     if stage1_dict['do_displacements']:
         track_bkgstars(obs,  bkg_stars = stage1_dict['location'])
 
+    # save results
+    if stage1_dict['do_save']:
+        save_data(obs, stage1_dict['output_dir'])
+        
 
     # Run Stage 2
 

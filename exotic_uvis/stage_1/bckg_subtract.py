@@ -176,7 +176,7 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, fit = None, check_all =
     return bkg_val
 
 
-def corner_bkg_subtraction(obs, plot = False, check_all = False, fit = None, 
+def corner_bkg_subtraction(obs, plot = True, check_all = False, fit = None, 
                            bounds = None, hist_min = -60, hist_max = 60, hist_bins = 1000):
 
     """
