@@ -152,7 +152,7 @@ def quicklookup(data_dir, output_dir):
     #get_transit(exp_times, images)
 
     # create animation gif
-    create_gif(exp_times, images, total_flux, partial_flux, section, output_dir)
+    create_gif(exp_times, images, total_flux, partial_flux, section, output_dir, save_fig=True)
 
 
     return 0
