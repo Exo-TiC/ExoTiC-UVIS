@@ -1,0 +1,8 @@
+# Test items.
+Integer         5       # comment
+Float           4.2       # comment
+List            [1,2.5,"dragon"]       # comment
+String          'road taken'       # comment
+String2         "thorn in you"       # comment
+BoolF           False       # comment
+BoolT           True       # comment
