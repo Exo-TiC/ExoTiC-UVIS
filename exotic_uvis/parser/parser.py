@@ -9,7 +9,7 @@ def parse_config(path_to_config_file):
     :return: dict of instructions for run_pipeline to follow.
     '''
     # Open the dictionary.
-    config ={}
+    config = {}
 
     # Read out all lines.
     with open(path_to_config_file,mode='r') as f:
