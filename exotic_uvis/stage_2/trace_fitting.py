@@ -16,18 +16,8 @@ from exotic_uvis.plotting import plot_exposure
 
 
 
-
-
-def get_calibration_trace():
-
-
-
-
-
-
-    return 0
-
 def config_order_to_parameters(order, config):
+
     if order == "+1":
         dxs = (-550, 0)
     
@@ -74,8 +64,11 @@ def config_order_to_parameters(order, config):
     
     return dxs, letters
 
-def configure_with_GRISM(letter,x0,y0,dxs,path_to_config):
+
+def get_calibration_trace(letter,x0,y0,dxs,path_to_config):
+
     C = grismconf.Config(path_to_config)
+
     # Need to get dxs to find ts and then dys.
     dxs = np.arange(dxs[0],dxs[1],1)
 
@@ -94,6 +87,8 @@ def configure_with_GRISM(letter,x0,y0,dxs,path_to_config):
 
     return xs, ys, wavs, fs
 
+
+
 def Gauss1D(x, H, A, x0, sigma):
 
     """
@@ -103,9 +98,6 @@ def Gauss1D(x, H, A, x0, sigma):
     """
 
     return H + A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
-
-
-
 
 
 def fit_trace(obs, trace_x, trace_y, 
