@@ -1,0 +1,61 @@
+# ExoTiC-UVIS config file for launching Stage 1: Reduction
+
+# Step 1: Read in the data
+data_dir        './'                                        # Str. This is the path to the top-level directory containing the specimages/, directimages/, etc. folders with your data.
+verbose         2                                           # Int from 0 to 2. How often and how detailed you want the output log to be.
+output_dir      './'                                        # Str. This is the path where the output xarrays will be saved after all corrections are made.
+
+# Step 2: Reject cosmic rays with time iteration
+# Step 2a: Fixed iteration parameters
+do_fixed_iter   True                                        # Bool. Whether to use fixed iteration rejection to clean the timeseries.
+fixed_sigmas    [10,10]                                     # lst of float. The sigma to reject outliers at in each iteration. The length of the list is the number of iterations.
+replacement     None                                        # int or None. If int, replaces flagged outliers with the median of values within +/-replacement indices of the outlier. If None, uses the median of the whole timeseries instead.
+
+# Step 2b: Free iteration parameters
+do_free_iter   True                                         # Bool. Whether to use free iteration rejection to clean the timeseries.
+free_sigma      3.5                                         # float. The sigma to reject outliers at in each iteration. Iterates over each pixel's timeseries until no outliers at this sigma level are found.
+
+# Step 2c: Sigma clip parameters
+do_sigma_clip   True                                        # Bool. Whether to use sigma clipping rejection to clean the timeseries.
+# WIP!
+
+# Step 3: Reject hot pixels with spatial detection
+# Step 3a: Laplacian Edge Detection parameters
+do_led          True                                        # Bool. Whether to use Laplacian Edge Detection rejection to clean the frames.
+led_threshold   10                                          # Float. The threshold parameter at which to kick outliers in LED. The lower the number, the more values will be replaced.
+led_factor      2                                           # Int. The subsampling factor. Minimum value 2. Higher values increase computation time but aren't expected to yield much improvement in rejection.
+led_n           2                                           # Int. Number of times to do LED on each frame.
+fine_structure  True                                        # Bool. Whether to build a fine structure model, which can protect narrow bright features like traces from LED.
+contrast_factor 5                                           # Float. If fine_structure is True, acts as the led_threshold for the fine structure step.
+
+# Step 3b: Spatial smoothing parameters
+do_smooth       True                                        # Bool. Whether to use spatial smoothing rejection to clean the frames.
+# WIP
+
+# Step 4: Background subtraction
+# Step 4a: mode or median background subtraction
+do_mode_med     True                                        # Bool. Whether to subtract the background using the frame or frame sub-section mode or median.
+# WIP
+
+# Step 4c: Column-by-column background subtraction
+do_column       True                                        # Bool. Whether to subtract the background using a column-by-column method.
+# WIP
+
+# Step 4c: Pagul+ 2023 background subtraction
+do_Pagul23      True                                        # Bool. Whether to subtract the background using the scaled Pagul+ 2023 G280 sky image.
+path_to_Pagul23 './'                                        # Str. The absolute path to where the Pagul+ 2023 G280 sky image is stored.
+mask_parameter  0.001                                       # Float. How strong the trace masking should be. Values of 0.001 or less recommended.
+median_columns  True                                        # Bool. If True, takes the median value of each column in the Pagul+ 2023 sky image as the background. As the Pagul+ 2023 image is undersampled, this helps to suppress fluctuations in the image.
+
+# Step 5: Displacement estimation
+location        None                                        # lst of floats. If you ran Stage 0, this is the "location" parameter written out by Step 3: Locating the target star.
+
+# Step 5a: Source center-of-mass tracking
+do_0thCOM       True                                        # Bool. Whether to track frame displacements by centroiding the 0th order.
+# WIP
+
+# Step 5b: Background star tracking
+do_bkg_stars    True                                        # Bool. Whether to track frame displacements by centroiding background stars.
+# WIP
+
+# ENDPARSE
