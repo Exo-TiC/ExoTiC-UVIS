@@ -1,4 +1,5 @@
 import shlex
+import numpy as np
 
 def parse_config(path_to_config_file):
     '''
