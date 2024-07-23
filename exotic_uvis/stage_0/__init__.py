@@ -2,7 +2,7 @@ __all__ = [
     "quicklookup",
     "get_files_from_mast",
     "collect_and_move_files",
-    "locate_target"
+    "locate_target",
 ]
 
 from exotic_uvis.stage_0.quicklookup import quicklookup
