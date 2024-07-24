@@ -54,7 +54,10 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             quicklookup(stage0_dict['toplevel_dir'], stage0_dict['gif_dir'])
 
         # write config
-        write_config(stage0_dict, 0, os.path.join(stage0_dict['toplevel_dir'],"stage0"))
+        config_dir = os.path.join(stage0_dict['toplevel_dir'],"stage0")
+        if not os.path.exists(config_dir):
+            os.makedirs(config_dir)
+        write_config(stage0_dict, 0, config_dir)
 
 
     ####### Run Stage 1 #######
@@ -119,7 +122,10 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             save_data(obs, run_dir)
 
         # write config
-        write_config(stage1_dict, 1, os.path.join(run_dir,"stage1"))
+        config_dir = os.path.join(run_dir,"stage1")
+        if not os.path.exists(config_dir):
+            os.makedirs(config_dir)
+        write_config(stage1_dict, 1, config_dir)
         
 
     ####### Run Stage 2 #######

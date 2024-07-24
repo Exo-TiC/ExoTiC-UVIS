@@ -21,7 +21,7 @@ def locate_target(direct_image):
         d = fits_file[1].data
         plt.imshow(d, vmin=0, vmax=100, origin='lower', cmap='binary_r')
         plt.title("Direct image for target finding")
-        plt.show()
+        plt.show(block=True)
         plt.close()
         while not satisfied:
             mean, median, std = sigma_clipped_stats(d, sigma=3.0) 
@@ -56,7 +56,7 @@ def locate_target(direct_image):
             plt.xlim(int(xs-70), int(xs+70))
             plt.ylim(int(ys-70), int(ys+70))
 
-            plt.show()
+            plt.show(block=True)
             plt.close()
 
             check = int(input("Enter 0 to keep this source, 1 to search again,\n2 to update the threshold/search radius and then search again, or 3 to select manually: "))
@@ -75,7 +75,7 @@ def locate_target(direct_image):
                 plt.scatter(xs, ys, s=8, marker="x", color="red")
                 plt.xlim(int(xs-70), int(xs+70))
                 plt.ylim(int(ys-70), int(ys+70))
-                plt.show()
+                plt.show(block=True)
                 plt.close()
                 check2 = int(input("Is this okay (0) or do you want to search again (1)?: "))
                 if check2 == 0:

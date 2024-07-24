@@ -9,9 +9,6 @@ def write_config(config_dict, stage, outdir):
     :param outdir: str. The path to where the config file is to be stored.
     :return: config .hustle file written to the outdir.
     '''
-    # Unpack all keywords.
-    keys = list(config_dict.keys())
-
     # Get correct print info.
     if stage == 0:
         header, subsection_headers, subsection_keys, subsection_comments = Stage0_info()
@@ -19,26 +16,31 @@ def write_config(config_dict, stage, outdir):
         header, subsection_headers, subsection_keys, subsection_comments = Stage1_info()
     
     # And write.
-    with open(os.path.join(outdir,"stage_{}_exoticUVIS.hustle".format(stage))) as f:
+    with open(os.path.join(outdir,"stage_{}_exoticUVIS.hustle".format(stage)), mode='w') as f:
+        print("Writing config file for Stage {}...".format(stage))
         # First, write the overall file header.
         f.write(header)
         f.write('\n\n')
 
         # Then, start parsing each step out (Setup, Step 1, Step 2, etc.).
         subsections = list(subsection_keys.keys())
-        for i, subsection in enumerate(subsection):
+        for i, subsection in enumerate(subsections):
             # Write the step name.
             f.write(subsection_headers[i])
             f.write('\n')
+
             # For every keyword and comment in that step...
-            for keywords in subsection_keys[subsection]:
+            for j, keyword in enumerate(subsection_keys[subsection]):
                 # Write the keyword, its value, and the comment.
-                for keyword in keywords:
-                    f.write("{} {:-30} {}\n".format(keyword, config_dict[keyword], subsection_comments[keyword]))
+                value = config_dict[keyword]
+                if keyword == 'location':
+                    value = '({},{})'.format(value[0],value[1]) # eliminate the space for parsing
+                f.write("{}    {}    {}\n".format(keyword, value, subsection_comments[subsection][j]))
             # A space between this step and the next step.
             f.write('\n')
         # Declare the file over.
         f.write("# ENDPARSE")
+    print("Config file written.")
             
 
 def Stage0_info():
@@ -103,7 +105,7 @@ def Stage1_info():
                           "# Step 6: Save outputs",]
     
     subsection_keys = {"Setup":["toplevel_dir",
-                                "run_name"],
+                                "run_name",],
                        "Step 1":["verbose",],
                        "Step 2a":["do_fixed_iter",
                                  "fixed_sigmas",
@@ -118,7 +120,7 @@ def Stage1_info():
                                   "fine_structure",
                                   "contrast_factor",],
                        "Step 3b":["do_smooth",],
-                       "Step_4a":["do_full_frame",
+                       "Step 4a":["do_full_frame",
                                   "full_value",],
                        "Step 4b":["do_corners",
                                   "box_width",

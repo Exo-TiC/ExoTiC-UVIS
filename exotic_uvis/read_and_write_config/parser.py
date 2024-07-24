@@ -24,7 +24,12 @@ def parse_config(path_to_config_file):
         if line[0] == '#':
             continue
         key = line[0]
+        # Param may have spaces, so we need to keep going with it.
         param = line[1]
+        i = 2
+        while "#" not in line[i]:
+            param = ''.join([param,line[i]])
+            i += 1
         try:
             param = eval(param)
         except:
