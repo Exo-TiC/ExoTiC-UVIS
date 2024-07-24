@@ -60,10 +60,10 @@ def run_pipeline(config_files_dir, stages=(0,1,2,3,4,5)):
         # read data
         obs = read_data(stage1_dict['toplevel_dir'], verbose = stage1_dict['verbose'])
         # create output directory
-        output_dir_S1 = os.path.join(stage1_dict['toplevel_dir'],'outputs')
-        run_dir_S1 = os.path.join(output_dir_S1,stage1_dict['run_name'])
-        if not os.path.exists(run_dir_S1):
-            os.makedirs(run_dir_S1)
+        output_dir = os.path.join(stage1_dict['toplevel_dir'],'outputs')
+        run_dir = os.path.join(output_dir,stage1_dict['run_name'])
+        if not os.path.exists(run_dir):
+            os.makedirs(run_dir)
 
 
         # temporal removal fixed iterations
@@ -95,13 +95,17 @@ def run_pipeline(config_files_dir, stages=(0,1,2,3,4,5)):
             corner_bkg_subtraction(obs, bounds=stage1_dict['bounds'], 
                                 fit=stage1_dict['fit'])
 
-        # displacements
-        if stage1_dict['do_displacements']:
+        # displacements by 0th order tracking
+        if stage1_dict['do_0thtracking']:
+            track_bkgstars(obs,  bkg_stars = stage1_dict['location'])
+
+        # displacements by background stars
+        if stage1_dict['do_bkg_stars']:
             track_bkgstars(obs,  bkg_stars = stage1_dict['location'])
 
         # save results
         if stage1_dict['do_save']:
-            save_data(obs, os.path.join(run_dir_S1,'stage_1'))
+            save_data(obs, run_dir)
         
 
     ####### Run Stage 2 #######
