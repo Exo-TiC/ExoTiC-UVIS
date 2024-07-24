@@ -36,11 +36,17 @@ do_smooth       True                                        # Bool. Whether to u
 do_mode_med     True                                        # Bool. Whether to subtract the background using the frame or frame sub-section mode or median.
 # WIP
 
+# Step 4bL mode or median background subtraction
+do_corners      True                                        # Bool. Whether to subtract the background using hte frame or frame sub-section mode or median
+box_width       400                                         # Int. The width of the box to use for the background calculation
+box_height      150                                         # Int. The height of the box to use for the background calculation
+mode            'Gaussian'                                  # Str. The value to extract from the histogram
+
 # Step 4c: Column-by-column background subtraction
 do_column       True                                        # Bool. Whether to subtract the background using a column-by-column method.
 # WIP
 
-# Step 4c: Pagul+ 2023 background subtraction
+# Step 4d: Pagul+ 2023 background subtraction
 do_Pagul23      True                                        # Bool. Whether to subtract the background using the scaled Pagul+ 2023 G280 sky image.
 path_to_Pagul23 './'                                        # Str. The absolute path to where the Pagul+ 2023 G280 sky image is stored.
 mask_parameter  0.001                                       # Float. How strong the trace masking should be. Values of 0.001 or less recommended.
@@ -58,6 +64,7 @@ do_bkg_stars    True                                        # Bool. Whether to t
 # WIP
 
 # Step 6: Save outputs
+do_save         True                                        # Bool. Whether to save the stage 1 results in the indicated directory
 output_dir      './'                                        # Str. This is the path where the output xarrays will be saved after all corrections are made.
 
 # ENDPARSE

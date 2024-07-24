@@ -19,6 +19,9 @@ from exotic_uvis.stage_1 import free_iteration_rejection
 from exotic_uvis.stage_1 import fixed_iteration_rejection
 from exotic_uvis.stage_1 import laplacian_edge_detection
 
+from exotic_uvis.stage_2 import load_data 
+#from exotic_uvis.stage_2 import save_data
+
 
 
 
@@ -76,7 +79,7 @@ def run_pipeline(config_files_dir):
 
 
     # background subtraction
-    if stage1_dict['do_full_frame']:
+    if stage1_dict['do_mode_med']:
         full_frame_bckg_subtraction(obs, 
                                     bin_number = stage1_dict['bin_number'], 
                                     fit=stage1_dict['fit'], 
@@ -87,7 +90,7 @@ def run_pipeline(config_files_dir):
                                fit=stage1_dict['fit'])
 
     # displacements
-    if stage1_dict['do_displacements']:
+    if stage1_dict['do_bkg_stars']:
         track_bkgstars(obs,  bkg_stars = stage1_dict['location'])
 
     # save results
@@ -95,6 +98,13 @@ def run_pipeline(config_files_dir):
         save_data(obs, stage1_dict['output_dir'])
         
 
-    # Run Stage 2
+    ####### Run Stage 2 ########
+    stage2_config = glob.glob(os.path.join(config_files_dir,"stage_2*"))[0]
+    stage2_dict = parse_config(stage2_config)
+
+
+    # read data
+    obs = load_data(stage2_dict['data_dir'])
+
 
 
