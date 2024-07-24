@@ -77,4 +77,3 @@ def plot_corners(images, corners, output_dir = None):
     plt.show()
 
     return 
-

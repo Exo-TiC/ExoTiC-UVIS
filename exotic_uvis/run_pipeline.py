@@ -62,9 +62,9 @@ def run_pipeline(config_files_dir, stages=(0,1,2,3,4,5)):
         stage1_config = glob.glob(os.path.join(config_files_dir,"stage_1*"))[0]
         stage1_dict = parse_config(stage1_config)
 
-
         # read data
         obs = read_data(stage1_dict['toplevel_dir'], verbose = stage1_dict['verbose'])
+        
         # create output directory
         output_dir = os.path.join(stage1_dict['toplevel_dir'],'outputs')
         run_dir = os.path.join(output_dir,stage1_dict['run_name'])
