@@ -5,7 +5,7 @@ from scipy.stats import norm
 from scipy import optimize
 from photutils.centroids import centroid_com, centroid_2dg, centroid_quadratic
 from exotic_uvis.plotting import plot_exposure
-
+from exotic_uvis.plotting import plot_bkg_stars
 
 def track_bkgstars(obs, bkg_stars, window = 15, plot = False, check_all = False):
 
@@ -59,21 +59,7 @@ def track_bkgstars(obs, bkg_stars, window = 15, plot = False, check_all = False)
     # if true, plot the calculated displacements
     if plot:
         mean_loc = list(np.mean(abs_pos, axis = 1).transpose())
-
-        plot_exposure([image], scatter_data = mean_loc, title = 'Location of background stars')
-      
-        plt.figure(figsize = (10, 7))
-        plt.plot(obs.exp_time.data, mean_pos[:, 0], '-o')
-        plt.plot(obs.exp_time.data, np.transpose(stars_pos[:, :, 0]), '-o', alpha = 0.5)
-        plt.xlabel('Exposure times')
-        plt.ylabel('X pixel displacement')
-
-        plt.figure(figsize = (10, 7))
-        plt.plot(obs.exp_time.data, mean_pos[:, 1], '-o')
-        plt.plot(obs.exp_time.data, np.transpose(stars_pos[:, :, 1]), '-o', alpha = 0.5)
-        plt.xlabel('Exposure times')
-        plt.ylabel('Y pixel displacement')
-        plt.show()
+        plot_bkg_stars(image, obs.exp_time.data, mean_loc, mean_pos, stars_pos)
 
     return pos
 
