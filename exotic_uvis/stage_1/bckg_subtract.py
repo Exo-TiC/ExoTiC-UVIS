@@ -5,7 +5,7 @@ import numpy as np
 from scipy.optimize import least_squares
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
-from exotic_uvis.plotting import plot_exposure, plot_corners
+from exotic_uvis.plotting import plot_exposure, plot_corners, plot_bkgvals
 
 
 def full_frame_bckg_subtraction(obs, bin_number=1e5, fit='coarse', value='mode'):
@@ -176,14 +176,17 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, fit = None, check_all =
     return bkg_val
 
 
-def corner_bkg_subtraction(obs, plot = True, check_all = False, fit = None, 
-                           bounds = None, hist_min = -60, hist_max = 60, hist_bins = 1000):
+def corner_bkg_subtraction(obs, bounds = None, plot = True, check_all = False, fit = None, 
+                            hist_min = -60, hist_max = 60, hist_bins = 1000,
+                            verbose_plots = 0, output_dir = None):
 
     """
 
     Function to remove the background flux
 
     """
+
+    print(bounds)
 
     # copy images
     images = obs.images.data.copy() 
@@ -221,18 +224,12 @@ def corner_bkg_subtraction(obs, plot = True, check_all = False, fit = None,
     obs['bkg_vals'] = xr.DataArray(data = bkg_vals, dims = ['exp_time'])
 
     # if true, plot calculated background values
-    if plot:
+    if verbose_plots > 0:
 
-        plot_corners([images[0]], bounds)
-
-        plt.figure(figsize = (10, 7))
-        plt.plot(range(obs.dims['exp_time']), bkg_vals, '-o')
-        plt.xlabel('Exposure')
-        plt.ylabel('Background Counts')
-        plt.title('Image background per exposure')
-        plt.show()
-
-        plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example')
+        #plot_corners([images[0]], bounds, output_dir=output_dir)
+        plot_bkgvals(obs.exp_time.data, bkg_vals, output_dir=output_dir)
+        plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', stage=1,
+                      output_dir=output_dir, filename = ['before_bkg_subs', 'after_bkg_subs'])
 
     obs.images.data = images
 

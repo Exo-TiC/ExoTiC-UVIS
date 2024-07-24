@@ -111,7 +111,9 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         
         if stage1_dict['do_corners']:
             corner_bkg_subtraction(obs, bounds=stage1_dict['bounds'], 
-                                fit=stage1_dict['fit'])
+                                        fit=stage1_dict['value'],
+                                        verbose_plots=stage1_dict['verbose'],
+                                        output_dir=run_dir)
 
         # displacements by 0th order tracking
         if stage1_dict['do_0thtracking']:
@@ -121,7 +123,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         if stage1_dict['do_bkg_stars']:
             track_bkgstars(obs,  bkg_stars = stage1_dict['bkg_stars_loc'], 
                                  verbose_plots=stage1_dict['verbose'],
-                                 output_dir = run_dir)
+                                 output_dir=run_dir)
 
         # save results
         if stage1_dict['do_save']:
