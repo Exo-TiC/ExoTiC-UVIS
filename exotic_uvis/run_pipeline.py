@@ -15,17 +15,22 @@ from exotic_uvis.stage_1 import read_data
 from exotic_uvis.stage_1 import save_data
 from exotic_uvis.stage_1 import corner_bkg_subtraction
 from exotic_uvis.stage_1 import full_frame_bckg_subtraction
+from exotic_uvis.stage_1 import Pagul_bckg_subtraction
+from exotic_uvis.stage_1 import column_by_column_subtraction
 from exotic_uvis.stage_1 import track_bkgstars
 from exotic_uvis.stage_1 import free_iteration_rejection
 from exotic_uvis.stage_1 import fixed_iteration_rejection
 from exotic_uvis.stage_1 import laplacian_edge_detection
-
-
-
+from exotic_uvis.stage_1 import spatial_smoothing
 
 def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
+    '''
+    Wrapper for all Stages of the ExoTiC-UVIS pipeline.
 
-
+    :param config_files_dir: str. The path to the folder where all of your ExoTiC-UVIS .hustle files are stored.
+    :param stages: tuple of ints from 0 to 5. Which stages you want to execute.
+    :return: output products of ExoTiC-UVIS. Locations and details depend on your .hustle files.
+    '''
     ######## Run Stage 0 ########
     if 0 in stages:
         stage0_config = glob.glob(os.path.join(config_files_dir,"stage_0*"))[0]
@@ -33,15 +38,19 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
         # run data download
         if stage0_dict['do_download']:
-            get_files_from_mast(stage0_dict['programID'], stage0_dict['target_name'], 
-                                stage0_dict['visit_number'], stage0_dict['toplevel_dir'], extensions=stage0_dict['extensions'])
+            get_files_from_mast(stage0_dict['programID'],
+                                stage0_dict['target_name'], 
+                                stage0_dict['visit_number'],
+                                stage0_dict['toplevel_dir'],
+                                extensions=stage0_dict['extensions'])
     
         # collect and move files
         if stage0_dict['do_organize']:
             if not stage0_dict['filesfrom_dir']:
                 stage0_dict['filesfrom_dir'] = stage0_dict['toplevel_dir'] # if the data weren't pre-downloaded, then they are here
             collect_and_move_files(stage0_dict['visit_number'], 
-                                stage0_dict['filesfrom_dir'], stage0_dict['toplevel_dir'])
+                                   stage0_dict['filesfrom_dir'],
+                                   stage0_dict['toplevel_dir'])
         
         # locate target in direct image
         if stage0_dict['do_locate']:
@@ -51,7 +60,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
         # create quicklook gif
         if stage0_dict['do_quicklook']:
-            quicklookup(stage0_dict['toplevel_dir'], stage0_dict['gif_dir'])
+            quicklookup(stage0_dict['toplevel_dir'],
+                        stage0_dict['gif_dir'])
 
         # write config
         config_dir = os.path.join(stage0_dict['toplevel_dir'],"stage0")
@@ -85,35 +95,54 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
         # temporal removal fixed iterations
         if stage1_dict['do_fixed_iter']:
-            fixed_iteration_rejection(obs, stage1_dict['fixed_sigmas'], stage1_dict['replacement'])
+            obs = fixed_iteration_rejection(obs,
+                                            stage1_dict['fixed_sigmas'],
+                                            stage1_dict['replacement'])
         
         # temporal removal free iterations
         if stage1_dict['do_free_iter']:
-            free_iteration_rejection(obs, stage1_dict['free_sigma'], 
-                                     verbose_plots = stage1_dict['verbose'], output_dir = run_dir)
+            obs = free_iteration_rejection(obs,
+                                           stage1_dict['free_sigma'], 
+                                           verbose_plots = stage1_dict['verbose'],
+                                           output_dir = run_dir)
 
-        # spatial removal
+        # spatial removal by led
         if stage1_dict['do_led']:
-            laplacian_edge_detection(obs, 
-                                    sigma = stage1_dict['led_threshold'], 
-                                    factor = stage1_dict['led_factor'], 
-                                    n = stage1_dict['led_n'], 
-                                    build_fine_structure = stage1_dict['fine_structure'], 
-                                    contrast_factor = stage1_dict['contrast_factor'])
-
+            obs = laplacian_edge_detection(obs, 
+                                           sigma = stage1_dict['led_threshold'], 
+                                           factor = stage1_dict['led_factor'], 
+                                           n = stage1_dict['led_n'], 
+                                           build_fine_structure = stage1_dict['fine_structure'], 
+                                           contrast_factor = stage1_dict['contrast_factor'])
+            
+        # spatial removal by smoothing
+        if stage1_dict["do_smooth"]:
+            obs = spatial_smoothing(obs,
+                                    sigma=10) # WIP!
 
         # background subtraction
         if stage1_dict['do_full_frame']:
-            full_frame_bckg_subtraction(obs, 
-                                        bin_number = stage1_dict['bin_number'], 
-                                        fit=stage1_dict['fit'], 
-                                        value=stage1_dict['value'])
+            obs = full_frame_bckg_subtraction(obs, 
+                                              bin_number = stage1_dict['bin_number'], 
+                                              fit=stage1_dict['fit'], 
+                                              value=stage1_dict['value'])
         
         if stage1_dict['do_corners']:
-            corner_bkg_subtraction(obs, bounds=stage1_dict['bounds'], 
-                                        fit=stage1_dict['value'],
-                                        verbose_plots=stage1_dict['verbose'],
-                                        output_dir=run_dir)
+            obs = corner_bkg_subtraction(obs, bounds=stage1_dict['bounds'], 
+                                         fit=stage1_dict['value'],
+                                         verbose_plots=stage1_dict['verbose'],
+                                         output_dir=run_dir)
+            
+        if stage1_dict['do_Pagul23']:
+            obs = Pagul_bckg_subtraction(obs,
+                                         Pagul_path=stage1_dict['path_to_Pagul23'],
+                                         masking_parameter=stage1_dict['mask_parameter'],
+                                         median_on_columns=stage1_dict['median_columns'])
+            
+        if stage1_dict['do_column']:
+            obs = column_by_column_subtraction(obs,
+                                               rows=stage1_dict['rows'],
+                                               sigma=stage1_dict['col_sigma'])
 
         # displacements by 0th order tracking
         if stage1_dict['do_0thtracking']:

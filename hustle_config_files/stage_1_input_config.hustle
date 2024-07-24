@@ -48,6 +48,8 @@ corners_value   'Gaussian'                                  # Str. The value to 
 
 # Step 4c: Column-by-column background subtraction
 do_column       True                                        # Bool. Whether to subtract the background using a column-by-column method.
+rows            [i for i in range(10)]                      # lst of int. The indices defining the rows used as background.
+col_sigma       3                                           # float. How aggressively to mask outliers in the background region.
 # WIP
 
 # Step 4d: Pagul+ 2023 background subtraction

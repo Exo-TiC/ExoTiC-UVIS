@@ -1,6 +1,12 @@
 import numpy as np
 from scipy.ndimage import median_filter
 
+def spatial_smoothing(obs, sigma=10):
+    '''
+    For Carlos.
+    '''
+    return obs
+
 def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=False, contrast_factor=5):
     '''
     Convolves a Laplacian kernel with the obs.images to replace spatial outliers with

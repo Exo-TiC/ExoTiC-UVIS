@@ -4,6 +4,7 @@ from astropy.io import fits
 import numpy as np
 from scipy.optimize import least_squares
 from scipy.optimize import curve_fit
+from scipy.signal import medfilt2d
 import matplotlib.pyplot as plt
 from exotic_uvis.plotting import plot_exposure, plot_corners, plot_bkgvals
 
@@ -36,7 +37,6 @@ def full_frame_bckg_subtraction(obs, bin_number=1e5, fit='coarse', value='mode')
 
         # If you want the median, take it here.
         if value == 'median':
-            print('did median')
             bckg = np.median(finite)
             bckgs.append(bckg)
         
@@ -233,4 +233,37 @@ def corner_bkg_subtraction(obs, bounds = None, plot = True, check_all = False, f
 
     obs.images.data = images
 
-    return 0
+    return obs
+
+def column_by_column_subtraction(obs, rows=[i for i in range(10)], sigma=3):
+    '''
+    Perform 1/f or column-by-column subtraction on each frame.
+
+    :param obs: xarray. Its obs.images DataSet contains the images.
+    :param rows: lst of int. The indices defining which rows are the background rows.
+    :param sigma: float. How aggressively to remove outliers from the background region.
+    :return: obs that is background-subtracted through 1/f methods.
+    '''
+    # Iterate on frames.
+    for k in tqdm(range(obs.images.shape[0]), desc = 'Removing background... Progress:'):
+        # Get data.
+        d = obs.images[k].values
+
+        # Define background region.
+        bckg_region = d[rows,:]
+
+        # Smooth outliers.
+        smooth_bckg = medfilt2d(bckg_region, kernel_size=3)
+        std_bckg = np.std(smooth_bckg)
+        bckg_region = np.where(np.abs(smooth_bckg - bckg_region) > sigma*std_bckg, smooth_bckg, bckg_region)
+
+        # Median normalize on columns and extend to full array.
+        bckg_region = np.array([np.median(bckg_region,axis=0),]*np.shape(d)[0])
+
+        # Subtract.
+        d -= bckg_region
+
+        # Replace the obs.image with the corrected frame.
+        obs.images[k] = obs.images[k].where(obs.images[k].values == d, d)
+    print("All frames sky-subtracted by column-by-column method method.")
+    return obs
