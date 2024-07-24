@@ -66,7 +66,7 @@ def run_pipeline(config_files_dir):
     
     # temporal removal free iterations
     if stage1_dict['do_free_iter']:
-        free_iteration_rejection(obs, stage1_dict['free_sigma'])
+        free_iteration_rejection(obs, stage1_dict['free_sigma'], output_dir = stage1_dict['output_dir'])
 
     # spatial removal
     if stage1_dict['do_led']:
