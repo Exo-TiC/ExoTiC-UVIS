@@ -58,22 +58,3 @@ def plot_exposure(images, line_data = None, scatter_data = None,
     return
 
 
-def plot_corners(images, corners, output_dir = None):
-
-    """
-    
-    Function to plot exposure with rectangles to indicate the corners used for background subtraction
-    
-    """
-
-    plot_exposure(images, show = False)
-    ax = plt.gca()
-
-    for corner in corners:
-        rect = patches.Rectangle((corner[2], corner[0]), corner[3] - corner[2], 
-                                 corner[1] - corner[0], linewidth=1, edgecolor='r', facecolor='none')
-
-        ax.add_patch(rect)
-    plt.show()
-
-    return 
