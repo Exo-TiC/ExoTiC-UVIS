@@ -65,6 +65,7 @@ do_0thtracking  True                                        # Bool. Whether to t
 
 # Step 5b: Background star tracking
 do_bkg_stars    True                                        # Bool. Whether to track frame displacements by centroiding background stars.
+bkg_stars_loc   [[0, 0], [0, 0]]                            # Lst of lst of float. Every list should indicate the estimated location of every background star
 # WIP
 
 # Step 6: Save outputs

@@ -89,7 +89,7 @@ def array1D_clip(array, threshold = 3.5, mode = 'median'):
     return array, ~mask
 
 
-def free_iteration_rejection(obs, threshold = 3.5, plot = False, check_all = False):
+def free_iteration_rejection(obs, threshold = 3.5, plot = True, check_all = False, output_dir = None):
 
     """
 
@@ -114,8 +114,13 @@ def free_iteration_rejection(obs, threshold = 3.5, plot = False, check_all = Fal
     # if true, plot one exposure and draw location of all detected cosmic rays in all exposures
     if plot:
         thits, xhits, yhits = np.where(hit_map == 1)
-        plot_exposure([obs.images.data[0], images[0]], min = 0, title = 'Temporal Bad Pixel removal Example')
-        plot_exposure([obs.images.data[0]], scatter_data=[yhits, xhits], min = 0, title = 'Location of corrected pixels', mark_size = 1)
+        plot_exposure([obs.images.data[0], images[0]], min = 0, 
+                      title = 'Temporal Bad Pixel removal Example', stage=1, output_dir=output_dir,
+                      filename = ['Before_CR_correction', 'After_CR_correction'])
+
+        plot_exposure([obs.images.data[0]], scatter_data=[yhits, xhits], min = 0, 
+                      title = 'Location of corrected pixels', mark_size = 1, stage=1, 
+                      output_dir=output_dir, filename = ['CR_location'])
 
     # if true, check each exposure separately
     if check_all:
