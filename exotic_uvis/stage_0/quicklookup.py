@@ -134,7 +134,12 @@ def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir,
 
     # save animation
     if save_fig:
-        animation.save(os.path.join(output_dir, 'quicklookup.gif'), writer = 'ffmpeg', fps = 10)
+        stage0dir = os.path.join(output_dir, 'stage0/')
+
+        if not os.path.exists(stage0dir):
+                os.makedirs(stage0dir)
+
+        animation.save(os.path.join(stage0dir, 'quicklookup.gif'), writer = 'ffmpeg', fps = 10)
 
     return 0
 
