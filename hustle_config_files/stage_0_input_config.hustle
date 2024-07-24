@@ -21,6 +21,6 @@ do_locate       True                                        # Bool. Whether to p
 
 # Step 4: Quality quicklook
 do_quicklook    True                                        # Bool. Whether to perform this step.
-gif_dir          ./'                                        # str. Where to save the quicklook gif to.
+gif_dir         './'                                        # str. Where to save the quicklook gif to.
 
 # ENDPARS

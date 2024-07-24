@@ -35,15 +35,16 @@ do_smooth       True                                        # Bool. Whether to u
 # WIP
 
 # Step 4: Background subtraction
-# Step 4a: mode or median background subtraction
-do_mode_med     True                                        # Bool. Whether to subtract the background using the frame or frame sub-section mode or median.
+# Step 4a: full frame mode or median background subtraction
+do_full_frame   True                                        # Bool. Whether to subtract the background using the full frame mode or median.
+value           'Gaussian'                                  # Str. The value to extract from the histogram. Options are 'coarse', 'Gaussian', or 'median'.
 # WIP
 
-# Step 4bL mode or median background subtraction
-do_corners      True                                        # Bool. Whether to subtract the background using hte frame or frame sub-section mode or median
-box_width       400                                         # Int. The width of the box to use for the background calculation
-box_height      150                                         # Int. The height of the box to use for the background calculation
-mode            'Gaussian'                                  # Str. The value to extract from the histogram
+# Step 4b: corners mode or median background subtraction
+do_corners      True                                        # Bool. Whether to subtract the background using the frame corners mode or median.
+box_width       400                                         # Int. The width of the box to use for the background calculation.
+box_height      150                                         # Int. The height of the box to use for the background calculation.
+value           'Gaussian'                                  # Str. The value to extract from the histogram. Options are 'coarse', 'Gaussian', or 'median'.
 
 # Step 4c: Column-by-column background subtraction
 do_column       True                                        # Bool. Whether to subtract the background using a column-by-column method.
@@ -59,7 +60,7 @@ median_columns  True                                        # Bool. If True, tak
 location        None                                        # lst of floats. If you ran Stage 0, this is the "location" parameter written out by Step 3: Locating the target star.
 
 # Step 5a: Source center-of-mass tracking
-do_0thCOM       True                                        # Bool. Whether to track frame displacements by centroiding the 0th order.
+do_0thtracking  True                                        # Bool. Whether to track frame displacements by centroiding the 0th order.
 # WIP
 
 # Step 5b: Background star tracking
