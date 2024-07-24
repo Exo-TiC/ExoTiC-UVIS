@@ -7,7 +7,7 @@ setup(
     author='Abby Boehm and Carlos Gascon',
     url='https://github.com/Exo-TiC/ExoTiC-UVIS',
     license='MIT',
-    packages=['exotic_uvis','exotic_uvis.parser','exotic_uvis.plotting','exotic_uvis.stage_0','exotic_uvis.stage_1','exotic_uvis.stage_2'],
+    packages=['exotic_uvis','exotic_uvis.read_and_write_config','exotic_uvis.plotting','exotic_uvis.stage_0','exotic_uvis.stage_1','exotic_uvis.stage_2'],
     description='HST UVIS reduction pipeline',
     long_description="Pipeline for analysis of Hubble Space Telescope "
                      "WFC3-UVIS G280 spectroscopic observations.",
