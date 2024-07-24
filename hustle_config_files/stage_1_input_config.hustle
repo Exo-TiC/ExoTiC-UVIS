@@ -58,6 +58,7 @@ do_bkg_stars    True                                        # Bool. Whether to t
 # WIP
 
 # Step 6: Save outputs
+do_save         True                                        # Bool. If True, saves the output xarray to be used in Stage 2.
 output_dir      './'                                        # Str. This is the path where the output xarrays will be saved after all corrections are made.
 
 # ENDPARSE
