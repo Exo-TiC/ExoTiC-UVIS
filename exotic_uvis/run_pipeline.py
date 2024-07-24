@@ -62,8 +62,16 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
     ####### Run Stage 1 #######
     if 1 in stages:
+        # first read the location from the Stage 0 config
+        stage0_output_config = os.path.join(stage1_dict['toplevel_dir'],"stage0/stage_0_exoticUVIS.hustle")
+        stage0_output_dict = parse_config(stage0_output_config)
+
+        # read out the stage 1 config
         stage1_config = glob.glob(os.path.join(config_files_dir,"stage_1*"))[0]
         stage1_dict = parse_config(stage1_config)
+
+        # and grab the location of the source
+        stage1_dict["location"] = stage0_output_dict["location"]
 
         # read data
         obs = read_data(stage1_dict['toplevel_dir'], verbose = stage1_dict['verbose'])
