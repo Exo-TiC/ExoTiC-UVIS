@@ -1,13 +1,12 @@
 # ExoTiC-UVIS config file for launching Stage 0: Data Handling
 
 # Setup for Stage 0
-toplevel_dir    './files'                                   # Directory where you want your files to be stored after Stage 0 has run. This is where /specimages, /directimages, /orbitfiles, and /miscfiles will be stored.
+toplevel_dir    './files'                                   # Directory where you want your files to be stored after Stage 0 has run. This is where /specimages, /directimages, /visitfiles, and /miscfiles will be stored.
 
 # Step 1: Download files from MAST
 do_download     True                                        # Bool. Whether to perform this step.
 programID       '12345'                                     # ID of the observing program you want to query data from On MAST, referred to as "proposal_ID".
 target_name     'PLANET-B'                                  # Name of the target object you want to query data from. On MAST, referred to as "target_name".
-visit_number    '00'                                        # The visit number you want to download, e.g. "01", "02", etc.
 extensions      ['_flt.fits','_spt.fits']                   # lst of str or None. File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified. _flt.fits, _spt.fits recommended as minimum working case.
 
 # Step 2: Organizing files
@@ -18,6 +17,8 @@ filesfrom_dir   None                                        # None or str. If yo
 
 # Step 3: Locating the target star
 do_locate       True                                        # Bool. Whether to perform this step.
+location        None                                        # None or tuple of float. Prior to running Stage 0, this will be None.
+                                                            # After running Stage 0, a copy of this .hustle file will be made with this information included.
 
 # Step 4: Quality quicklook
 do_quicklook    True                                        # Bool. Whether to perform this step.
