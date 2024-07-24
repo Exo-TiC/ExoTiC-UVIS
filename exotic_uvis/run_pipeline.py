@@ -96,5 +96,5 @@ def run_pipeline(config_files_dir):
         
 
     # Run Stage 2
-
-
+    stage2_config = glob.glob(os.path.join(config_files_dir,"stage_2*"))[0]
+    stage2_dict = parse_config(stage2_config)
