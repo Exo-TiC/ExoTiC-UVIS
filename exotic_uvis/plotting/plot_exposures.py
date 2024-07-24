@@ -50,7 +50,7 @@ def plot_exposure(images, line_data = None, scatter_data = None,
                 os.makedirs(stagedir) 
         
         filedir = os.path.join(stagedir, f'{filename[i]}.png')
-        plt.savefig(filedir, bbox_inches = 'tight')
+        plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
         
     if show:
         plt.show()
