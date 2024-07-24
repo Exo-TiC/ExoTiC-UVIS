@@ -7,7 +7,7 @@ from photutils.centroids import centroid_com, centroid_2dg, centroid_quadratic
 from exotic_uvis.plotting import plot_exposure
 from exotic_uvis.plotting import plot_bkg_stars
 
-def track_bkgstars(obs, bkg_stars, window = 15, plot = False, check_all = False):
+def track_bkgstars(obs, bkg_stars, window = 15, verbose_plots = 0, check_all = False, output_dir = None):
 
     """
     
@@ -57,10 +57,11 @@ def track_bkgstars(obs, bkg_stars, window = 15, plot = False, check_all = False)
     obs["meanstar_disp"] = (("exp_time", "xy"), mean_pos)
     
     # if true, plot the calculated displacements
-    if plot:
+    if verbose_plots > 0:
         mean_loc = list(np.mean(abs_pos, axis = 1).transpose())
-        plot_bkg_stars(image, obs.exp_time.data, mean_loc, mean_pos, stars_pos)
+        plot_bkg_stars(image, obs.exp_time.data, mean_loc, mean_pos, stars_pos, output_dir=output_dir)
 
+    
     return pos
 
 

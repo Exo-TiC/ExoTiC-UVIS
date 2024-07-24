@@ -22,7 +22,7 @@ from exotic_uvis.stage_1 import laplacian_edge_detection
 
 
 
-def run_pipeline(config_files_dir, stages=(0,1,2,3,4,5)):
+def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
 
     ######## Run Stage 0 ########
@@ -58,7 +58,7 @@ def run_pipeline(config_files_dir, stages=(0,1,2,3,4,5)):
 
         # read data
         obs = read_data(stage1_dict['toplevel_dir'], verbose = stage1_dict['verbose'])
-        
+
         # create output directory
         output_dir = os.path.join(stage1_dict['toplevel_dir'],'outputs')
         run_dir = os.path.join(output_dir,stage1_dict['run_name'])
@@ -72,7 +72,8 @@ def run_pipeline(config_files_dir, stages=(0,1,2,3,4,5)):
         
         # temporal removal free iterations
         if stage1_dict['do_free_iter']:
-            free_iteration_rejection(obs, stage1_dict['free_sigma'], output_dir = stage1_dict['output_dir'])
+            free_iteration_rejection(obs, stage1_dict['free_sigma'], 
+                                     verbose_plots = stage1_dict['verbose'], output_dir = run_dir)
 
         # spatial removal
         if stage1_dict['do_led']:
@@ -101,7 +102,9 @@ def run_pipeline(config_files_dir, stages=(0,1,2,3,4,5)):
 
         # displacements by background stars
         if stage1_dict['do_bkg_stars']:
-            track_bkgstars(obs,  bkg_stars = stage1_dict['location'])
+            track_bkgstars(obs,  bkg_stars = stage1_dict['bkg_stars_loc'], 
+                                 verbose_plots=stage1_dict['verbose'],
+                                 output_dir = run_dir)
 
         # save results
         if stage1_dict['do_save']:
