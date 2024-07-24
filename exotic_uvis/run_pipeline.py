@@ -3,7 +3,8 @@ import glob
 import numpy as np
 import matplotlib.pyplot as plt
 
-from exotic_uvis.parser import parse_config
+from exotic_uvis.read_and_write_config import parse_config
+from exotic_uvis.read_and_write_config import write_config
 
 from exotic_uvis.stage_0 import quicklookup
 from exotic_uvis.stage_0 import collect_and_move_files
@@ -44,11 +45,16 @@ def run_pipeline(config_files_dir, stages=(0,1,2,3,4,5)):
         
         # locate target in direct image
         if stage0_dict['do_locate']:
-            locate_target(os.path.join(stage0_dict['toplevel_dir'],"directimages/or01dr001_flt.fits"))
+            source_x, source_y = locate_target(os.path.join(stage0_dict['toplevel_dir'],"directimages/or01dr001_flt.fits"))
+            # modify config keyword
+            stage0_dict["location"] = (source_x,source_y)
 
         # create quicklook gif
         if stage0_dict['do_quicklook']:
             quicklookup(stage0_dict['toplevel_dir'], stage0_dict['gif_dir'])
+
+        # write config
+        write_config(stage0_dict, 0, os.path.join(stage0_dict['toplevel_dir'],"stage0"))
 
 
     ####### Run Stage 1 #######
@@ -106,6 +112,9 @@ def run_pipeline(config_files_dir, stages=(0,1,2,3,4,5)):
         # save results
         if stage1_dict['do_save']:
             save_data(obs, run_dir)
+
+        # write config
+        write_config(stage1_dict, 1, os.path.join(run_dir,"stage1"))
         
 
     ####### Run Stage 2 #######
