@@ -1,7 +1,10 @@
 # ExoTiC-UVIS config file for launching Stage 1: Reduction
 
+# Setup for Stage 1
+toplevel_dir    './files'                                   # Directory where your Stage 0 files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data.
+run_name        'exotic_uvis_run_1'                         # Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).
+
 # Step 1: Read in the data
-data_dir        './'                                        # Str. This is the path to the top-level directory containing the specimages/, directimages/, etc. folders with your data.
 verbose         2                                           # Int from 0 to 2. How often and how detailed you want the output log to be.
 
 # Step 2: Reject cosmic rays with time iteration
@@ -66,6 +69,5 @@ bkg_stars_loc   [[0, 0], [0, 0]]                            # Lst of lst of floa
 
 # Step 6: Save outputs
 do_save         True                                        # Bool. If True, saves the output xarray to be used in Stage 2.
-output_dir      './'                                        # Str. This is the path where the output xarrays will be saved after all corrections are made.
 
 # ENDPARSE
