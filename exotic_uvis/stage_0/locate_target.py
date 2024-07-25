@@ -43,6 +43,7 @@ def locate_target(direct_image):
             print("Located %.0f possible sources." % len(possible_sources))
             if len(possible_sources) == 0:
                 # Skip the source selection step because no options were found.
+                print("If your guess was definitely consistent with a source location,\ntry updating the threshold/search radius!")
                 check = int(input("Enter 1 to search again,\n2 to update the threshold/search radius and then search again,\nor 3 to select manually: "))
             else:
                 print("Please select the source from this list:")
