@@ -63,7 +63,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal):
         # No information obtained about trace widths.
         widths = None
     
-    return trace_x, trace_y, widths, trace_sens
+    return trace_x, trace_y, trace_wavs, widths, trace_sens
 
 def get_x_range(order):
     '''
