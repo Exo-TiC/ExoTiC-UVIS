@@ -11,8 +11,8 @@ from exotic_uvis.stage_0 import collect_and_move_files
 from exotic_uvis.stage_0 import get_files_from_mast
 from exotic_uvis.stage_0 import locate_target
 
-from exotic_uvis.stage_1 import read_data
-from exotic_uvis.stage_1 import save_data
+from exotic_uvis.stage_1 import load_data_S1
+from exotic_uvis.stage_1 import save_data_S1
 from exotic_uvis.stage_1 import corner_bkg_subtraction
 from exotic_uvis.stage_1 import full_frame_bckg_subtraction
 from exotic_uvis.stage_1 import Pagul_bckg_subtraction
@@ -24,6 +24,15 @@ from exotic_uvis.stage_1 import fixed_iteration_rejection
 from exotic_uvis.stage_1 import laplacian_edge_detection
 from exotic_uvis.stage_1 import spatial_smoothing
 
+from exotic_uvis.stage_2 import load_data_S2
+from exotic_uvis.stage_2 import save_data_S2
+from exotic_uvis.stage_2 import get_trace_solution
+from exotic_uvis.stage_2 import determine_ideal_halfwidth
+from exotic_uvis.stage_2 import standard_extraction
+from exotic_uvis.stage_2 import optimal_extraction
+from exotic_uvis.stage_2 import clean_spectra
+from exotic_uvis.stage_2 import align_spectra
+
 def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
     '''
     Wrapper for all Stages of the ExoTiC-UVIS pipeline.
@@ -34,7 +43,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
     '''
     ######## Run Stage 0 ########
     if 0 in stages:
-        stage0_config = glob.glob(os.path.join(config_files_dir,"stage_0*"))[0]
+        # read out the stage 0 config
+        stage0_config = glob.glob(os.path.join(config_files_dir,'stage_0*'))[0]
         stage0_dict = parse_config(stage0_config)
 
         # run data download
@@ -55,9 +65,9 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         
         # locate target in direct image
         if stage0_dict['do_locate']:
-            source_x, source_y = locate_target(os.path.join(stage0_dict['toplevel_dir'],"directimages/or01dr001_flt.fits"))
+            source_x, source_y = locate_target(os.path.join(stage0_dict['toplevel_dir'],'directimages/or01dr001_flt.fits'))
             # modify config keyword
-            stage0_dict["location"] = (source_x,source_y)
+            stage0_dict['location'] = (source_x,source_y)
 
         # create quicklook gif
         if stage0_dict['do_quicklook']:
@@ -65,7 +75,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                         stage0_dict['gif_dir'])
 
         # write config
-        config_dir = os.path.join(stage0_dict['toplevel_dir'],"stage0")
+        config_dir = os.path.join(stage0_dict['toplevel_dir'],'stage0')
         if not os.path.exists(config_dir):
             os.makedirs(config_dir)
         write_config(stage0_dict, 0, config_dir)
@@ -74,18 +84,18 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
     ####### Run Stage 1 #######
     if 1 in stages:
         # read out the stage 1 config
-        stage1_config = glob.glob(os.path.join(config_files_dir,"stage_1*"))[0]
+        stage1_config = glob.glob(os.path.join(config_files_dir,'stage_1*'))[0]
         stage1_dict = parse_config(stage1_config)
 
-        # read the "location" keyword from the Stage 0 config
-        stage0_output_config = os.path.join(stage1_dict['toplevel_dir'],"stage0/stage_0_exoticUVIS.hustle")
+        # read the 'location' keyword from the Stage 0 config
+        stage0_output_config = os.path.join(stage1_dict['toplevel_dir'],'stage0/stage_0_exoticUVIS.hustle')
         stage0_output_dict = parse_config(stage0_output_config)
 
         # and grab the location of the source
-        stage1_dict["location"] = stage0_output_dict["location"]
+        stage1_dict['location'] = stage0_output_dict['location']
 
         # read data
-        obs = read_data(stage1_dict['toplevel_dir'], verbose = stage1_dict['verbose'])
+        obs = load_data_S1(stage1_dict['toplevel_dir'], verbose = stage1_dict['verbose'])
 
         # create output directory
         output_dir = os.path.join(stage1_dict['toplevel_dir'],'outputs')
@@ -117,7 +127,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                            contrast_factor = stage1_dict['contrast_factor'])
             
         # spatial removal by smoothing
-        if stage1_dict["do_smooth"]:
+        if stage1_dict['do_smooth']:
             obs = spatial_smoothing(obs,
                                     sigma=10) # WIP!
 
@@ -157,10 +167,10 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
         # save results
         if stage1_dict['do_save']:
-            save_data(obs, run_dir)
+            save_data_S1(obs, run_dir)
 
         # write config
-        config_dir = os.path.join(run_dir,"stage1")
+        config_dir = os.path.join(run_dir,'stage1')
         if not os.path.exists(config_dir):
             os.makedirs(config_dir)
         write_config(stage1_dict, 1, config_dir)
@@ -168,5 +178,73 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
     ####### Run Stage 2 #######
     if 2 in stages:
-        stage2_config = glob.glob(os.path.join(config_files_dir,"stage_2*"))[0]
+        # read out the stage 2 config
+        stage2_config = glob.glob(os.path.join(config_files_dir,'stage_2*'))[0]
         stage2_dict = parse_config(stage2_config)
+
+        # read the 'location' keyword from the Stage 0 config
+        stage0_output_config = os.path.join(stage2_dict['toplevel_dir'],'stage0/stage_0_exoticUVIS.hustle')
+        stage0_output_dict = parse_config(stage0_output_config)
+
+        # and grab the location of the source
+        stage2_dict['location'] = stage0_output_dict['location']
+
+        # read data
+        obs = load_data_S2(stage2_dict['toplevel_dir'], verbose = stage2_dict['verbose'])
+
+        # create output directory
+        output_dir = os.path.join(stage2_dict['toplevel_dir'],'outputs')
+        run_dir = os.path.join(output_dir,stage2_dict['run_name'])
+        if not os.path.exists(run_dir):
+            os.makedirs(run_dir)
+
+        # iterate over orders
+        wavs, specs = [], []
+        for i, order in enumerate(stage2_dict['traces_to_conf']):
+            # configure trace
+            trace_x, trace_y, trace_wavs, widths, trace_sens = get_trace_solution(obs,
+                                                                      order=order,
+                                                                      source_pos=stage2_dict['location'],
+                                                                      refine_calibration=stage2_dict['refine_fit'])
+            
+            # extract
+            if stage2_dict['method'] == 'box':
+                # determine ideal halfwidth
+                if stage2_dict['determine_hw']:
+                    halfwidth = determine_ideal_halfwidth(obs,
+                                                          trace_x=trace_x,
+                                                          trace_y=trace_y,
+                                                          wavs=trace_wavs)
+                else:
+                    halfwidth = stage2_dict['halfwidths_box'][i]
+                
+                # box extraction
+                wav, spec = standard_extraction(obs,
+                                                 halfwidth=halfwidth,
+                                                 trace_x=trace_x,
+                                                 trace_y=trace_y,
+                                                 wavs=trace_wavs)
+                
+            elif stage2_dict['method'] == 'optimum':
+                # optimum extraction
+                wav, spec = optimal_extraction(obs)
+
+            wavs.append(wav)
+            specs.append(spec)
+
+        # align
+        if stage2_dict['align']:
+            specs, shifts = align_spectra(obs,specs,
+                                          trace_x=trace_x,
+                                          align=True,
+                                          ind1=0,
+                                          ind2=-1,
+                                          plot_shifts=False)
+        
+        # clean
+        if stage2_dict['outlier_sigma']:
+            specs = clean_spectra(specs,
+                                  sigma=stage2_dict['outlier_sigma'])
+            
+        # save 1D spectra
+        save_data_S1(obs,outdir='')

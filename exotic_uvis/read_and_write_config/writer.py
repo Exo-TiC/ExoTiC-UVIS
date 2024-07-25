@@ -214,7 +214,8 @@ def Stage2_info():
                        "Step 1":[],
                        "Step 2":["config",
                                  "path_to_config",
-                                 "traces_to_conf",],
+                                 "traces_to_conf",
+                                 "refine_fit"],
                        "Step 3":["method",
                                   "subtract_contam",
                                   "sens_correction",],
@@ -234,7 +235,8 @@ def Stage2_info():
                            "Step 1":[],
                            "Step 2":["# Str. The type of configuration you are using. Options are 'aXe' or 'GRISMCONF'.",
                                       "# Str. The absolute path to the .conf file used by aXe or GRISMCONF.",
-                                      "# Lst of str. The traces you want to configure and extraction from.",],
+                                      "# Lst of str. The traces you want to configure and extraction from.",
+                                      "# Bool. If True, uses Gaussian fitting to refine the trace solution.",],
                            "Step 3":["# Str. Options are 'box' (draw a box around the trace and sum without weights) or 'optimum' (weight using Horne 1986 methods).",
                                      "# Bool. Whether to model the contaminating orders and subtract them from your trace during extraction. Sometimes works, sometimes just adds lots of scatter.",
                                      "# Bool. Whether to correct for the G280's changing sensitivity as a function of wavelength. Since absolute calibrated spectra aren't needed in exoplanetary sciences, you can skip this safely.",],
@@ -242,7 +244,7 @@ def Stage2_info():
                                       "# Lst of ints. The half-width of extraction aperture to use for each order. Input here is ignored if 'determine_hw' is True.",],
                            "Step 3b":["# Str. Type of aperture to draw. Options are 'row_polyfit', 'column_polyfit', 'column_gaussfit', 'column_moffatfit', 'median', 'smooth'.",
                                       "# Lst of ints. The half-width of extraction aperture to use for each order. For optimum extraction, you should make this big (>12 pixels at least). There is no 'preferred' half-width in optimum extraction due to the weights.",],
-                           "Step 4":["# Float. Sigma at which to reject spectral outliers in time. Outliers are replaced with median of timeseries.",
+                           "Step 4":["# Float. Sigma at which to reject spectral outliers in time. Outliers are replaced with median of timeseries. Enter 'None' to skip this step.",
                                      "# Bool. If True, uses cross-correlation to align spectra to keep wavelength solution consistent.",],
                            }
     return header, subsection_headers, subsection_keys, subsection_comments
@@ -253,7 +255,7 @@ def Stage3_info():
     '''
     header = "# ExoTiC-UVIS config file for launching Stage 3: Binning"
 
-    subsection_headers = ["# Setup for Stage 2",
+    subsection_headers = ["# Setup for Stage 3",
                           "# Step 1: Read in the data",
                           "# Step 2: Light curve extraction",
                           ]

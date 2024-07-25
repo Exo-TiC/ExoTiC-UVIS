@@ -7,7 +7,7 @@ from tqdm import tqdm
 import os
 
 
-def load_data(data_dir, filename = 'clean_obs'):
+def load_data_S2(data_dir, filename = 'clean_obs'):
      
     """
 
@@ -22,7 +22,7 @@ def load_data(data_dir, filename = 'clean_obs'):
 
 
 
-def save_data():
+def save_data_S2():
 
 
 
