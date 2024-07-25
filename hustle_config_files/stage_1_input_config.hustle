@@ -44,8 +44,7 @@ full_value      'Gaussian'                                  # Str. The value to 
 
 # Step 4b: corners mode or median background subtraction
 do_corners      True                                        # Bool. Whether to subtract the background using the frame corners mode or median.
-box_width       400                                         # Int. The width of the box to use for the background calculation.
-box_height      150                                         # Int. The height of the box to use for the background calculation.
+bounds          [[0,150,0,400],[440,590,0,400]]             # Lst of lst of float. The region from which the background values will be extracted
 corners_value   'Gaussian'                                  # Str. The value to extract from the histogram. Options are 'coarse', 'Gaussian', or 'median'.
 
 # Step 4c: Column-by-column background subtraction
