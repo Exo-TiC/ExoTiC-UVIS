@@ -14,6 +14,10 @@ def write_config(config_dict, stage, outdir):
         header, subsection_headers, subsection_keys, subsection_comments = Stage0_info()
     if stage == 1:
         header, subsection_headers, subsection_keys, subsection_comments = Stage1_info()
+    if stage == 2:
+        header, subsection_headers, subsection_keys, subsection_comments = Stage2_info()
+    if stage == 3:
+        header, subsection_headers, subsection_keys, subsection_comments = Stage3_info()
     
     # And write.
     with open(os.path.join(outdir,"stage_{}_exoticUVIS.hustle".format(stage)), mode='w') as f:
@@ -55,7 +59,10 @@ def Stage0_info():
                           "# Step 3: Locating the target star",
                           "# Step 4: Quality quicklook",]
     
-    subsection_keys = {"Setup":["toplevel_dir",],
+    subsection_keys = {"Setup":["toplevel_dir",
+                                "verbose",
+                                "show_plots",
+                                "save_plots"],
                        "Step 1":["do_download",
                                  "programID",
                                  "target_name",
@@ -68,7 +75,10 @@ def Stage0_info():
                                  "gif_dir"],
                        }
     
-    subsection_comments = {"Setup":["# Directory where you want your files to be stored after Stage 0 has run. This is where /specimages, /directimages, /visitfiles, and /miscfiles will be stored.",],
+    subsection_comments = {"Setup":["# Directory where you want your files to be stored after Stage 0 has run. This is where /specimages, /directimages, /visitfiles, and /miscfiles will be stored.",
+                                    "# Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.",
+                                    "# Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.",
+                                    "# Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.",],
                            "Step 1":["# Bool. Whether to perform this step.",
                                      "# ID of the observing program you want to query data from On MAST, referred to as 'proposal_ID'.",
                                      "# Name of the target object you want to query data from. On MAST, referred to as 'target_name'.",
@@ -105,8 +115,11 @@ def Stage1_info():
                           "# Step 6: Save outputs",]
     
     subsection_keys = {"Setup":["toplevel_dir",
-                                "run_name",],
-                       "Step 1":["verbose",],
+                                "run_name",
+                                "verbose",
+                                "show_plots",
+                                "save_plots"],
+                       "Step 1":[],
                        "Step 2a":["do_fixed_iter",
                                  "fixed_sigmas",
                                  "replacement",],
@@ -140,8 +153,11 @@ def Stage1_info():
                        }
     
     subsection_comments = {"Setup":["# Directory where your Stage 0 files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data.",
-                                    "# Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.)."],
-                           "Step 1":["# Int from 0 to 2. How often and how detailed you want the output log to be.",],
+                                    "# Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.)."
+                                    "# Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.",
+                                    "# Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.",
+                                    "# Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.",],
+                           "Step 1":[],
                            "Step 2a":["# Bool. Whether to use fixed iteration rejection to clean the timeseries.",
                                       "# lst of float. The sigma to reject outliers at in each iteration. The length of the list is the number of iterations.",
                                       "# int or None. If int, replaces flagged outliers with the median of values within +/-replacement indices of the outlier. If None, uses the median of the whole timeseries instead.",],
@@ -172,5 +188,101 @@ def Stage1_info():
                            "Step 5b":["# Bool. Whether to track frame displacements by centroiding background stars.",
                                       "# Lst of lst of float. Every list should indicate the estimated location of every background star",],
                            "Step 6":["# Bool. If True, saves the output xarray to be used in Stage 2.",],
+                           }
+    return header, subsection_headers, subsection_keys, subsection_comments
+
+def Stage2_info():
+    '''
+    Specific keys and subsections for Stage 2.
+    '''
+    header = "# ExoTiC-UVIS config file for launching Stage 2: Extraction"
+
+    subsection_headers = ["# Setup for Stage 2",
+                          "# Step 1: Read in the data",
+                          "# Step 2: Trace configuration",
+                          "# Step 3: 1D spectral extraction",
+                          "# Step 3a: Box extraction parameters",
+                          "# Step 3b: Optimum extraction parameters",
+                          "# Step 4: 1D spectral cleaning and aligning",
+                          ]
+    
+    subsection_keys = {"Setup":["toplevel_dir",
+                                "run_name",
+                                "verbose",
+                                "show_plots",
+                                "save_plots"],
+                       "Step 1":[],
+                       "Step 2":["config",
+                                 "path_to_config",
+                                 "traces_to_conf",],
+                       "Step 3":["method",
+                                  "subtract_contam",
+                                  "sens_correction",],
+                       "Step 3a":["determine_hw",
+                                  "halfwidths_box",],
+                       "Step 3b":["aperture_type",
+                                  "halfwidths_opt",],
+                       "Step 4":["outlier_sigma",
+                                 "align",],
+                       }
+    
+    subsection_comments = {"Setup":["# Directory where your current project files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data as well as the outputs folder.",
+                                    "# Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.)."
+                                    "# Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.",
+                                    "# Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.",
+                                    "# Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.",],
+                           "Step 1":[],
+                           "Step 2":["# Str. The type of configuration you are using. Options are 'aXe' or 'GRISMCONF'.",
+                                      "# Str. The absolute path to the .conf file used by aXe or GRISMCONF.",
+                                      "# Lst of str. The traces you want to configure and extraction from.",],
+                           "Step 3":["# Str. Options are 'box' (draw a box around the trace and sum without weights) or 'optimum' (weight using Horne 1986 methods).",
+                                     "# Bool. Whether to model the contaminating orders and subtract them from your trace during extraction. Sometimes works, sometimes just adds lots of scatter.",
+                                     "# Bool. Whether to correct for the G280's changing sensitivity as a function of wavelength. Since absolute calibrated spectra aren't needed in exoplanetary sciences, you can skip this safely.",],
+                           "Step 3a":["# Bool. If True, automatically determines preferred half-width for each order by minimizing out-of-transit/eclipse residuals.",
+                                      "# Lst of ints. The half-width of extraction aperture to use for each order. Input here is ignored if 'determine_hw' is True.",],
+                           "Step 3b":["# Str. Type of aperture to draw. Options are 'row_polyfit', 'column_polyfit', 'column_gaussfit', 'column_moffatfit', 'median', 'smooth'.",
+                                      "# Lst of ints. The half-width of extraction aperture to use for each order. For optimum extraction, you should make this big (>12 pixels at least). There is no 'preferred' half-width in optimum extraction due to the weights.",],
+                           "Step 4":["# Float. Sigma at which to reject spectral outliers in time. Outliers are replaced with median of timeseries.",
+                                     "# Bool. If True, uses cross-correlation to align spectra to keep wavelength solution consistent.",],
+                           }
+    return header, subsection_headers, subsection_keys, subsection_comments
+
+def Stage3_info():
+    '''
+    Specific keys and subsections for Stage 3.
+    '''
+    header = "# ExoTiC-UVIS config file for launching Stage 3: Binning"
+
+    subsection_headers = ["# Setup for Stage 2",
+                          "# Step 1: Read in the data",
+                          "# Step 2: Light curve extraction",
+                          ]
+    
+    subsection_keys = {"Setup":["toplevel_dir",
+                                "run_name",
+                                "verbose",
+                                "show_plots",
+                                "save_plots"],
+                       "Step 1":[],
+                       "Step 2":["bin_method",
+                                 "wavelength_bins",
+                                 "N_columns",
+                                 "time_binning",
+                                 "sigma_clip",
+                                 "normalize",],
+                       }
+    
+    subsection_comments = {"Setup":["# Directory where your current project files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data as well as the outputs folder.",
+                                    "# Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.)."
+                                    "# Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.",
+                                    "# Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.",
+                                    "# Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.",],
+                           "Step 1":[],
+                           "Step 2":["# Str. How to bin the light curves. Options are 'columns' (bin N columns at a time) or 'wavelengths' (bin from wavelength1 to wavelength2).",
+                                     "# Lst of floats or numpy array. If bin_method is 'wavelengths', defines edges of each wavelength bin.",
+                                     "# Int. If bin_method is 'columns', how many columns go into each bin.",
+                                     "# Int or None. If int, how many frames in time should be binned. Reduces computation time but degrades time resolution.",
+                                     "# Float or None. If float, the sigma at which to mask outliers in sigma clipping.",
+                                     "# Bool. If True, normalizes curves by out-of-transit/eclipse flux.",],
                            }
     return header, subsection_headers, subsection_keys, subsection_comments
