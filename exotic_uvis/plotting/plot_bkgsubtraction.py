@@ -13,7 +13,7 @@ plt.rc('axes', labelsize=14)
 plt.rc('legend',**{'fontsize':11})
 
 
-def plot_corners(images, corners, output_dir = None):
+def plot_corners(image, corners, output_dir = None):
 
     """
     
@@ -21,7 +21,7 @@ def plot_corners(images, corners, output_dir = None):
     
     """
 
-    plot_exposure(images, show = False)
+    plot_exposure(image, show = False)
     ax = plt.gca()
 
     for corner in corners:
@@ -39,7 +39,7 @@ def plot_corners(images, corners, output_dir = None):
     return 
 
 
-def plot_bkgvals(exp_times, bkg_vals, output_dir = None):
+def plot_bkgvals(exp_times, bkg_vals, output_dir = None, save_plot = False, show_plot = False):
 
     """
     
@@ -52,10 +52,14 @@ def plot_bkgvals(exp_times, bkg_vals, output_dir = None):
     plt.xlabel('Exposure')
     plt.ylabel('Background Counts')
     plt.title('Image background per exposure')
-    plt.show()
 
     stagedir = os.path.join(output_dir, 'stage1/plots/') 
     filedir = os.path.join(stagedir, 'bkg_values.png')
-    plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
+    
+    if save_plot:
+        plt.savefig(filedir, bbox_inches='tight', dpi=300)
+
+    if show_plot:
+        plt.show(block=True)
 
     return 
