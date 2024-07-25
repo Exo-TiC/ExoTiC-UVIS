@@ -62,6 +62,7 @@ median_columns  True                                        # Bool. If True, tak
 # Step 5: Displacement estimation
 # Step 5a: Source center-of-mass tracking
 do_0thtracking  True                                        # Bool. Whether to track frame displacements by centroiding the 0th order.           
+location        [150, 150]
 # WIP
 
 # Step 5b: Background star tracking

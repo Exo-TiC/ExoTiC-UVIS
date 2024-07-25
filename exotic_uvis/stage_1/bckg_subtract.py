@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 from exotic_uvis.plotting import plot_exposure, plot_corners, plot_bkgvals
 
 
-def full_frame_bckg_subtraction(obs, bin_number=1e5, fit='coarse', value='mode'):
+def full_frame_bckg_subtraction(obs, bin_number=1e5, fit='coarse', value='mode',
+                                verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     '''
     Extracts the mode or median from the full frame and subtracts this value from the image.
 
@@ -60,11 +61,17 @@ def full_frame_bckg_subtraction(obs, bin_number=1e5, fit='coarse', value='mode')
 
         # Replace the obs.image with the corrected frame.
         obs.images[k] = obs.images[k].where(obs.images[k].values == d, d)
+    
+    if save_plots > 0 or show_plots > 0:
+        plot_bkgvals(obs.exp_time.data, bckgs, output_dir=output_dir, 
+                     save_plot=save_plots, show_plot=show_plots)
+
     print("All frames sky-subtracted by {} {} method.".format(fit, value))
     return obs, bckgs
 
 
-def Pagul_bckg_subtraction(obs, Pagul_path, masking_parameter=0.001, median_on_columns=True):
+def Pagul_bckg_subtraction(obs, Pagul_path, masking_parameter=0.001, median_on_columns=True,
+                           verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     '''
     Scales the Pagul+ 2023 G280 sky image to each frame and subtracts the scaled image as background.
 
@@ -231,6 +238,7 @@ def corner_bkg_subtraction(obs, bounds = None, plot = True, check_all = False, f
     obs.images.data = images
 
     return obs
+
 
 def column_by_column_subtraction(obs, rows=[i for i in range(10)], sigma=3):
     '''

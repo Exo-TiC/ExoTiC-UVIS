@@ -15,7 +15,8 @@ plt.rc('legend',**{'fontsize':11})
 def plot_exposure(images, line_data = None, scatter_data = None, 
                   extent = None, title = None, 
                   min = -3, max = 4, mark_size = 30, 
-                  show = True, stage = 0, filename = None, output_dir = None):
+                  show_plot = False, save_plot = False, 
+                  stage = 0, filename = None, output_dir = None):
 
     """
     Function to plot an image given certain parameters 
@@ -43,17 +44,18 @@ def plot_exposure(images, line_data = None, scatter_data = None,
         if title:
             plt.title(title)
 
-        #if filename:
         stagedir = os.path.join(output_dir, f'stage{stage}/plots/')
 
         if not os.path.exists(stagedir):
                 os.makedirs(stagedir) 
         
         filedir = os.path.join(stagedir, f'{filename[i]}.png')
-        plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
         
-    if show:
-        plt.show()
+        if save_plot:
+            plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
+        
+    if show_plot:
+        plt.show(block=True)
     
     return
 

@@ -7,7 +7,8 @@ def spatial_smoothing(obs, sigma=10):
     '''
     return obs
 
-def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=False, contrast_factor=5):
+def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=False, contrast_factor=5,
+                             verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     '''
     Convolves a Laplacian kernel with the obs.images to replace spatial outliers with
     the median of the surrounding 3x3 kernel.

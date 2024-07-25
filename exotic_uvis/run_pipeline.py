@@ -145,8 +145,12 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         if stage1_dict['do_full_frame']:
             obs = full_frame_bckg_subtraction(obs, 
                                               bin_number = stage1_dict['bin_number'], 
-                                              fit=stage1_dict['fit'], 
-                                              value=stage1_dict['value'])
+                                              fit=stage1_dict['full_value'], 
+                                              value=stage1_dict['full_value'],
+                                              verbose=stage1_dict['verbose'],
+                                              show_plots=stage1_dict['show_plots'],
+                                              save_plots=stage1_dict['save_plots'],
+                                              output_dir=run_dir)
         
         if stage1_dict['do_corners']:
             obs = corner_bkg_subtraction(obs, bounds=stage1_dict['bounds'],
@@ -160,7 +164,11 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             obs = Pagul_bckg_subtraction(obs,
                                          Pagul_path=stage1_dict['path_to_Pagul23'],
                                          masking_parameter=stage1_dict['mask_parameter'],
-                                         median_on_columns=stage1_dict['median_columns'])
+                                         median_on_columns=stage1_dict['median_columns'],
+                                         verbose=stage1_dict['verbose'],
+                                         show_plots=stage1_dict['show_plots'],
+                                         save_plots=stage1_dict['save_plots'],
+                                         output_dir=run_dir)
             
         if stage1_dict['do_column']:
             obs = column_by_column_subtraction(obs,
@@ -182,10 +190,10 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             save_data_S1(obs, run_dir)
 
         # write config
-        config_dir = os.path.join(run_dir,'stage1')
-        if not os.path.exists(config_dir):
-            os.makedirs(config_dir)
-        write_config(stage1_dict, 1, config_dir)
+        #config_dir = os.path.join(run_dir,'stage1')
+        #if not os.path.exists(config_dir):
+        #    os.makedirs(config_dir)
+        #write_config(stage1_dict, 1, config_dir)
         
 
     ####### Run Stage 2 #######

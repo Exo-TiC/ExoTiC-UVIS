@@ -114,15 +114,18 @@ def free_iteration_rejection(obs, threshold = 3.5,
                 _, hit_map[:, i, j] = array1D_clip(images[:, i, j], threshold, mode = 'median')
     
     # if true, plot one exposure and draw location of all detected cosmic rays in all exposures
-    if save_plots > 0:
+    if save_plots > 0 or show_plots > 0:
         thits, xhits, yhits = np.where(hit_map == 1)
         plot_exposure([obs.images.data[0], images[0]], min = 0, 
-                      title = 'Temporal Bad Pixel removal Example', stage=1, output_dir=output_dir,
+                      title = 'Temporal Bad Pixel removal Example', 
+                      show_plot=show_plots, save_plot=save_plots,
+                      stage=1, output_dir=output_dir,
                       filename = ['Before_CR_correction', 'After_CR_correction'])
 
         plot_exposure([obs.images.data[0]], scatter_data=[yhits, xhits], min = 0, 
-                      title = 'Location of corrected pixels', mark_size = 1, stage=1, 
-                      output_dir=output_dir, filename = ['CR_location'])
+                      title = 'Location of corrected pixels', mark_size = 1,
+                      show_plot=show_plots, save_plot=save_plots, 
+                      stage=1, output_dir=output_dir, filename = ['CR_location'])
 
     # if true, check each exposure separately
     if save_plots == 2:
