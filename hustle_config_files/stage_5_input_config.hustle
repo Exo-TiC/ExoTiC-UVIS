@@ -1,6 +1,6 @@
-# ExoTiC-UVIS config file for launching Stage 4: Fitting
+# ExoTiC-UVIS config file for launching Stage 5: Results
 
-# Setup for Stage 4
+# Setup for Stage 5
 toplevel_dir    './files'                                   # Directory where your current project files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data as well as the outputs folder.
 run_name        'exotic_uvis_run_1'                         # Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).
 verbose         2                                           # Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.
@@ -9,15 +9,7 @@ save_plots      2                                           # Int from 0 to 2. 0
 
 # Step 1: Read in the data
 
-# Step 2: Systematics setup ExoTiC-ISM systematics marginalisation
-marginalise     False                                       # Bool. If True, use ExoTiC-ISM to treat systematics. Takes much longer than jitter decorrelation but usually returns good results.
-time_limit      60                                          # Float. Time in minutes before marginalisation attempt is considered 'failed'.
-path_to_marg    './'                                        # Str. Path to the marginalisation.py code needed to run marginalisation.py.
-
-# Step 3: Least-squares light curve fitting
-# WIP!
-
-# Step 4: MCMC light curve fitting
+# Step 2: ??
 # WIP!
 
 # ENDPARSE

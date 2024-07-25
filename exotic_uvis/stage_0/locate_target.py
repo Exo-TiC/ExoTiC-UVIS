@@ -42,24 +42,26 @@ def locate_target(direct_image):
                     possible_sources.append((ind1, ind2))
             print("Located %.0f possible sources." % len(possible_sources))
             if len(possible_sources) == 0:
-                # Restart the loop because no options were found.
-                continue
-            print("Please select the source from this list:")
-            for ind, item in enumerate(possible_sources):
-                print(str(ind) + "     " + str(item))
-            ind = int(input(""))
-            xs, ys = possible_sources[ind]
+                # Skip the source selection step because no options were found.
+                print("If your guess was definitely consistent with a source location,\ntry updating the threshold/search radius!")
+                check = int(input("Enter 1 to search again,\n2 to update the threshold/search radius and then search again,\nor 3 to select manually: "))
+            else:
+                print("Please select the source from this list:")
+                for ind, item in enumerate(possible_sources):
+                    print(str(ind) + "     " + str(item))
+                ind = int(input(""))
+                xs, ys = possible_sources[ind]
 
-            plt.subplot(1,1,1)
-            plt.imshow(d, vmin=0, vmax=100, origin='lower', cmap='binary_r')
-            plt.scatter(xs, ys, s=8, marker='x', color='red')
-            plt.xlim(int(xs-70), int(xs+70))
-            plt.ylim(int(ys-70), int(ys+70))
+                plt.subplot(1,1,1)
+                plt.imshow(d, vmin=0, vmax=100, origin='lower', cmap='binary_r')
+                plt.scatter(xs, ys, s=8, marker='x', color='red')
+                plt.xlim(int(xs-70), int(xs+70))
+                plt.ylim(int(ys-70), int(ys+70))
 
-            plt.show(block=True)
-            plt.close()
+                plt.show(block=True)
+                plt.close()
 
-            check = int(input("Enter 0 to keep this source, 1 to search again,\n2 to update the threshold/search radius and then search again, or 3 to select manually: "))
+                check = int(input("Enter 0 to keep this source,\n1 to search again,\n2 to update the threshold/search radius and then search again,\nor 3 to select manually: "))
             if check == 0:
                 satisfied = True
             if check == 2:
