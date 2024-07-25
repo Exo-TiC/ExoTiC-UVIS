@@ -33,6 +33,7 @@ from exotic_uvis.stage_2 import optimal_extraction
 from exotic_uvis.stage_2 import clean_spectra
 from exotic_uvis.stage_2 import align_spectra
 
+
 def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
     '''
     Wrapper for all Stages of the ExoTiC-UVIS pipeline.
