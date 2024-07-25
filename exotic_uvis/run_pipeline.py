@@ -68,15 +68,17 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         if stage0_dict['do_locate']:
             source_x, source_y = locate_target(os.path.join(stage0_dict['toplevel_dir'],'directimages/or01dr001_flt.fits'))
             # modify config keyword
-            stage0_dict['location'] = (source_x,source_y)
+            stage0_dict['location'] = [source_x,source_y]
 
         # create quicklook gif
         if stage0_dict['do_quicklook']:
             quicklookup(stage0_dict['toplevel_dir'],
-                        stage0_dict['gif_dir'], 
+                        stage0_dict['gif_dir'],)
+        '''
                         stage0_dict['verbose'], 
                         stage0_dict['show_plots'], 
                         stage0_dict['save_plots'])
+        '''
 
         # write config
         config_dir = os.path.join(stage0_dict['toplevel_dir'],'stage0')
@@ -202,7 +204,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         stage2_dict['location'] = stage0_output_dict['location']
 
         # read data
-        obs = load_data_S2(stage2_dict['toplevel_dir'], verbose = stage2_dict['verbose'])
+        S2_data_path = os.path.join(stage2_dict['toplevel_dir'],os.path.join('outputs',stage2_dict['run_name']))
+        obs = load_data_S2(S2_data_path, verbose = stage2_dict['verbose'])
 
         # create output directory
         output_dir = os.path.join(stage2_dict['toplevel_dir'],'outputs')
