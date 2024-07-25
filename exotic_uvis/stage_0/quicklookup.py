@@ -129,7 +129,7 @@ def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir,
     # create and plot animation
     animation = FuncAnimation(fig, animation_func, init_func = init, frames = np.shape(images)[0], interval = 20)
     plt.tight_layout()
-    plt.show()
+    plt.show(block = True)
 
 
     # save animation
