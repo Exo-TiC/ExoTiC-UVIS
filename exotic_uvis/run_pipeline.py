@@ -254,4 +254,5 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                   sigma=stage2_dict['outlier_sigma'])
             
         # save 1D spectra
-        save_data_S1(obs,outdir='')
+        save_data_S2(obs, specs, specs_err, trace_x, trace_y, 
+                     trace_wavs, output_dir=stage2_dict['toplevel_dir'])
