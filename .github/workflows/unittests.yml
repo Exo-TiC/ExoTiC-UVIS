@@ -38,3 +38,9 @@ jobs:
 
       - name: Test stage 0
         run: python tests/test_stage_0.py
+
+      - name: Test stage 1
+        run: python tests/test_stage_1.py
+      
+      - name: Test stage 2
+        run: python tests/test_stage_2.py
