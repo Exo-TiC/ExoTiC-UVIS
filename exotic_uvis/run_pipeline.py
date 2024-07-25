@@ -207,7 +207,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             os.makedirs(run_dir)
 
         # iterate over orders
-        wavs, specs = [], []
+        wavs, specs, specs_err = [], [], []
         for i, order in enumerate(stage2_dict['traces_to_conf']):
             # configure trace
             trace_x, trace_y, trace_wavs, widths, trace_sens = get_trace_solution(obs,
@@ -227,27 +227,28 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                     halfwidth = stage2_dict['halfwidths_box'][i]
                 
                 # box extraction
-                wav, spec = standard_extraction(obs,
-                                                 halfwidth=halfwidth,
-                                                 trace_x=trace_x,
-                                                 trace_y=trace_y,
-                                                 wavs=trace_wavs)
+                wav, spec, spec_err = standard_extraction(obs,
+                                                          halfwidth=halfwidth,
+                                                          trace_x=trace_x,
+                                                          trace_y=trace_y,
+                                                          wavs=trace_wavs)
                 
             elif stage2_dict['method'] == 'optimum':
                 # optimum extraction
-                wav, spec = optimal_extraction(obs)
+                wav, spec, spec_err = optimal_extraction(obs)
 
             wavs.append(wav)
             specs.append(spec)
+            specs_err.append(spec_err)
 
         # align
         if stage2_dict['align']:
-            specs, shifts = align_spectra(obs,specs,
-                                          trace_x=trace_x,
-                                          align=True,
-                                          ind1=0,
-                                          ind2=-1,
-                                          plot_shifts=False)
+            specs, specs_err, shifts = align_spectra(obs,specs,specs_err,
+                                                     trace_x=trace_x,
+                                                     align=True,
+                                                     ind1=0,
+                                                     ind2=-1,
+                                                     plot_shifts=False)
         
         # clean
         if stage2_dict['outlier_sigma']:
