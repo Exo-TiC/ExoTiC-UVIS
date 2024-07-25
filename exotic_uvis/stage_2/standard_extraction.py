@@ -14,11 +14,13 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, wavs):
     '''
     # Define traces array.
     traces = []
+    err_traces = []
 
     # Iterate over frames.
     for k in range(obs.images.shape[0]):
-        # Get array values of the current frame.
+        # Get array values and error values of the current frame.
         frame = obs.images[k].values
+        err = obs.errors[k].values
 
         # Get trace solution for this frame.
         xs = trace_x[k]
@@ -26,23 +28,30 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, wavs):
 
         # Pull out just the trace from the frame.
         trace = get_trace(frame, halfwidth, xs, ys)
+        err_trace = get_trace(err, halfwidth, xs, ys)
+
         traces.append(trace)
+        err_traces.append(err_trace)
         
     # Numpy array it.
     traces = np.array(traces)
+    err_traces = np.array(err_traces)
 
-    # Store the 1D spectra, and prepare to update the wavelengths with the truncated 2000 <= w <= 8000 solution.
+    # Store the 1D spectra and errors, and prepare to update the wavelengths with the truncated 2000 <= w <= 8000 solution.
     wavs_new = []
     oneD_spec = []
+    spec_err = []
 
     # Extract 1D spectrum using the standard method.
     for k in range(traces.shape[0]):
         #show_frame(trace[:,:,k],"Frame {} from which spectrum is extracted".format(k))
-        trunc_wavs, flx = box(trace[:,:,k], wavs[k])
+        trunc_wavs, err = box(err_traces[:,:,k], wavs[k])
+        trunc_wavs, flx = box(traces[:,:,k], wavs[k])
         wavs_new.append(trunc_wavs)
         oneD_spec.append(flx)
+        spec_err.append(err)
     
-    return np.array(trunc_wavs), np.array(oneD_spec)
+    return np.array(trunc_wavs), np.array(oneD_spec), np.array(spec_err)
 
 def get_trace(frame, halfwidth, xs, ys):
     '''
