@@ -35,11 +35,9 @@ def write_config(config_dict, stage, outdir):
 
             # For every keyword and comment in that step...
             for j, keyword in enumerate(subsection_keys[subsection]):
-                # Write the keyword, its value, and the comment.
-                value = config_dict[keyword]
-                if keyword == 'location':
-                    value = '({},{})'.format(value[0],value[1]) # eliminate the space for parsing
-                f.write("{0: <15} {1: <50} {2:}\n".format(keyword, value, subsection_comments[subsection][j]))
+                # Write the keyword, its stringed value, and the comment.
+                value = str(config_dict[keyword])
+                f.write("{0:<15} {1:<100} {2:}\n".format(keyword, value, subsection_comments[subsection][j]))
             # A space between this step and the next step.
             f.write('\n')
         # Declare the file over.
@@ -136,8 +134,7 @@ def Stage1_info():
                        "Step 4a":["do_full_frame",
                                   "full_value",],
                        "Step 4b":["do_corners",
-                                  "box_width",
-                                  "box_height",
+                                  "bounds",
                                   "corners_value"],
                        "Step 4c":["do_column",
                                   "rows",
@@ -153,7 +150,7 @@ def Stage1_info():
                        }
     
     subsection_comments = {"Setup":["# Directory where your Stage 0 files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data.",
-                                    "# Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.)."
+                                    "# Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).",
                                     "# Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.",
                                     "# Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.",
                                     "# Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.",],
@@ -174,8 +171,7 @@ def Stage1_info():
                            "Step 4a":["# Bool. Whether to subtract the background using the full frame mode or median.",
                                       "# Str. The value to extract from the histogram. Options are 'coarse', 'Gaussian', or 'median'.",],
                            "Step 4b":["# Bool. Whether to subtract the background using the frame corners mode or median.",
-                                      "# Int. The width of the box to use for the background calculation.",
-                                      "# Int. The height of the box to use for the background calculation.",
+                                      "# Lst of lst of float. The region from which the background values will be extracted.",
                                       "# Str. The value to extract from the histogram. Options are 'coarse', 'Gaussian', or 'median'.",],
                            "Step 4c":["# Bool. Whether to subtract the background using a column-by-column method.",
                                       "# lst of int. The indices defining the rows used as background.",
