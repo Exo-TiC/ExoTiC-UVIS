@@ -67,7 +67,7 @@ def cross_corr(spec, temp_spec, plot = False, trim = 1, fit_window = 5, subpix_w
 
 
 
-def align_spectra(obs, specs, trace_x, align = False, ind1 = 0, ind2 = -1, plot_shifts = True):
+def align_spectra(obs, specs, specs_err, trace_x, align = False, ind1 = 0, ind2 = -1, plot_shifts = True):
 
     """
     
@@ -77,6 +77,7 @@ def align_spectra(obs, specs, trace_x, align = False, ind1 = 0, ind2 = -1, plot_
 
     # initialize variables and define median spectrum as template
     align_specs = []
+    align_specs_err = []
     x_shifts, y_shifts = [], []
     temp_spec = np.median(specs[:], axis = 0)
 
@@ -94,10 +95,15 @@ def align_spectra(obs, specs, trace_x, align = False, ind1 = 0, ind2 = -1, plot_
             interp_spec = interp1d(trace_x, spec, kind = 'linear', fill_value = 'extrapolate')
             align_specs.append(interp_spec(shift_tracex))
 
+            interp_err = interp1d(trace_x, specs_err[i], kind = 'linear', fill_value = 'extrapolate')
+            align_specs_err.append(interp_err(shift_tracex))
+
         else: 
             align_specs.append(spec)
+            align_specs_err.append(specs_err[i])
     
     align_specs = np.array(align_specs)
+    align_specs_err = np.array(align_specs_err)
 
 
     if plot_shifts:
@@ -120,7 +126,7 @@ def align_spectra(obs, specs, trace_x, align = False, ind1 = 0, ind2 = -1, plot_
             plt.plot(spec, color = colors[i])
         plt.show()
 
-    return align_specs, np.array(x_shifts)
+    return align_specs, align_specs_err, np.array(x_shifts)
 
 
 
