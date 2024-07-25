@@ -112,25 +112,29 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         if stage1_dict['do_fixed_iter']:
             obs = fixed_iteration_rejection(obs,
                                             stage1_dict['fixed_sigmas'],
-                                            stage1_dict['replacement'])
+                                            stage1_dict['replacement'], 
+                                            verbose=stage1_dict['verbose'],
+                                            show_plots=stage1_dict['show_plots'],
+                                            save_plots=stage1_dict['save_plots'],
+                                            output_dir=run_dir)
         
         # temporal removal free iterations
         if stage1_dict['do_free_iter']:
             obs = free_iteration_rejection(obs,
                                            stage1_dict['free_sigma'], 
-                                           verbose = stage1_dict['verbose'],
-                                           show_plots = stage1_dict['show_plots'],
-                                           save_plots = stage1_dict['save_plots'],
-                                           output_dir = run_dir)
+                                           verbose=stage1_dict['verbose'],
+                                           show_plots=stage1_dict['show_plots'],
+                                           save_plots=stage1_dict['save_plots'],
+                                           output_dir=run_dir)
 
         # spatial removal by led
         if stage1_dict['do_led']:
             obs = laplacian_edge_detection(obs, 
-                                           sigma = stage1_dict['led_threshold'], 
-                                           factor = stage1_dict['led_factor'], 
-                                           n = stage1_dict['led_n'], 
-                                           build_fine_structure = stage1_dict['fine_structure'], 
-                                           contrast_factor = stage1_dict['contrast_factor'])
+                                           sigma=stage1_dict['led_threshold'], 
+                                           factor=stage1_dict['led_factor'], 
+                                           n=stage1_dict['led_n'], 
+                                           build_fine_structure=stage1_dict['fine_structure'], 
+                                           contrast_factor=stage1_dict['contrast_factor'])
             
         # spatial removal by smoothing
         if stage1_dict['do_smooth']:
@@ -146,10 +150,10 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         
         if stage1_dict['do_corners']:
             obs = corner_bkg_subtraction(obs, bounds=stage1_dict['bounds'],
-                                         fit=stage1_dict['value'],
-                                         verbose = stage1_dict['verbose'],
-                                         show_plots = stage1_dict['show_plots'],
-                                         save_plots = stage1_dict['save_plots'],
+                                         fit=stage1_dict['corners_value'],
+                                         verbose=stage1_dict['verbose'],
+                                         show_plots=stage1_dict['show_plots'],
+                                         save_plots=stage1_dict['save_plots'],
                                          output_dir=run_dir)
             
         if stage1_dict['do_Pagul23']:

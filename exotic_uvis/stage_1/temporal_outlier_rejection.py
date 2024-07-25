@@ -2,7 +2,8 @@ import numpy as np
 from tqdm import tqdm
 from exotic_uvis.plotting import plot_exposure, plot_corners
 
-def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None):
+def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
+                              verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     '''
     Iterates a fixed number of times using a different sigma at each iteration to reject cosmic rays.
 
@@ -89,7 +90,8 @@ def array1D_clip(array, threshold = 3.5, mode = 'median'):
     return array, ~mask
 
 
-def free_iteration_rejection(obs, threshold = 3.5, verbose_plots = 0, check_all = False, output_dir = None):
+def free_iteration_rejection(obs, threshold = 3.5,
+                             verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
 
     """
 
@@ -112,7 +114,7 @@ def free_iteration_rejection(obs, threshold = 3.5, verbose_plots = 0, check_all 
                 _, hit_map[:, i, j] = array1D_clip(images[:, i, j], threshold, mode = 'median')
     
     # if true, plot one exposure and draw location of all detected cosmic rays in all exposures
-    if verbose_plots > 0:
+    if save_plots > 0:
         thits, xhits, yhits = np.where(hit_map == 1)
         plot_exposure([obs.images.data[0], images[0]], min = 0, 
                       title = 'Temporal Bad Pixel removal Example', stage=1, output_dir=output_dir,
@@ -123,7 +125,7 @@ def free_iteration_rejection(obs, threshold = 3.5, verbose_plots = 0, check_all 
                       output_dir=output_dir, filename = ['CR_location'])
 
     # if true, check each exposure separately
-    if check_all:
+    if save_plots == 2:
         for i in range(len(images)):
             xhits, yhits = np.where(hit_map[i] == 1)
             plot_exposure([obs.images.data[i]], scatter_data=[yhits, xhits], min = 0)

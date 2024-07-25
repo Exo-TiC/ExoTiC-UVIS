@@ -170,7 +170,6 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, fit = None, check_all =
         plt.axvline((bin_edges[np.argmax(hist)] + bin_edges[np.argmax(hist) + 1])/2, linestyle = '--', color = 'blue')
         plt.xlabel('Pixel Value')
         plt.ylabel('Counts')
-        #plt.savefig('PLOTS/bkg_KELT7b_3.png', bbox_inches = 'tight', dpi = 300)
         plt.show()
 
     return bkg_val
@@ -178,15 +177,13 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, fit = None, check_all =
 
 def corner_bkg_subtraction(obs, bounds = None, plot = True, check_all = False, fit = None, 
                             hist_min = -60, hist_max = 60, hist_bins = 1000,
-                            verbose_plots = 0, output_dir = None):
+                            verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
 
     """
 
     Function to remove the background flux
 
     """
-
-    print(bounds)
 
     # copy images
     images = obs.images.data.copy() 
@@ -224,10 +221,10 @@ def corner_bkg_subtraction(obs, bounds = None, plot = True, check_all = False, f
     obs['bkg_vals'] = xr.DataArray(data = bkg_vals, dims = ['exp_time'])
 
     # if true, plot calculated background values
-    if verbose_plots > 0:
-
+    if save_plots > 0 or show_plots > 0:
         #plot_corners([images[0]], bounds, output_dir=output_dir)
-        plot_bkgvals(obs.exp_time.data, bkg_vals, output_dir=output_dir)
+        plot_bkgvals(obs.exp_time.data, bkg_vals, output_dir=output_dir, 
+                     save_plot=save_plots, show_plot=show_plots)
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', stage=1,
                       output_dir=output_dir, filename = ['before_bkg_subs', 'after_bkg_subs'])
 
