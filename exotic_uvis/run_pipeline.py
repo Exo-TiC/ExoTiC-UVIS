@@ -165,11 +165,11 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
         # displacements by 0th order tracking
         if stage1_dict['do_0thtracking']:
-            track_0thOrder(obs,  bkg_stars = stage1_dict['location'])
+            track_0thOrder(obs,  guess=stage1_dict['location'])
 
         # displacements by background stars
         if stage1_dict['do_bkg_stars']:
-            track_bkgstars(obs,  bkg_stars = stage1_dict['bkg_stars_loc'], 
+            track_bkgstars(obs,  bkg_stars=stage1_dict['bkg_stars_loc'], 
                                  verbose_plots=stage1_dict['verbose'],
                                  output_dir=run_dir)
 
