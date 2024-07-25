@@ -18,6 +18,7 @@ from exotic_uvis.stage_1 import full_frame_bckg_subtraction
 from exotic_uvis.stage_1 import Pagul_bckg_subtraction
 from exotic_uvis.stage_1 import column_by_column_subtraction
 from exotic_uvis.stage_1 import track_bkgstars
+from exotic_uvis.stage_1 import track_0thOrder
 from exotic_uvis.stage_1 import free_iteration_rejection
 from exotic_uvis.stage_1 import fixed_iteration_rejection
 from exotic_uvis.stage_1 import laplacian_edge_detection
@@ -146,7 +147,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
         # displacements by 0th order tracking
         if stage1_dict['do_0thtracking']:
-            track_bkgstars(obs,  bkg_stars = stage1_dict['location'])
+            track_0thOrder(obs,  bkg_stars = stage1_dict['location'])
 
         # displacements by background stars
         if stage1_dict['do_bkg_stars']:
