@@ -6,10 +6,10 @@ from astroquery.mast import Observations
 from astropy.io import fits
 import numpy as np
 
-from exotic_uvis import stage_0, stage_1
+from exotic_uvis import stage_0, stage_1, stage_2
 
-class TestStage1(unittest.TestCase):
-    """ Test exotic_uvis stage 1. """
+class TestStage2(unittest.TestCase):
+    """ Test exotic_uvis stage 2. """
 
     @classmethod
     def setUpClass(cls):
