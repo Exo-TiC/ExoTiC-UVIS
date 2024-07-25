@@ -39,7 +39,7 @@ def write_config(config_dict, stage, outdir):
                 value = config_dict[keyword]
                 if keyword == 'location':
                     value = '({},{})'.format(value[0],value[1]) # eliminate the space for parsing
-                f.write("{}    {}    {}\n".format(keyword, value, subsection_comments[subsection][j]))
+                f.write("{0: <15} {1: <50} {2:}\n".format(keyword, value, subsection_comments[subsection][j]))
             # A space between this step and the next step.
             f.write('\n')
         # Declare the file over.
