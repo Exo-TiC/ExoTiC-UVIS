@@ -3,9 +3,11 @@
 # Setup for Stage 1
 toplevel_dir    './files'                                   # Directory where your Stage 0 files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data.
 run_name        'exotic_uvis_run_1'                         # Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).
+verbose         2                                           # Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.
+show_plots      2                                           # Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.
+save_plots      2                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
 
 # Step 1: Read in the data
-verbose         2                                           # Int from 0 to 2. How often and how detailed you want the output log to be.
 
 # Step 2: Reject cosmic rays with time iteration
 # Step 2a: Fixed iteration parameters
@@ -37,7 +39,7 @@ do_smooth       True                                        # Bool. Whether to u
 # Step 4: Background subtraction
 # Step 4a: full frame mode or median background subtraction
 do_full_frame   True                                        # Bool. Whether to subtract the background using the full frame mode or median.
-full_value           'Gaussian'                                  # Str. The value to extract from the histogram. Options are 'coarse', 'Gaussian', or 'median'.
+full_value      'Gaussian'                                  # Str. The value to extract from the histogram. Options are 'coarse', 'Gaussian', or 'median'.
 # WIP
 
 # Step 4b: corners mode or median background subtraction

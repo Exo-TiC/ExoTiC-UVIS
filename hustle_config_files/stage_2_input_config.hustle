@@ -1,9 +1,13 @@
 # ExoTiC-UVIS config file for launching Stage 2: Extraction
 
+# Setup for Stage 2
+toplevel_dir    './files'                                   # Directory where your current project files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data as well as the outputs folder.
+run_name        'exotic_uvis_run_1'                         # Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).
+verbose         2                                           # Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.
+show_plots      2                                           # Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.
+save_plots      2                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
+
 # Step 1: Read in the data
-data_dir        './'                                        # Str. This is the path to the xarray containing the reduced data from Stage 1.
-verbose         2                                           # Int from 0 to 2. How often and how detailed you want the output log to be.
-output_dir      './'                                        # Str. This is the path where the output light curves xarray will be saved to.
 
 # Step 2: Trace configuration
 config          'GRISMCONF'                                 # Str. The type of configuration you are using. Options are 'aXe' or 'GRISMCONF'.
@@ -17,22 +21,14 @@ sens_correction False                                       # Bool. Whether to c
 
 # Step 3a: Box extraction parameters
 determine_hw    True                                        # Bool. If True, automatically determines preferred half-width for each order by minimizing out-of-transit/eclipse residuals.
-halfwidths      (12,12)                                     # Lst of ints. The half-width of extraction aperture to use for each order. Input here is ignored if 'determine_hw' is True.
+halfwidths_box  (12,12)                                     # Lst of ints. The half-width of extraction aperture to use for each order. Input here is ignored if 'determine_hw' is True.
 
 # Step 3b: Optimum extraction parameters
 aperture_type   'median'                                    # Str. Type of aperture to draw. Options are 'row_polyfit', 'column_polyfit', 'column_gaussfit', 'column_moffatfit', 'median', 'smooth'.
-halfwidths      (12,12)                                     # Lst of ints. The half-width of extraction aperture to use for each order. For optimum extraction, you should make this big (>12 pixels at least). There is no 'preferred' half-width in optimum extraction due to the weights.
+halfwidths_opt  (12,12)                                     # Lst of ints. The half-width of extraction aperture to use for each order. For optimum extraction, you should make this big (>12 pixels at least). There is no 'preferred' half-width in optimum extraction due to the weights.
 
 # Step 4: 1D spectral cleaning and aligning
 outlier_sigma   3.5                                         # Float. Sigma at which to reject spectral outliers in time. Outliers are replaced with median of timeseries.
 align           True                                        # Bool. If True, uses cross-correlation to align spectra to keep wavelength solution consistent.
-
-# Step 5: Light curve extraction
-bin_method      'wavelengths'                               # Str. How to bin the light curves. Options are 'columns' (bin N columns at a time) or 'wavelengths' (bin from wavelength1 to wavelength2).
-wavelength_bins np.linspace(2000,8100,100)                  # Lst of floats or numpy array. If bin_method is 'wavelengths', defines edges of each wavelength bin.
-N_columns       10                                          # Int. If bin_method is 'columns', how many columns go into each bin.
-time_binning    None                                        # Int or None. If int, how many frames in time should be binned. Reduces computation time but degrades time resolution.
-sigma_clip      3.5                                         # Float or None. If float, the sigma at which to mask outliers in sigma clipping.
-normalize       True                                        # Bool. If True, normalizes curves by out-of-transit/eclipse flux.
 
 # ENDPARSE

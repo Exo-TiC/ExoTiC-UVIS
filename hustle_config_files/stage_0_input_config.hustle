@@ -2,6 +2,9 @@
 
 # Setup for Stage 0
 toplevel_dir    './files'                                   # Directory where you want your files to be stored after Stage 0 has run. This is where /specimages, /directimages, /visitfiles, and /miscfiles will be stored.
+verbose         2                                           # Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.
+show_plots      2                                           # Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.
+save_plots      2                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
 
 # Step 1: Download files from MAST
 do_download     True                                        # Bool. Whether to perform this step.
