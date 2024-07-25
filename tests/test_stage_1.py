@@ -3,6 +3,7 @@ import shutil
 from urllib import request
 import unittest
 from astroquery.mast import Observations
+from astropy.io import fits
 import numpy as np
 
 from exotic_uvis import stage_0, stage_1
@@ -57,6 +58,23 @@ class TestStageN(unittest.TestCase):
         obs = stage_1.read_data(self.local_data_path)
         self.assertEqual(obs.images.shape[0], 4)
 
+
+    def test_temporal_outlier_rejection(self):
+        """ Replace cosmic rays with various methods. """
+        obs = stage_1.fixed_iteration_rejection(self.xarray_data, sigmas=[5,5,5], replacement=None)
+
+        obs = stage_1.free_iteration_rejection(self.xarray_data, threshold=3.5, verbose_plots=0,
+                                               check_all=False, output_dir=None)
+        
+        # obs = stage_1.sigma_clip_rejection(self.xarray_data, sigma=5)
+
+    def test_spatial_outlier_rejection(self):
+        """ Clean hot pixels with various methods. """
+        obs = stage_1.laplacian_edge_detection(self.xarray_data, sigma=10, factor=2,
+                                               n = 2, build_fine_structure=True, contrast_factor=5)
+        
+        obs = stage_1.spatial_smoothing(self.xarray_data, sigma=10)
+
     def test_bckg_subtract(self):
         """ Subtract background signal with various methods. """
         obs, A, modes = stage_1.Pagul_bckg_subtraction(self.xarray_data,
@@ -67,10 +85,6 @@ class TestStageN(unittest.TestCase):
 
         obs, bckgs = stage_1.full_frame_bckg_subtraction(self.xarray_data, bin_number=1)
         self.assertEqual(obs.images.shape[0], len(bckgs))
-
-    def test_temporal_outlier_rejection(self):
-        """ Replace cosmic rays with various methods. """
-        obs = stage_1.fixed_iteration_rejection(self.xarray_data, sigmas=[5,5,5], replacement=None)
 
 if __name__ == '__main__':
     unittest.main()
