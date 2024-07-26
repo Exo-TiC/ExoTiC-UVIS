@@ -84,7 +84,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         config_dir = os.path.join(stage0_dict['toplevel_dir'],'stage0')
         if not os.path.exists(config_dir):
             os.makedirs(config_dir)
-        write_config(stage0_dict, stage0_dict['target_name'], 0, config_dir)
+        write_config(stage0_dict, '', 0, config_dir)
 
 
     ####### Run Stage 1 #######
