@@ -34,7 +34,7 @@ def save_data_S2(obs, specs, specs_err,
     """
 
     # Create and save xarray for order
-    Res = xr.Dataset(
+    spectra = xr.Dataset(
         data_vars=dict(
             spec = (['order', 'exp_time', 'x'], specs),
             spec_err = (['order', 'exp_time', 'x'], specs_err),
@@ -63,6 +63,6 @@ def save_data_S2(obs, specs, specs_err,
 
     orders_str = ''.join(orders)
 
-    obs.to_netcdf(os.path.join(stage2dir, f'{filename}_{orders_str}.nc'))
+    spectra.to_netcdf(os.path.join(stage2dir, f'{filename}_{orders_str}.nc'))
 
     return 0
