@@ -209,7 +209,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         stage2_dict = parse_config(stage2_config)
 
         # read the 'location' keyword from the Stage 0 config
-        stage0_output_config = os.path.join(stage2_dict['toplevel_dir'],'stage0/stage_0_exoticUVIS.hustle')
+        stage0_output_config = os.path.join(stage2_dict['toplevel_dir'],'stage0/stage_0_.hustle')
         stage0_output_dict = parse_config(stage0_output_config)
 
         # and grab the location of the source
