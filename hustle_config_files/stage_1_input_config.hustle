@@ -39,6 +39,7 @@ do_smooth       True                                        # Bool. Whether to u
 # Step 4: Background subtraction
 # Step 4a: full frame mode or median background subtraction
 do_full_frame   True                                        # Bool. Whether to subtract the background using the full frame mode or median.
+bin_number      10000                                       # Int. Number of histogram bins for full frame background subtraction
 full_value      'Gaussian'                                  # Str. The value to extract from the histogram. Options are 'coarse', 'Gaussian', or 'median'.
 # WIP
 
@@ -62,6 +63,7 @@ median_columns  True                                        # Bool. If True, tak
 # Step 5: Displacement estimation
 # Step 5a: Source center-of-mass tracking
 do_0thtracking  True                                        # Bool. Whether to track frame displacements by centroiding the 0th order.           
+location        [150, 150]
 # WIP
 
 # Step 5b: Background star tracking

@@ -8,11 +8,18 @@ from exotic_uvis.plotting import plot_exposure
 from exotic_uvis.plotting import plot_bkg_stars
 
 def track_bkgstars(obs, bkg_stars, window = 15, verbose_plots = 0, check_all = False, output_dir = None):
+    """Function to compute the x & y displacement of a given background star
 
-    """
-    
-    Function to compute the x & y displacement of a given background star
-    
+    Args:
+        obs (_type_): _description_
+        bkg_stars (_type_): _description_
+        window (int, optional): _description_. Defaults to 15.
+        verbose_plots (int, optional): _description_. Defaults to 0.
+        check_all (bool, optional): _description_. Defaults to False.
+        output_dir (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
     """
 
     # intialize and copy images

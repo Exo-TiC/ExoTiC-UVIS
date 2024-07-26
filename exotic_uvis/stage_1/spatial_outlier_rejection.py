@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.ndimage import median_filter
+from exotic_uvis.plotting import plot_exposure, plot_corners
 
 def spatial_smoothing(obs, sigma=10):
     '''
@@ -7,7 +8,8 @@ def spatial_smoothing(obs, sigma=10):
     '''
     return obs
 
-def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=False, contrast_factor=5):
+def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=False, contrast_factor=5,
+                             verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     '''
     Convolves a Laplacian kernel with the obs.images to replace spatial outliers with
     the median of the surrounding 3x3 kernel.
@@ -109,6 +111,12 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
         # Now replace the xarray datasets with the corrected frame and updated dq array.
         obs.images[k] = obs.images[k].where(obs.images[k].values == data_frame,data_frame)
         obs.data_quality[k] = obs.data_quality[k].where(obs.data_quality[k].values == dq,dq)
+
+        if show_plots == 2 or save_plots == 2:
+            plot_exposure([obs.images.data[k]], min = 0, 
+                          show_plot=show_plots, save_plot=save_plots, 
+                          stage=1, output_dir=output_dir, filename = ['After_LED_correction'])
+            
     print("All frames cleaned of spatial outliers by LED.")
     return obs
 

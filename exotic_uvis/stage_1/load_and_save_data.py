@@ -8,11 +8,14 @@ import os
 
 
 def load_data_S1(data_dir, verbose = 2):
+    """Function to load the data into a numpy array
 
-    """
-    
-    Function to load the data into a numpy array
+    Args:
+        data_dir (_type_): _description_
+        verbose (int, optional): _description_. Defaults to 2.
 
+    Returns:
+        _type_: _description_
     """
 
     # initialize data structures
@@ -92,11 +95,12 @@ def load_data_S1(data_dir, verbose = 2):
 
 
 def save_data_S1(obs, output_dir, filename = 'clean_obs'):
+    """Function to save the xarray in stage 1 folder
 
-    """
-    
-    Function to save the xarray in stage 1 folder
-    
+    Args:
+        obs (_type_): _description_
+        output_dir (_type_): _description_
+        filename (str, optional): _description_. Defaults to 'clean_obs'.
     """
 
     stage1dir = os.path.join(output_dir, 'stage1/')
