@@ -125,22 +125,35 @@ def Pagul_bckg_subtraction(obs, Pagul_path, masking_parameter=0.001, median_on_c
 
 
 def Gauss1D(x, H, A, x0, sigma):
+    """Function to return a 1D Gaussian profile 
 
-    """
+    Args:
+        x (_type_): _description_
+        H (_type_): _description_
+        A (_type_): _description_
+        x0 (_type_): _description_
+        sigma (_type_): _description_
 
-    Function to return a 1D Gaussian profile 
-
+    Returns:
+        _type_: _description_
     """
 
     return H + A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
 
 
-def calculate_mode(array, hist_min, hist_max, hist_bins, fit = None, check_all = False):
+def calculate_mode(array, hist_min, hist_max, hist_bins, fit = None, show_plots = 0):
+    """Function to return the mode of an image
 
-    """
-    
-    Function to return the mode of an image
-    
+    Args:
+        array (_type_): _description_
+        hist_min (_type_): _description_
+        hist_max (_type_): _description_
+        hist_bins (_type_): _description_
+        fit (_type_, optional): _description_. Defaults to None.
+        show_plots (int, optional): _description_. Defaults to 0.
+
+    Returns:
+        _type_: _description_
     """
 
     # create a histogram of counts 
@@ -165,7 +178,7 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, fit = None, check_all =
         bkg_val = (bin_edges[np.argmax(hist)] + bin_edges[np.argmax(hist) + 1])/2
     
     # if true, plot histrogram and location of maximum
-    if check_all:
+    if show_plots == 2:
         plt.figure(figsize = (10, 7))
         plt.hist(array, bins = np.linspace(hist_min, hist_max, hist_bins), color = 'indianred', alpha = 0.7, density=False)
         plt.axvline(bkg_val, color = 'gray', linestyle = '--')
@@ -177,19 +190,32 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, fit = None, check_all =
         plt.axvline((bin_edges[np.argmax(hist)] + bin_edges[np.argmax(hist) + 1])/2, linestyle = '--', color = 'blue')
         plt.xlabel('Pixel Value')
         plt.ylabel('Counts')
-        plt.show()
+        plt.show(block=True)
 
     return bkg_val
 
 
 def corner_bkg_subtraction(obs, bounds = None, plot = True, check_all = False, fit = None, 
-                            hist_min = -60, hist_max = 60, hist_bins = 1000,
+                            hist_min = -20, hist_max = 50, hist_bins = 1000,
                             verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
+    """ Function to compute background subtraction using image corners
 
-    """
+    Args:
+        obs (_type_): _description_
+        bounds (_type_, optional): _description_. Defaults to None.
+        plot (bool, optional): _description_. Defaults to True.
+        check_all (bool, optional): _description_. Defaults to False.
+        fit (_type_, optional): _description_. Defaults to None.
+        hist_min (int, optional): _description_. Defaults to -20.
+        hist_max (int, optional): _description_. Defaults to 50.
+        hist_bins (int, optional): _description_. Defaults to 1000.
+        verbose (int, optional): _description_. Defaults to 0.
+        show_plots (int, optional): _description_. Defaults to 0.
+        save_plots (int, optional): _description_. Defaults to 0.
+        output_dir (_type_, optional): _description_. Defaults to None.
 
-    Function to remove the background flux
-
+    Returns:
+        _type_: _description_
     """
 
     # copy images
@@ -206,17 +232,17 @@ def corner_bkg_subtraction(obs, bounds = None, plot = True, check_all = False, f
             if len(bounds) == 1:
                 bound = bounds[0]
                 img_bkg = calculate_mode(image[bound[0]:bound[1], bound[2]:bound[3]].flatten(), 
-                                         hist_min, hist_max, hist_bins, fit = fit, check_all = check_all)
+                                         hist_min, hist_max, hist_bins, fit = fit, show_plots = show_plots)
             else:
                 image_vals = []
 
                 for bound in bounds:       
                     image_vals = np.concatenate((image_vals, image[bound[0]:bound[1], bound[2]:bound[3]].flatten()))
 
-                img_bkg = calculate_mode(image_vals, hist_min, hist_max, hist_bins, fit = fit, check_all = check_all)
+                img_bkg = calculate_mode(image_vals, hist_min, hist_max, hist_bins, fit = fit, show_plots = show_plots)
                 
         else:
-            img_bkg = calculate_mode(image.flatten(), hist_min, hist_max, hist_bins, fit = fit, check_all = check_all)
+            img_bkg = calculate_mode(image.flatten(), hist_min, hist_max, hist_bins, fit = fit, show_plots = show_plots)
 
         # append background value
         bkg_vals.append(img_bkg)

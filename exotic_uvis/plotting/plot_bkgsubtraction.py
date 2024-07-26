@@ -14,11 +14,12 @@ plt.rc('legend',**{'fontsize':11})
 
 
 def plot_corners(image, corners, output_dir = None):
+    """Function to plot exposure with rectangles to indicate the corners used for background subtraction
 
-    """
-    
-    Function to plot exposure with rectangles to indicate the corners used for background subtraction
-    
+    Args:
+        image (_type_): _description_
+        corners (_type_): _description_
+        output_dir (_type_, optional): _description_. Defaults to None.
     """
 
     plot_exposure(image, show = False)
@@ -40,11 +41,14 @@ def plot_corners(image, corners, output_dir = None):
 
 
 def plot_bkgvals(exp_times, bkg_vals, output_dir = None, save_plot = False, show_plot = False):
+    """Function to create background subtraction plots
 
-    """
-    
-    Function to create background subtraction plots
-    
+    Args:
+        exp_times (_type_): _description_
+        bkg_vals (_type_): _description_
+        output_dir (_type_, optional): _description_. Defaults to None.
+        save_plot (bool, optional): _description_. Defaults to False.
+        show_plot (bool, optional): _description_. Defaults to False.
     """
 
     plt.figure(figsize = (10, 7))

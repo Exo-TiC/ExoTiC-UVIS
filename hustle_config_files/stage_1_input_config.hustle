@@ -39,6 +39,7 @@ do_smooth       True                                        # Bool. Whether to u
 # Step 4: Background subtraction
 # Step 4a: full frame mode or median background subtraction
 do_full_frame   True                                        # Bool. Whether to subtract the background using the full frame mode or median.
+bin_number      10000                                       # Int. Number of histogram bins for full frame background subtraction
 full_value      'Gaussian'                                  # Str. The value to extract from the histogram. Options are 'coarse', 'Gaussian', or 'median'.
 # WIP
 

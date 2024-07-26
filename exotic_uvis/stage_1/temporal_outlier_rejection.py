@@ -92,11 +92,18 @@ def array1D_clip(array, threshold = 3.5, mode = 'median'):
 
 def free_iteration_rejection(obs, threshold = 3.5,
                              verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
+    """Function to replace outliers in the temporal dimension
 
-    """
+    Args:
+        obs (_type_): _description_
+        threshold (float, optional): _description_. Defaults to 3.5.
+        verbose (int, optional): _description_. Defaults to 0.
+        show_plots (int, optional): _description_. Defaults to 0.
+        save_plots (int, optional): _description_. Defaults to 0.
+        output_dir (_type_, optional): _description_. Defaults to None.
 
-    Function to replace outliers in the temporal dimension
-    
+    Returns:
+        _type_: _description_
     """
     
     # copy images and define hit map

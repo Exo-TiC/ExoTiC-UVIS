@@ -136,7 +136,11 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                            factor=stage1_dict['led_factor'], 
                                            n=stage1_dict['led_n'], 
                                            build_fine_structure=stage1_dict['fine_structure'], 
-                                           contrast_factor=stage1_dict['contrast_factor'])
+                                           contrast_factor=stage1_dict['contrast_factor'], 
+                                           verbose=stage1_dict['verbose'],
+                                           show_plots=stage1_dict['show_plots'],
+                                           save_plots=stage1_dict['save_plots'],
+                                           output_dir=run_dir)
             
         # spatial removal by smoothing
         if stage1_dict['do_smooth']:
