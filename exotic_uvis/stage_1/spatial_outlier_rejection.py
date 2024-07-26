@@ -112,7 +112,14 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
         obs.images[k] = obs.images[k].where(obs.images[k].values == data_frame,data_frame)
         obs.data_quality[k] = obs.data_quality[k].where(obs.data_quality[k].values == dq,dq)
 
+        if show_plots == 1 or save_plots == 1:
+            print('level 1 plots')
+
         if show_plots == 2 or save_plots == 2:
+            plot_exposure([S], min = 0, max = 1, 
+                          show_plot=show_plots, save_plot=save_plots, 
+                          stage=1, output_dir=output_dir, filename = ['Location of corrected pixels'])
+            
             plot_exposure([obs.images.data[k]], min = 0, 
                           show_plot=show_plots, save_plot=save_plots, 
                           stage=1, output_dir=output_dir, filename = ['After_LED_correction'])

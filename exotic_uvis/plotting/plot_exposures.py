@@ -17,12 +17,24 @@ def plot_exposure(images, line_data = None, scatter_data = None,
                   min = -3, max = 4, mark_size = 30, 
                   show_plot = False, save_plot = False, 
                   stage = 0, filename = None, output_dir = None):
+    """Function to plot an image given certain parameters 
 
+    Args:
+        images (_type_): _description_
+        line_data (_type_, optional): _description_. Defaults to None.
+        scatter_data (_type_, optional): _description_. Defaults to None.
+        extent (_type_, optional): _description_. Defaults to None.
+        title (_type_, optional): _description_. Defaults to None.
+        min (int, optional): _description_. Defaults to -3.
+        max (int, optional): _description_. Defaults to 4.
+        mark_size (int, optional): _description_. Defaults to 30.
+        show_plot (bool, optional): _description_. Defaults to False.
+        save_plot (bool, optional): _description_. Defaults to False.
+        stage (int, optional): _description_. Defaults to 0.
+        filename (_type_, optional): _description_. Defaults to None.
+        output_dir (_type_, optional): _description_. Defaults to None.
     """
-    Function to plot an image given certain parameters 
     
-    """
-
     for i, data in enumerate(images): 
 
         image = data.copy()
@@ -58,5 +70,3 @@ def plot_exposure(images, line_data = None, scatter_data = None,
         plt.show(block=True)
     
     return
-
-

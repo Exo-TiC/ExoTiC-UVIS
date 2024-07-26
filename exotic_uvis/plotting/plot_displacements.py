@@ -14,15 +14,26 @@ plt.rc('legend',**{'fontsize':11})
 
 
 
-def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos, output_dir = None):
+def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos, 
+                   show_plot = False, save_plot = False, 
+                   filename = None, output_dir = None):
+    """Function to plot the displacements of the background stars
 
+    Args:
+        image (_type_): _description_
+        exp_time (_type_): _description_
+        mean_loc (_type_): _description_
+        mean_pos (_type_): _description_
+        stars_pos (_type_): _description_
+        output_dir (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
     """
-    
-    Function to plot the displacements of the background stars
+    stagedir = os.path.join(output_dir, 'stage1/plots/') 
 
-    """
-
-    plot_exposure([image], scatter_data = mean_loc, title = 'Location of background stars', 
+    plot_exposure([image], scatter_data = mean_loc, title = 'Location of background stars',  
+                  show_plot=show_plot, save_plot=save_plot,
                   stage=1, output_dir=output_dir, filename = ['bkg_stars_location'])
       
     plt.figure(figsize = (10, 7))
@@ -31,9 +42,11 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos, output_dir = 
     plt.xlabel('Exposure times')
     plt.ylabel('X pixel displacement')
 
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
     filedir = os.path.join(stagedir, 'bkg_stars_x_displacement.png')
-    plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
+    if save_plot:
+        plt.savefig(filedir, bbox_inches='tight', dpi=300)
+    if show_plot:
+        plt.show(block=True)
 
 
     plt.figure(figsize = (10, 7))
@@ -41,11 +54,13 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos, output_dir = 
     plt.plot(exp_time, np.transpose(stars_pos[:, :, 1]), '-o', alpha = 0.5)
     plt.xlabel('Exposure times')
     plt.ylabel('Y pixel displacement')
-    plt.show()
+    plt.show(block=True)
 
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
-    filedir = os.path.join(stagedir, 'bkg_stars_x_displacement.png')
-    plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
+    filedir = os.path.join(stagedir, 'bkg_stars_y_displacement.png')
+    if save_plot:
+        plt.savefig(filedir, bbox_inches='tight', dpi=300)
+    if show_plot:
+        plt.show(block=True)
 
     
     return 0

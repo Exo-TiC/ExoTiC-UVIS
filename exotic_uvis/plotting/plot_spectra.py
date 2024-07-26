@@ -17,10 +17,19 @@ plt.rc('legend',**{'fontsize':11})
 def plot_one_spectrum(wavelengths, spectrum, show_plot = False, 
                       save_plot = False, stage = 0, 
                       filename = None, output_dir = None):
+    """Function to plot one extracted spectrum
 
-    """
-    Function to plot one extracted spectrum
+    Args:
+        wavelengths (_type_): _description_
+        spectrum (_type_): _description_
+        show_plot (bool, optional): _description_. Defaults to False.
+        save_plot (bool, optional): _description_. Defaults to False.
+        stage (int, optional): _description_. Defaults to 0.
+        filename (_type_, optional): _description_. Defaults to None.
+        output_dir (_type_, optional): _description_. Defaults to None.
 
+    Returns:
+        _type_: _description_
     """
 
     plt.figure(figsize = (10, 7))
