@@ -60,12 +60,15 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
 
 
 def array1D_clip(array, threshold = 3.5, mode = 'median'): 
+    """Function to detect and replace outliers in a 1D array above or below a certain sigma threshold imposed
 
-    """
+    Args:
+        array (_type_): _description_
+        threshold (float, optional): _description_. Defaults to 3.5.
+        mode (str, optional): _description_. Defaults to 'median'.
 
-    Function to detect and replace outliers in a 1D array above or below a certain sigma threshold imposed
-
-    
+    Returns:
+        _type_: _description_
     """
     
     # define outlier flag and mask
