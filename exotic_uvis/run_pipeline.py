@@ -196,10 +196,10 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             save_data_S1(obs, run_dir)
 
         # write config
-        #config_dir = os.path.join(run_dir,'stage1')
-        #if not os.path.exists(config_dir):
-        #    os.makedirs(config_dir)
-        #write_config(stage1_dict, 1, config_dir)
+        config_dir = os.path.join(run_dir,'stage1')
+        if not os.path.exists(config_dir):
+            os.makedirs(config_dir)
+        write_config(stage1_dict, 1, config_dir)
         
 
     ####### Run Stage 2 #######
@@ -292,4 +292,10 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             
         # save 1D spectra
         save_data_S2(obs, specs, specs_err, traces_x, traces_y, 
-                     wavs, stage2_dict['traces_to_conf'], output_dir=stage2_dict['toplevel_dir'])
+                     wavs, stage2_dict['traces_to_conf'], output_dir=run_dir)
+        
+        # write config
+        config_dir = os.path.join(run_dir,'stage2')
+        if not os.path.exists(config_dir):
+            os.makedirs(config_dir)
+        write_config(stage2_dict, 2, config_dir)

@@ -1,10 +1,11 @@
 import os
 
-def write_config(config_dict, stage, outdir):
+def write_config(config_dict, run_name, stage, outdir):
     '''
     Unpacks a dictionary and writes it out to a config file.
 
     :param config_dict: dict. The dictionary used to guide the execution of a Stage of ExoTiC-UVIS.
+    :param run_name: Str. The name of this run.
     :param stage: int from 0 to 5. Which Stage was executed, which sets the template of the config file.
     :param outdir: str. The path to where the config file is to be stored.
     :return: config .hustle file written to the outdir.
@@ -20,7 +21,7 @@ def write_config(config_dict, stage, outdir):
         header, subsection_headers, subsection_keys, subsection_comments = Stage3_info()
     
     # And write.
-    with open(os.path.join(outdir,"stage_{}_exoticUVIS.hustle".format(stage)), mode='w') as f:
+    with open(os.path.join(outdir,"stage_{}_{}.hustle".format(stage, run_name)), mode='w') as f:
         print("Writing config file for Stage {}...".format(stage))
         # First, write the overall file header.
         f.write(header)
@@ -36,8 +37,12 @@ def write_config(config_dict, stage, outdir):
             # For every keyword and comment in that step...
             for j, keyword in enumerate(subsection_keys[subsection]):
                 # Write the keyword, its stringed value, and the comment.
-                value = str(config_dict[keyword])
-                f.write("{0:<15} {1:<100} {2:}\n".format(keyword, value, subsection_comments[subsection][j]))
+                try:
+                    value = str(config_dict[keyword])
+                    f.write("{0:<15} {1:<100} {2:}\n".format(keyword, value, subsection_comments[subsection][j]))
+                except IndexError:
+                    print(subsection, subsection_keys[subsection])
+                    print("Index error here!")
             # A space between this step and the next step.
             f.write('\n')
         # Declare the file over.
@@ -224,7 +229,7 @@ def Stage2_info():
                        }
     
     subsection_comments = {"Setup":["# Directory where your current project files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data as well as the outputs folder.",
-                                    "# Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.)."
+                                    "# Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).",
                                     "# Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.",
                                     "# Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.",
                                     "# Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.",],
@@ -271,7 +276,7 @@ def Stage3_info():
                        }
     
     subsection_comments = {"Setup":["# Directory where your current project files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data as well as the outputs folder.",
-                                    "# Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.)."
+                                    "# Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).",
                                     "# Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.",
                                     "# Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.",
                                     "# Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.",],
