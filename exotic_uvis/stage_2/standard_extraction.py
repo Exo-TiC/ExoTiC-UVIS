@@ -1,3 +1,4 @@
+from tqdm import tqdm
 import numpy as np
 from scipy.optimize import least_squares
 
@@ -17,18 +18,14 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, wavs):
     err_traces = []
 
     # Iterate over frames.
-    for k in range(obs.images.shape[0]):
+    for k in tqdm(range(obs.images.shape[0]),desc='Extracting standard spectra... Progress:'):
         # Get array values and error values of the current frame.
         frame = obs.images[k].values
         err = obs.errors[k].values
 
-        # Get trace solution for this frame.
-        xs = trace_x[k]
-        ys = trace_y[k]
-
         # Pull out just the trace from the frame.
-        trace = get_trace(frame, halfwidth, xs, ys)
-        err_trace = get_trace(err, halfwidth, xs, ys)
+        trace = get_trace(frame, halfwidth, trace_x, trace_y[k])
+        err_trace = get_trace(err, halfwidth, trace_x, trace_y[k])
 
         traces.append(trace)
         err_traces.append(err_trace)
@@ -45,13 +42,15 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, wavs):
     # Extract 1D spectrum using the standard method.
     for k in range(traces.shape[0]):
         #show_frame(trace[:,:,k],"Frame {} from which spectrum is extracted".format(k))
-        trunc_wavs, err = box(err_traces[:,:,k], wavs[k])
-        trunc_wavs, flx = box(traces[:,:,k], wavs[k])
-        wavs_new.append(trunc_wavs)
+        #trunc_wavs, err = box(err_traces[k,:,:], wavs[k])
+        #trunc_wavs, flx = box(traces[k,:,:], wavs[k])
+        err = box(err_traces[k,:,:], wavs[k])
+        flx = box(traces[k,:,:], wavs[k])
+        wavs_new.append(wavs[k])
         oneD_spec.append(flx)
         spec_err.append(err)
     
-    return np.array(trunc_wavs), np.array(oneD_spec), np.array(spec_err)
+    return np.array(wavs), np.array(oneD_spec), np.array(spec_err)
 
 def get_trace(frame, halfwidth, xs, ys):
     '''
@@ -67,7 +66,7 @@ def get_trace(frame, halfwidth, xs, ys):
     for i,x in enumerate(xs):
         x_pos = int(x)
         y_pos = range(int(ys[i])-halfwidth,int(ys[i])+halfwidth+1)
-        dispersion_profile = frame[x_pos,y_pos[0]:y_pos[-1]]
+        dispersion_profile = frame[y_pos[0]:y_pos[-1],x_pos]
         dispersion_profiles.append(dispersion_profile)
     return np.array(dispersion_profiles)
 
@@ -79,11 +78,12 @@ def box(trace, wavs):
     :param wavs: 1D array. Wavelength solution on the x axis.
     :return: the unweighted spectrum for this trace.
     '''
-    ysum = np.sum(trace,axis=0)
-    ok = (wavs>2000) & (wavs<8000)
-    flx = ysum[ok]
+    #ysum = np.sum(trace,axis=1)
+    #ok = (wavs>2000) & (wavs<8000)
+    #flx = ysum[ok]
     #flx = np.where(flx == np.inf, 0, flx)
-    return wavs[ok], flx
+    #return wavs[ok], flx
+    return np.sum(trace,axis=1)
 
 def determine_ideal_halfwidth(obs, trace_x, trace_y, wavs, indices=([0,10],[-10,-1])):
     '''
@@ -101,7 +101,7 @@ def determine_ideal_halfwidth(obs, trace_x, trace_y, wavs, indices=([0,10],[-10,
     reses = []
 
     # Test each half-width and measure its scatter.
-    for hw in tested_hws:
+    for hw in tqdm(tested_hws, desc='Testing half-widths to minimize scatter... Progress:'):
         # Get the 1D spectra.
         wavs, oneD_spec = standard_extraction(obs, hw, trace_x, trace_y, wavs)
         # Bin into a median-normalized white light curve.

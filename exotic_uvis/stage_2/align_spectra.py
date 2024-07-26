@@ -68,11 +68,20 @@ def cross_corr(spec, temp_spec, plot = False, trim = 1, fit_window = 5, subpix_w
 
 
 def align_spectra(obs, specs, specs_err, trace_x, align = False, ind1 = 0, ind2 = -1, plot_shifts = True):
+    """Aligns 1D spectra and uncertainties using cross-correlation
 
-    """
-    
-    Function to align the extracted spectra
-    
+    Args:
+        obs (xarray): _description_
+        specs (_type_): _description_
+        specs_err (_type_): _description_
+        trace_x (_type_): _description_
+        align (bool, optional): _description_. Defaults to False.
+        ind1 (int, optional): _description_. Defaults to 0.
+        ind2 (int, optional): _description_. Defaults to -1.
+        plot_shifts (bool, optional): _description_. Defaults to True.
+
+    Returns:
+        xarray: _description_
     """
 
     # initialize variables and define median spectrum as template

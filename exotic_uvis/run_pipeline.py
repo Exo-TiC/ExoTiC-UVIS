@@ -214,13 +214,14 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             os.makedirs(run_dir)
 
         # iterate over orders
-        wavs, specs, specs_err = [], [], []
+        wavs, specs, specs_err, traces_x, traces_y, sens = [], [], [], [], [], []
         for i, order in enumerate(stage2_dict['traces_to_conf']):
             # configure trace
-            trace_x, trace_y, trace_wavs, widths, trace_sens = get_trace_solution(obs,
-                                                                      order=order,
-                                                                      source_pos=stage2_dict['location'],
-                                                                      refine_calibration=stage2_dict['refine_fit'])
+            trace_x, trace_y, wav, widths, fs = get_trace_solution(obs,
+                                                                    order=order,
+                                                                    source_pos=stage2_dict['location'],
+                                                                    refine_calibration=stage2_dict['refine_fit'],
+                                                                    path_to_cal=stage2_dict['path_to_config'])
             
             # extract
             if stage2_dict['method'] == 'box':
@@ -229,7 +230,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                     halfwidth = determine_ideal_halfwidth(obs,
                                                           trace_x=trace_x,
                                                           trace_y=trace_y,
-                                                          wavs=trace_wavs)
+                                                          wavs=wav)
                 else:
                     halfwidth = stage2_dict['halfwidths_box'][i]
                 
@@ -238,7 +239,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                           halfwidth=halfwidth,
                                                           trace_x=trace_x,
                                                           trace_y=trace_y,
-                                                          wavs=trace_wavs)
+                                                          wavs=wav)
                 
             elif stage2_dict['method'] == 'optimum':
                 # optimum extraction
@@ -247,21 +248,36 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             wavs.append(wav)
             specs.append(spec)
             specs_err.append(spec_err)
+            traces_x.append(trace_x)
+            traces_y.append(trace_y)
+            sens.append(fs)
+        
+        wavs = np.array(wavs)
+        traces_x = np.array(traces_x)
+        traces_y = np.array(traces_y)
+        sens = np.array(sens)
 
         # align
         if stage2_dict['align']:
-            specs, specs_err, shifts = align_spectra(obs,specs,specs_err,
-                                                     trace_x=trace_x,
-                                                     align=True,
-                                                     ind1=0,
-                                                     ind2=-1,
-                                                     plot_shifts=False)
-        
+            aligned_specs = []
+            aligned_specs_err = []
+            for spec, spec_err, wav in zip(specs, specs_err, wavs):
+                spec, spec_err, shifts = align_spectra(obs,spec,spec_err,
+                                                      trace_x=wav,
+                                                      align=True,
+                                                      ind1=0,
+                                                      ind2=-1,
+                                                      plot_shifts=False)
+                aligned_specs.append(spec)
+                aligned_specs_err.append(spec_err)
+            specs = np.array(aligned_specs)
+            specs_err = np.array(aligned_specs_err)
+            
         # clean
         if stage2_dict['outlier_sigma']:
             specs = clean_spectra(specs,
                                   sigma=stage2_dict['outlier_sigma'])
             
         # save 1D spectra
-        save_data_S2(obs, specs, specs_err, trace_x, trace_y, 
-                     trace_wavs, output_dir=stage2_dict['toplevel_dir'])
+        save_data_S2(obs, specs, specs_err, traces_x, traces_y, 
+                     wavs, stage2_dict['traces_to_conf'], output_dir=stage2_dict['toplevel_dir'])
