@@ -64,10 +64,10 @@ def get_x_range(order):
     :return: the x range and the order-to-letter/symbol translator dictionary.
     '''
     if order == "+1":
-        dxs = (-550, 0)
+        dxs = (-500, 0)
     
     if order == "-1":
-        dxs = (225, 775)
+        dxs = (225, 725)
     
     if order == "+2":
         dxs = (-700, -150) # is this right?
