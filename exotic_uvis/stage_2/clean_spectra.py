@@ -40,4 +40,4 @@ def clean_spectra(specs, sigma):
             oneD_spec = np.where(S == 1, med_spec, oneD_spec)
         print("1D spectral cleaning complete. Removed %.0f spectral outliers." % bad_spex_removed)
         cleaned_specs.append(oneD_spec)
-    return cleaned_specs
+    return np.array(cleaned_specs)

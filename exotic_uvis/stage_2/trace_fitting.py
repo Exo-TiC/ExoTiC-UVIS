@@ -15,55 +15,46 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal):
     :param source_pos: tuple of float. The x, y position of the source in the unembedded direct image.
     :param refine_calibration: bool. If True, uses Gaussian fitting to improve the location of the trace.
     :param path_to_cal: str. Path to the GRISMCONF calibration file used to locate the trace.
-    :return: the trace x and y positions for each image, with wavelength solutions and optional sensitivity corrections.
+    :return: the trace x and y positions from the direct image, with the wavelength solution and optional sensitivity corrections.
     '''
     # Use the order and calibration software information to get the x range.
     dxs = get_x_range(order)
 
-    # Initialize some empty lists.
-    trace_x = []
-    trace_y = []
-    trace_wavs = []
-    trace_sens = []
+    # Get the mean subarr_coords offsets.
+    offset_x0 = np.mean(obs.subarr_coords[:][2])
+    offset_y0 = np.mean(obs.subarr_coords[:][0])
+    adjusted_x0 = source_pos[0] + offset_x0
+    adjusted_y0 = source_pos[1] + offset_y0
 
-    # Iterate over frame.
-    for k in range(obs.images.shape[0]):
-        # Adjust the source position using the subarray coordinates.
-        adjusted_x0 = source_pos[0] + obs.subarr_coords[k][2]
-        adjusted_y0 = source_pos[1] + obs.subarr_coords[k][0]
+    # Get the x, y positions of the trace as well as wavelength solution and sensitivity correction.
+    trace_x, trace_y, wavs, fs = get_calibration_trace(order,
+                                                       adjusted_x0.values,
+                                                       adjusted_y0.values,
+                                                       dxs,
+                                                       path_to_cal)
 
-        # Get the x, y positions of the trace as well as wavelength solution and sensitivity correction.
-        xs, ys, wavs, fs = get_calibration_trace(order,
-                                                 adjusted_x0,
-                                                 adjusted_y0,
-                                                 dxs,
-                                                 path_to_cal)
-        
-        # Undo the offsets from the subarray coordinates.
-        xs = [i - obs.subarr_coords[k][2] for i in xs]
-        ys = [i - obs.subarr_coords[k][0] for i in ys]
-
-        # And store.
-        trace_x.append(xs)
-        trace_y.append(ys)
-        trace_wavs.append(wavs)
-        trace_sens.append(fs)
+    # Undo the offsets from the subarray coordinates.
+    trace_x = [i - offset_x0 for i in trace_x]
+    trace_y = [i - offset_y0 for i in trace_y]
 
     # Convert to numpy arrays.
     trace_x = np.array(trace_x)
     trace_y = np.array(trace_y)
-    trace_sens = np.array(trace_sens)
+    wavs = np.array(wavs)
+    fs = np.array(fs)
     
-    # Use Gaussian fitting to refine the x, y positions if asked.
+    # Use Gaussian fitting to refine the y positions if asked.
     if refine_calibration:
-        trace_y, widths = fit_trace(obs, trace_x, trace_y, 
-                                   profile_width = 70, pol_deg = 7, fit_type = 'Gaussian',
-                                   fit_trace = False, plot_profile = None, check_all = False)
+        trace_y, widths = fit_trace(obs, trace_x, trace_y, profile_width = 70, pol_deg = 7, fit_type = 'Gaussian',
+                                    fit_trace = False, plot_profile = None, check_all = False)
     else:
         # No information obtained about trace widths.
+        refined_trace_y = np.empty((obs.images.shape[0],trace_x.shape[0]))
+        for k in range(obs.images.shape[0]):
+            refined_trace_y[k,:] = trace_y
+        trace_y = refined_trace_y
         widths = None
-    
-    return trace_x, trace_y, trace_wavs, widths, trace_sens
+    return trace_x, trace_y, wavs, widths, fs
 
 def get_x_range(order):
     '''
