@@ -257,6 +257,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                 # optimum extraction
                 wav, spec, spec_err = optimal_extraction(obs)
 
+
             wavs.append(wav)
             specs.append(spec)
             specs_err.append(spec_err)
