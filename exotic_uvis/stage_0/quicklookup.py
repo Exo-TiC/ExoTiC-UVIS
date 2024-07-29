@@ -141,6 +141,8 @@ def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir,
 
         animation.save(os.path.join(stage0dir, 'quicklookup.gif'), writer = 'ffmpeg', fps = 10)
 
+    plt.close() # save memory
+
     return 0
 
 

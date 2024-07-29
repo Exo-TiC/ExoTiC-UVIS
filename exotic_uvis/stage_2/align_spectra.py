@@ -123,6 +123,8 @@ def align_spectra(obs, specs, specs_err, trace_x, align = False, ind1 = 0, ind2 
         plt.ylabel('X shift')
         plt.title('Spectrum shift')
         plt.show()
+        
+        plt.close() # save memory
 
         colors = plt.cm.rainbow(np.linspace(0, 1, 25))
 
@@ -134,6 +136,8 @@ def align_spectra(obs, specs, specs_err, trace_x, align = False, ind1 = 0, ind2 
         for i, spec in enumerate(align_specs[0:25, ind1:ind2]):
             plt.plot(spec, color = colors[i])
         plt.show()
+
+        plt.close() # save memory
 
     return align_specs, align_specs_err, np.array(x_shifts)
 

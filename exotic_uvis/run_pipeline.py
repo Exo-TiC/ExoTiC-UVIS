@@ -101,7 +101,10 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         stage1_dict['location'] = stage0_output_dict['location']
 
         # read data
-        obs = load_data_S1(stage1_dict['toplevel_dir'], verbose = stage1_dict['verbose'])
+        obs = load_data_S1(stage1_dict['toplevel_dir'],
+                           skip_first_fm = stage1_dict['skip_first_fm'],
+                           skip_first_or = stage1_dict['skip_first_or'],
+                           verbose = stage1_dict['verbose'])
 
         # create output directory
         output_dir = os.path.join(stage1_dict['toplevel_dir'],'outputs')
@@ -123,7 +126,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         # temporal removal free iterations
         if stage1_dict['do_free_iter']:
             obs = free_iteration_rejection(obs,
-                                           stage1_dict['free_sigma'], 
+                                           threshold=stage1_dict['free_sigma'], 
                                            verbose=stage1_dict['verbose'],
                                            show_plots=stage1_dict['show_plots'],
                                            save_plots=stage1_dict['save_plots'],
@@ -242,20 +245,20 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                     halfwidth = determine_ideal_halfwidth(obs,
                                                           trace_x=trace_x,
                                                           trace_y=trace_y,
-                                                          wavs=wav)
+                                                          wavs=wav,
+                                                          indices=stage2_dict['indices'])
                 else:
                     halfwidth = stage2_dict['halfwidths_box'][i]
                 
                 # box extraction
-                wav, spec, spec_err = standard_extraction(obs,
-                                                          halfwidth=halfwidth,
-                                                          trace_x=trace_x,
-                                                          trace_y=trace_y,
-                                                          wavs=wav)
+                spec, spec_err = standard_extraction(obs,
+                                                     halfwidth=halfwidth,
+                                                     trace_x=trace_x,
+                                                     trace_y=trace_y)
                 
             elif stage2_dict['method'] == 'optimum':
                 # optimum extraction
-                wav, spec, spec_err = optimal_extraction(obs)
+                spec, spec_err = optimal_extraction(obs)
 
             wavs.append(wav)
             specs.append(spec)

@@ -7,7 +7,7 @@ from tqdm import tqdm
 import os
 
 
-def load_data_S1(data_dir, verbose = 2):
+def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose = 2):
     """Function to load the data into a numpy array
 
     Args:
@@ -25,11 +25,19 @@ def load_data_S1(data_dir, verbose = 2):
     # iterate over all files in specs directory
     specs_dir = os.path.join(data_dir, 'specimages/')
     files = np.sort(os.listdir(specs_dir))
+
     
     for filename in tqdm(files, 'Loading data... Progress:', disable = verbose == 0):
    
         # only open flt files 
         if filename[-9:] == '_flt.fits':
+            if (skip_first_fm and 'fm001' in filename):
+                # skip loading first frame
+                continue
+
+            if (skip_first_or and 'or01' in filename):
+                # skip loading first orbit
+                continue
 
             # open file and save image and error
             with fits.open(os.path.join(specs_dir, filename)) as hdul:

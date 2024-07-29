@@ -12,27 +12,30 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
     :param_replacement: int or None. If None, replace outlier pixels with median in time. If int, replace with median of int values either side in time.
     :return: obs with cosmic rays removed.
     '''
+    # Copy images and define hit map.
+    images = obs.images.data.copy()
+    hit_map = np.zeros_like(images)
+
     # Track pixels corrected.
     bad_pix_removed = 0
     # Iterate over each sigma.
     for j, sigma in enumerate(sigmas):
         # Get the median time frame and std as a reference.
-        d_all = obs.images[:].values
-        med = np.median(d_all,axis=0)
-        std = np.std(d_all,axis=0)
+        med = np.median(images,axis=0)
+        std = np.std(images,axis=0)
 
         # Track outliers flagged by this sigma.
         bad_pix_this_sigma = 0
 
         # Then check over frames and see where outliers are.
-        for k in tqdm(range(obs.images.shape[0]), desc = "Correcting for %.0fth sigma... Progress:" % j):
+        for k in tqdm(range(images.shape[0]), desc = "Correcting for %.0fth sigma... Progress:" % j):
             # Get the frame and dq array as np.array objects so we can operate on them.
-            d = obs.images[k].values
-            dq = obs.data_quality[k].values
+            d = images[k]
             S = np.where(np.abs(d - med) > sigma*std, 1, 0)
             
             # Report where data quality flags should be added and count pixels to be replaced.
-            dq = np.where(S != 0, 1, dq)
+            dq = np.where(S != 0, 1, 0)
+            hit_map[k,:,:] += dq
             bad_pix_this_frame = np.count_nonzero(S)
             bad_pix_this_sigma += bad_pix_this_frame
 
@@ -45,17 +48,46 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
                 # Cut at edges.
                 if l < 0:
                     l = 0
-                if r > obs.images.shape[0]:
-                    r = obs.images.shape[0]
-                correction = np.median(d_all[l:r,:,:],axis=0)
-            # Correct frame and replace obs.images frame with the new array.
-            d = np.where(S == 1, correction, d)
-            obs.images[k] = obs.images[k].where(obs.images[k].values == d,d)
-            obs.data_quality[k] = obs.data_quality[k].where(obs.data_quality[k].values == dq,dq)
+                if r > images.shape[0]:
+                    r = images.shape[0]
+                correction = np.median(images[l:r,:,:],axis=0)
+            # Correct frame and replace in images.
+            images[k] = np.where(S == 1, correction, d)
         
         print("Bad pixels removed on iteration %.0f with sigma %.2f: %.0f" % (j, sigma, bad_pix_this_sigma))
         bad_pix_removed += bad_pix_this_sigma
+    
+    # Correct hit map.
+    hit_map[hit_map != 0] = 1
     print("All iterations complete. Total pixels corrected: %.0f out of %.0f" % (bad_pix_removed, S.shape[0]*S.shape[1]))
+
+    # if true, plot one exposure and draw location of all detected cosmic rays in all exposures
+    if save_plots > 0 or show_plots > 0:
+        thits, xhits, yhits = np.where(hit_map == 1)
+        plot_exposure([obs.images.data[0], images[0]], min = 0, 
+                      title = 'Temporal Bad Pixel removal Example', 
+                      show_plot=show_plots, save_plot=save_plots,
+                      stage=1, output_dir=output_dir,
+                      filename = ['Before_CR_correction', 'After_CR_correction'])
+
+        plot_exposure([obs.images.data[0]], scatter_data=[yhits, xhits], min = 0, 
+                      title = 'Location of corrected pixels', mark_size = 1,
+                      show_plot=show_plots, save_plot=save_plots, 
+                      stage=1, output_dir=output_dir, filename = ['CR_location'])
+
+    # if true, check each exposure separately
+    if save_plots == 2:
+        for i in range(len(images)):
+            xhits, yhits = np.where(hit_map[i] == 1)
+            plot_exposure([obs.images.data[i]], scatter_data=[yhits, xhits], min = 0,
+                          title = 'Location of corrected pixels', mark_size = 1,
+                          show_plot=show_plots, save_plot=save_plots, 
+                          stage=1, output_dir=output_dir, filename = [f'CR_location_frame{i}'])
+            
+    # modify original images and dq
+    obs.images.data = images
+    obs.data_quality.data = np.where(hit_map != 0, hit_map, obs.data_quality.data)
+
     return obs
 
 
@@ -141,9 +173,12 @@ def free_iteration_rejection(obs, threshold = 3.5,
     if save_plots == 2:
         for i in range(len(images)):
             xhits, yhits = np.where(hit_map[i] == 1)
-            plot_exposure([obs.images.data[i]], scatter_data=[yhits, xhits], min = 0)
+            plot_exposure([obs.images.data[i]], scatter_data=[yhits, xhits], min = 0,
+                          title = 'Location of corrected pixels', mark_size = 1,
+                          show_plot=show_plots, save_plot=save_plots, 
+                          stage=1, output_dir=output_dir, filename = [f'CR_location_frame{i}'])
     
     # modify original images
     obs.images.data = images
 
-    return 0
+    return obs
