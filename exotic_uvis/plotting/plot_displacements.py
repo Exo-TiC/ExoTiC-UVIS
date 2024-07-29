@@ -48,6 +48,8 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos,
     if show_plot:
         plt.show(block=True)
 
+    plt.close() # save memory
+
 
     plt.figure(figsize = (10, 7))
     plt.plot(exp_time, mean_pos[:, 1], '-o')
@@ -61,6 +63,8 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos,
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
     if show_plot:
         plt.show(block=True)
+
+    plt.close() # save memory
 
     
     return 0

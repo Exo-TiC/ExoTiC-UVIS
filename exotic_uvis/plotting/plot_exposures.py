@@ -59,7 +59,7 @@ def plot_exposure(images, line_data = None, scatter_data = None,
         stagedir = os.path.join(output_dir, f'stage{stage}/plots/')
 
         if not os.path.exists(stagedir):
-                os.makedirs(stagedir) 
+            os.makedirs(stagedir) 
         
         filedir = os.path.join(stagedir, f'{filename[i]}.png')
         
@@ -68,5 +68,7 @@ def plot_exposure(images, line_data = None, scatter_data = None,
         
     if show_plot:
         plt.show(block=True)
+
+    plt.close() # save memory
     
     return

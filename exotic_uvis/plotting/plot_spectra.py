@@ -44,4 +44,6 @@ def plot_one_spectrum(wavelengths, spectrum, show_plot = False,
     if save_plot:
         plt.show()
 
+    plt.close() # save memory
+
     return 0

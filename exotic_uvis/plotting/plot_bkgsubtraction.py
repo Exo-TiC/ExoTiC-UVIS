@@ -35,7 +35,7 @@ def plot_corners(image, corners, output_dir = None):
     stagedir = os.path.join(output_dir, 'stage1/plots/') 
     filedir = os.path.join(stagedir, 'bkg_corners.png')
     plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
-
+    plt.close() # save memory
 
     return 
 
@@ -65,5 +65,7 @@ def plot_bkgvals(exp_times, bkg_vals, output_dir = None, save_plot = False, show
 
     if show_plot:
         plt.show(block=True)
+    
+    plt.close() # save memory
 
     return 
