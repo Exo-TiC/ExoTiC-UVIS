@@ -1,5 +1,6 @@
 from tqdm import tqdm
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy.optimize import least_squares
 
 def standard_extraction(obs, halfwidth, trace_x, trace_y, wavs):
