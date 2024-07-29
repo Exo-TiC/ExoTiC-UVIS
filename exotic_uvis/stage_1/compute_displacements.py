@@ -72,13 +72,15 @@ def track_bkgstars(obs, bkg_stars, window = 15, verbose_plots = 0, check_all = F
     return pos
 
 def track_0thOrder(obs, guess):
-    '''
-    Tracks the 0th order through all frames using centroiding.
-    
-    :param obs: xarray. Its obs.images DataSet contains the images.
-    :param guess: lst of float. Initial x, y position guess for the 0th order's location.
-    :return: location of the direct image in x, y floats.
-    '''    
+    """Tracks the 0th order through all frames using centroiding.
+
+    Args:
+        obs (xarray): Its obs.images DataSet contains the images.
+        guess (lst of float): Initial x, y position guess for the 0th order's location.
+
+    Returns:
+        lst of float: location of the direct image in x, y floats.
+    """
     # Correct direct image guess to be appropriate for spec images.
     # FIX: hardcoded based on WASP-31 test. There must be a better way...
     guess[0] += 100
@@ -98,7 +100,6 @@ def track_0thOrder(obs, guess):
 
         # Centroid the window.
         xs, ys = centroid_com(window)
-        print(xs, ys)
 
         # Return to native window.
         xs += x0 - 70

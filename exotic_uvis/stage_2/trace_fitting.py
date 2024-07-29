@@ -21,15 +21,15 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal):
     dxs = get_x_range(order)
 
     # Get the mean subarr_coords offsets.
-    offset_x0 = np.mean(obs.subarr_coords[:][2])
-    offset_y0 = np.mean(obs.subarr_coords[:][0])
+    offset_x0 = np.mean(obs.subarr_coords.values[:,0])
+    offset_y0 = np.mean(obs.subarr_coords.values[:,2])
     adjusted_x0 = source_pos[0] + offset_x0
     adjusted_y0 = source_pos[1] + offset_y0
 
     # Get the x, y positions of the trace as well as wavelength solution and sensitivity correction.
     trace_x, trace_y, wavs, fs = get_calibration_trace(order,
-                                                       adjusted_x0.values,
-                                                       adjusted_y0.values,
+                                                       adjusted_x0,
+                                                       adjusted_y0,
                                                        dxs,
                                                        path_to_cal)
 
@@ -71,10 +71,10 @@ def get_x_range(order):
     :return: the x range and the order-to-letter/symbol translator dictionary.
     '''
     if order == "+1":
-        dxs = (-500, 0)
+        dxs = (-550, 0)
     
     if order == "-1":
-        dxs = (225, 725)
+        dxs = (225, 775)
     
     if order == "+2":
         dxs = (-700, -150) # is this right?
