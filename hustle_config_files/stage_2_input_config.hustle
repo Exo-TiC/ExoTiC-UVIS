@@ -22,6 +22,7 @@ sens_correction False                                       # Bool. Whether to c
 
 # Step 3a: Box extraction parameters
 determine_hw    True                                        # Bool. If True, automatically determines preferred half-width for each order by minimizing out-of-transit/eclipse residuals.
+indices         ([0,10],[-10,-1])                           # Lst of lsts of int. If determine_hw, these are the indices used to estimate the out-of-transit/eclipse residuals.
 halfwidths_box  (12,12)                                     # Lst of ints. The half-width of extraction aperture to use for each order. Input here is ignored if 'determine_hw' is True.
 
 # Step 3b: Optimum extraction parameters

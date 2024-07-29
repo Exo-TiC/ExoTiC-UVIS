@@ -8,6 +8,8 @@ show_plots      2                                           # Int from 0 to 2. 0
 save_plots      2                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
 
 # Step 1: Read in the data
+skip_first_fm   False                                       # Bool. If True, ignores all first frames in each orbit.
+skip_first_or   False                                       # Bool. If True, ignores all frames in the first orbit.
 
 # Step 2: Reject cosmic rays with time iteration
 # Step 2a: Fixed iteration parameters
