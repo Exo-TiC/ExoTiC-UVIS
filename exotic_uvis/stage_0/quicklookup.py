@@ -6,15 +6,19 @@ from matplotlib.animation import FuncAnimation
 import matplotlib.patches as patches
 from matplotlib.pyplot import rc
 from scipy import optimize
+from photutils.centroids import centroid_com
 
 
 
 def get_images(data_dir, section):
+    """Function to retrieve images and exposure times from data files.
 
-    """
-    
-    Function to retrieve images and exposure times from data files
-    
+    Args:
+        data_dir (str): Directory where the images you want to load are.
+        section (lst of int): The subsection of image you want to measure flux in.
+
+    Returns:
+        np.array,np.array,np.array,np.array: images, exposure times, flux of the whole images, and flux from the section.
     """
 
     # initialize image and exposure time arrays
@@ -51,11 +55,14 @@ def get_images(data_dir, section):
 
 
 def get_transit(exp_times, images):
+    """Function to get a raw transit.
 
-    """
-    
-    Function to get a raw transit 
-    
+    Args:
+        exp_times (np.array): Exposure times for each image.
+        images (np.array): Array of 2D images to pull a light curve from.
+
+    Returns:
+        int: Placeholder.
     """
     return 0
 
@@ -63,15 +70,17 @@ def get_transit(exp_times, images):
 
 
 def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir, save_fig = False):
+    """Function to create an animation showing all the exposures.
 
-
+    Args:
+        exp_times (np.array): Exposure times for each image.
+        images (np.array): Array of 2D images to pull a light curve from.
+        total_flux (np.array): _description_
+        partial_flux (np.array): _description_
+        section (lst of int): The subsection of image you want to measure flux in.
+        output_dir (str): Where to save the gif to.
+        save_fig (bool, optional): Whether to save the figure or not. Defaults to False.
     """
-    
-    Function to create an animation showing all the exposures
-    
-    """
-
-
     # avoid zero and negative values for log plot
     images[images <= 0] = 1e-7
 
@@ -80,10 +89,14 @@ def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir,
     gs = fig.add_gridspec(2, 2)
     #fig.subplots_adjust(left=0.1, bottom=0.1, right=0.95, top=0.95, wspace=None, hspace = None)
 
+    # locate section
+    x, y = centroid_com(images[0]) # exploit the saturation of the 0th order to get in the vicinity of it
+    section = [y-20, y+40, x-350, x-100] # +1 order will always fall within these values, more or less
   
-    # initialize exposure subplot
+    # initialize exposure subplot and add exposure
     ax1 = fig.add_subplot(gs[0, :])
-    im = ax1.imshow(np.log10(images[0]), cmap = 'gist_gray', origin = 'lower', vmin = -1, vmax = 3.5)
+    im = ax1.imshow(images[0], norm='log', cmap = 'gist_gray', origin = 'lower', vmin = 0.1, vmax = 3000)
+    # draw the box that defines the +1 rough aperture
     rect = patches.Rectangle((section[2], section[0]), section[3] - section[2], section[1] - section[0], linewidth=1, edgecolor='r', facecolor='none')
     ax1.add_patch(rect)
     ax1.set_xlabel('Detector x pixel')
@@ -143,14 +156,21 @@ def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir,
 
     plt.close() # save memory
 
-    return 0
-
 
 
 def quicklookup(data_dir, output_dir):
+    """Wrapper for quicklookup functions.
+
+    Args:
+        data_dir (str): Directory where the images you want to load are.
+        output_dir (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
 
     # define partial section
-    section = [280, 350, 700, 950]
+    section = [280, 350, 700, 950] # FIX: possibly redundant now?
 
     # get images and exposure times
     images, exp_times, total_flux, partial_flux = get_images(data_dir, section)
