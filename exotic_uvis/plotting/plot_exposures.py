@@ -41,7 +41,7 @@ def plot_exposure(images, line_data = None, scatter_data = None,
         image[image <= 0] = 1e-10
 
         plt.figure(figsize = (20, 4))
-        plt.imshow(np.log10(image), origin = 'lower', vmin = min, vmax = max, cmap = 'gist_gray', extent = extent)
+        plt.imshow(image, origin = 'lower', norm='log', vmin = min, vmax = max, cmap = 'gist_gray', extent = extent)
         plt.xlabel('Detector x-pixel')
         plt.ylabel('Detector y-pixel')
         plt.colorbar()
