@@ -23,6 +23,7 @@ from exotic_uvis.stage_1 import free_iteration_rejection
 from exotic_uvis.stage_1 import fixed_iteration_rejection
 from exotic_uvis.stage_1 import laplacian_edge_detection
 from exotic_uvis.stage_1 import spatial_smoothing
+from exotic_uvis.stage_1 import refine_location
 
 from exotic_uvis.stage_2 import load_data_S2
 from exotic_uvis.stage_2 import save_data_S2
@@ -183,6 +184,14 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             obs = column_by_column_subtraction(obs,
                                                rows=stage1_dict['rows'],
                                                sigma=stage1_dict['col_sigma'])
+        print(stage1_dict['location'])
+        if stage1_dict['do_location']:
+            refine_location(obs, location=stage1_dict['location'], 
+                          verbose=stage1_dict['verbose'],
+                          show_plots=stage1_dict['show_plots'],
+                          save_plots=stage1_dict['save_plots'],
+                          output_dir=run_dir)
+
 
         # displacements by 0th order tracking
         if stage1_dict['do_0thtracking']:

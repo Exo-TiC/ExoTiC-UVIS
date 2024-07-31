@@ -14,7 +14,7 @@ plt.rc('legend',**{'fontsize':11})
 
 def plot_exposure(images, line_data = None, scatter_data = None, 
                   extent = None, title = None, 
-                  min = -3, max = 4, mark_size = 30, 
+                  min = 1e-3, max = 1e4, mark_size = 30, 
                   show_plot = False, save_plot = False, 
                   stage = 0, filename = None, output_dir = None):
     """Function to plot an image given certain parameters 
@@ -41,7 +41,9 @@ def plot_exposure(images, line_data = None, scatter_data = None,
         image[image <= 0] = 1e-10
 
         plt.figure(figsize = (20, 4))
-        plt.imshow(image, origin = 'lower', norm='log', vmin = min, vmax = max, cmap = 'gist_gray', extent = extent)
+        plt.imshow(image, origin = 'lower', norm='log', 
+                   vmin = min, vmax = max, 
+                   cmap = 'gist_gray', extent = extent)
         plt.xlabel('Detector x-pixel')
         plt.ylabel('Detector y-pixel')
         plt.colorbar()
@@ -58,13 +60,9 @@ def plot_exposure(images, line_data = None, scatter_data = None,
         
         if save_plot:
             stagedir = os.path.join(output_dir, f'stage{stage}/plots/')
-
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
-        
-        filedir = os.path.join(stagedir, f'{filename[i]}.png')
-        
-        if save_plot:
+            if not os.path.exists(stagedir):
+                os.makedirs(stagedir) 
+            filedir = os.path.join(stagedir, f'{filename[i]}.png')
             plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
         
     if show_plot:

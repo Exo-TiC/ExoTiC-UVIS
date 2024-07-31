@@ -63,12 +63,15 @@ mask_parameter  0.001                                       # Float. How strong 
 median_columns  True                                        # Bool. If True, takes the median value of each column in the Pagul+ 2023 sky image as the background. As the Pagul+ 2023 image is undersampled, this helps to suppress fluctuations in the image.
 
 # Step 5: Displacement estimation
-# Step 5a: Source center-of-mass tracking
+# Step 5a: Refine target location
+do_location     True                                        # Bool. Whether the location of the target in the direct image extracted from Stage 0
+
+# Step 5b: Source center-of-mass tracking
 do_0thtracking  True                                        # Bool. Whether to track frame displacements by centroiding the 0th order.           
-location        [150, 150]
+location        [150, 150]                                  # lst of float.
 # WIP
 
-# Step 5b: Background star tracking
+# Step 5c: Background star tracking
 do_bkg_stars    True                                        # Bool. Whether to track frame displacements by centroiding background stars.
 bkg_stars_loc   [[0, 0], [0, 0]]                            # Lst of lst of float. Every list should indicate the estimated location of every background star
 # WIP
