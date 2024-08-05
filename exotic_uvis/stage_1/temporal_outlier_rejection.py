@@ -1,6 +1,6 @@
 import numpy as np
 from tqdm import tqdm
-from exotic_uvis.plotting import plot_exposure, plot_corners
+from exotic_uvis.plotting import plot_exposure, plot_corners, plot_flags_per_time
 
 def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
                               verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
@@ -85,14 +85,22 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
         thits, xhits, yhits = np.where(hit_map == 1)
         plot_exposure([obs.images.data[0], images[0]], min = 0, 
                       title = 'Temporal Bad Pixel removal Example', 
-                      show_plot=(show_plots > 1), save_plot=(save_plots > 1),
+                      show_plot=(show_plots >= 1), save_plot=(save_plots >= 1),
                       stage=1, output_dir=output_dir,
                       filename = ['Before_CR_correction', 'After_CR_correction'])
 
         plot_exposure([obs.images.data[0]], scatter_data=[yhits, xhits], min = 0, 
                       title = 'Location of corrected pixels', mark_size = 1,
-                      show_plot=(show_plots > 1), save_plot=(save_plots > 1),
+                      show_plot=(show_plots >= 1), save_plot=(save_plots >= 1),
                       stage=1, output_dir=output_dir, filename = ['CR_location'])
+        
+        counts_per_frame = [np.count_nonzero(hit_map[i,:,:]) for i in range(hit_map.shape[0])]
+        plot_flags_per_time([obs.time.values,], [counts_per_frame,], style='scatter',
+                            title='Temporal outliers counted per frame',
+                            xlabel=['time [mjd]',],
+                            ylabel=['counts [#]',],
+                            show_plot=(show_plots>=1),save_plot=(save_plots>=1),
+                            stage=1,filename=['Time_outliers_per_frame',],output_dir=output_dir)
 
     # if true, check each exposure separately
     if save_plots == 2 or show_plots == 2:
@@ -191,6 +199,14 @@ def free_iteration_rejection(obs, threshold = 3.5,
                       title = 'Location of corrected pixels', mark_size = 1,
                       show_plot=(show_plots > 1), save_plot=(save_plots > 1),
                       stage=1, output_dir=output_dir, filename = ['CR_location'])
+        
+        counts_per_frame = [np.count_nonzero(hit_map[i,:,:]) for i in range(hit_map.shape[0])]
+        plot_flags_per_time([obs.time.values,], [counts_per_frame,], style='scatter',
+                            title='Temporal outliers counted per frame',
+                            xlabel=['time [mjd]',],
+                            ylabel=['counts [#]',],
+                            show_plot=(show_plots>=1),save_plot=(save_plots>=1),
+                            stage=1,filename=['Time_outliers_per_frame',],output_dir=output_dir)
 
     # if true, check each exposure separately
     if save_plots == 2 or show_plots == 2:
