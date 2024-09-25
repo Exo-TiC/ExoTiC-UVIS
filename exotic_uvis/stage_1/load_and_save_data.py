@@ -59,7 +59,8 @@ def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose
                 read_noise.append(np.median(np.sqrt(error**2 - image))) 
                 subarr_coords.append(np.array([y1,y2,x1,x2]))
 
-
+    # collapse subarr_coords
+    subarr_coords = np.mean(np.array(subarr_coords),axis=0)
 
     # iterate over all files in direct images directory
     directimages_dir = os.path.join(data_dir, 'directimages/')
@@ -81,7 +82,7 @@ def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose
         data_vars=dict(
             images=(["exp_time", "x", "y"], images),
             errors=(["exp_time", "x", "y"], errors),
-            subarr_coords=(["exp_time", "index"],subarr_coords),
+            subarr_coords=(["index"],subarr_coords),
             direct_image = (["x", "y"], direct_image),
             badpix_mask = (["exp_time", "x", "y"], np.ones_like(images, dtype = 'bool')),
             data_quality = (["exp_time", "x", "y"], data_quality),
