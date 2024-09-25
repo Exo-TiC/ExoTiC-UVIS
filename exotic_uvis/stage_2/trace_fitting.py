@@ -21,8 +21,8 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal):
     dxs = get_x_range(order)
 
     # Get the mean subarr_coords offsets.
-    offset_x0 = np.mean(obs.subarr_coords.values[:,0])
-    offset_y0 = np.mean(obs.subarr_coords.values[:,2])
+    offset_x0 = obs.subarr_coords.values[0]
+    offset_y0 = obs.subarr_coords.values[2]
     adjusted_x0 = source_pos[0] + offset_x0
     adjusted_y0 = source_pos[1] + offset_y0
 

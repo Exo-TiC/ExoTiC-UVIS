@@ -93,11 +93,14 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         stage1_dict = parse_config(stage1_config)
 
         # read the 'location' keyword from the Stage 0 config
-        stage0_output_config = os.path.join(stage1_dict['toplevel_dir'],'stage0/stage_0_.hustle')
-        stage0_output_dict = parse_config(stage0_output_config)
+        try:
+            stage0_output_config = os.path.join(stage1_dict['toplevel_dir'],'stage0/stage_0_.hustle')
+            stage0_output_dict = parse_config(stage0_output_config)
 
-        # and grab the location of the source
-        stage1_dict['location'] = stage0_output_dict['location']
+            # and grab the location of the source
+            stage1_dict['location'] = stage0_output_dict['location']
+        except FileNotFoundError:
+            print("No Stage 0 .hustle located, using 'location' parameter supplied by Stage 1 .hustle instead.")
 
         # read data
         obs = load_data_S1(stage1_dict['toplevel_dir'],
@@ -182,7 +185,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             obs = column_by_column_subtraction(obs,
                                                rows=stage1_dict['rows'],
                                                sigma=stage1_dict['col_sigma'])
-        print(stage1_dict['location'])
+        
         if stage1_dict['do_location']:
             refine_location(obs, location=stage1_dict['location'], 
                           verbose=stage1_dict['verbose'],
