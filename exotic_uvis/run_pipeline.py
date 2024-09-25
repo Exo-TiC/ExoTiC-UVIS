@@ -74,12 +74,10 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         # create quicklook gif
         if stage0_dict['do_quicklook']:
             quicklookup(stage0_dict['toplevel_dir'],
-                        stage0_dict['gif_dir'],)
-        '''
+                        stage0_dict['gif_dir'],
                         stage0_dict['verbose'], 
                         stage0_dict['show_plots'], 
                         stage0_dict['save_plots'])
-        '''
 
         # write config
         config_dir = os.path.join(stage0_dict['toplevel_dir'],'stage0')

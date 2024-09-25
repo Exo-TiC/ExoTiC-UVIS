@@ -6,7 +6,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def locate_target(direct_image):
-    """_summary_
+    """Uses the direct image and user feedback to locate the
+    target, necessary for trace calibration and source
+    tracking in later stages.
 
     Args:
         direct_image (str): Path to the direct image.
@@ -21,6 +23,7 @@ def locate_target(direct_image):
     with fits.open(direct_image) as fits_file:
         # Open the data and show it to the user.
         d = fits_file[1].data
+        # Show the direct image. This supercedes any show_plots/save_plots call because it is mandatory for locating the image.
         plt.imshow(d, vmin=0, vmax=100, origin='lower', cmap='binary_r')
         plt.title("Direct image for target finding")
         plt.show(block=True)
@@ -57,7 +60,7 @@ def locate_target(direct_image):
                 ind = int(input(""))
                 xs, ys = possible_sources[ind]
 
-                # Show the user where their chosen source is.
+                # Show the user where their chosen source is. Again, supercedes plot calls.
                 plt.subplot(1,1,1)
                 plt.imshow(d, vmin=0, vmax=100, origin='lower', cmap='binary_r')
                 plt.scatter(xs, ys, s=8, marker='x', color='red')
@@ -72,7 +75,8 @@ def locate_target(direct_image):
             if check == 0:
                 # We found the source!
                 satisfied = True
-            # If check == 1, you just restart with all the current parameters.
+            if check == 1:
+                print("Restarting search with same search parameters...")
             if check == 2:
                 # Let the user update the search parameters and try again.
                 print("Current threshold: %.3f" % threshold)

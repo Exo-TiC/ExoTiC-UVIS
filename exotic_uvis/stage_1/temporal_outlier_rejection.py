@@ -1,17 +1,30 @@
 import numpy as np
 from tqdm import tqdm
-from exotic_uvis.plotting import plot_exposure, plot_corners
+from exotic_uvis.plotting import plot_exposure, plot_corners, plot_flags_per_time
 
 def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
                               verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
-    '''
-    Iterates a fixed number of times using a different sigma at each iteration to reject cosmic rays.
+    """Iterates a fixed number of times using a different sigma at each
+    iteration to reject cosmic rays.
 
-    :param obs: xarray. Its obs.images DataSet contains the images.
-    :param sigmas: lst of int. Sigma to use for each iteration. len(sigmas) is the number of iterations that will be run.
-    :param_replacement: int or None. If None, replace outlier pixels with median in time. If int, replace with median of int values either side in time.
-    :return: obs with cosmic rays removed.
-    '''
+    Args:
+        obs (xarray): Its obs.images DataSet contains the images.
+        sigmas (list, optional): Sigma to use for each iteration. len(sigmas)
+        is the number of iterations that will be run. Defaults to [10,10].
+        replacement (int, optional): If None, replace outlier pixels with
+        median in time. If int, replace with median of int values either side
+        in time. Defaults to None.
+        verbose (int, optional): How detailed you want the printed statements
+        to be. Defaults to 0.
+        show_plots (int, optional): How many plots you want to show. Defaults to 0.
+        save_plots (int, optional): How many plots you want to save. Defaults to 0.
+        output_dir (str, optional): Where to save the plots to, if save_plots
+        is greater than 0. Defaults to None.
+
+    Returns:
+        xarray: obs with .images cleaned of CRs and with .data_quality updated
+        to indicate where CRs were found.
+    """
     # Copy images and define hit map.
     images = obs.images.data.copy()
     hit_map = np.zeros_like(images)
@@ -19,7 +32,9 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
     # Track pixels corrected.
     bad_pix_removed = 0
     # Iterate over each sigma.
-    for j, sigma in enumerate(sigmas):
+    for j, sigma in tqdm(enumerate(sigmas),
+                         desc='Iterating with fixed sigmas to remove CRs... Progess:',
+                         disable=(verbose < 1)):
         # Get the median time frame and std as a reference.
         med = np.median(images,axis=0)
         std = np.std(images,axis=0)
@@ -28,7 +43,9 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
         bad_pix_this_sigma = 0
 
         # Then check over frames and see where outliers are.
-        for k in tqdm(range(images.shape[0]), desc = "Correcting for %.0fth sigma... Progress:" % j):
+        for k in tqdm(range(images.shape[0]),
+                      desc = "Correcting for %.0fth sigma... Progress:" % j,
+                      disable=(verbose < 2)):
             # Get the frame and dq array as np.array objects so we can operate on them.
             d = images[k]
             S = np.where(np.abs(d - med) > sigma*std, 1, 0)
@@ -54,34 +71,44 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
             # Correct frame and replace in images.
             images[k] = np.where(S == 1, correction, d)
         
-        print("Bad pixels removed on iteration %.0f with sigma %.2f: %.0f" % (j, sigma, bad_pix_this_sigma))
+        if verbose == 2:
+            print("Bad pixels removed on iteration %.0f with sigma %.2f: %.0f" % (j, sigma, bad_pix_this_sigma))
         bad_pix_removed += bad_pix_this_sigma
     
     # Correct hit map.
     hit_map[hit_map != 0] = 1
-    print("All iterations complete. Total pixels corrected: %.0f out of %.0f" % (bad_pix_removed, S.shape[0]*S.shape[1]))
+    if verbose >= 1:
+        print("All iterations complete. Total pixels corrected: %.0f out of %.0f" % (bad_pix_removed, S.shape[0]*S.shape[1]))
 
     # if true, plot one exposure and draw location of all detected cosmic rays in all exposures
     if save_plots > 0 or show_plots > 0:
         thits, xhits, yhits = np.where(hit_map == 1)
         plot_exposure([obs.images.data[0], images[0]], min = 0, 
                       title = 'Temporal Bad Pixel removal Example', 
-                      show_plot=show_plots, save_plot=save_plots,
+                      show_plot=(show_plots >= 1), save_plot=(save_plots >= 1),
                       stage=1, output_dir=output_dir,
                       filename = ['Before_CR_correction', 'After_CR_correction'])
 
         plot_exposure([obs.images.data[0]], scatter_data=[yhits, xhits], min = 0, 
                       title = 'Location of corrected pixels', mark_size = 1,
-                      show_plot=show_plots, save_plot=save_plots, 
+                      show_plot=(show_plots >= 1), save_plot=(save_plots >= 1),
                       stage=1, output_dir=output_dir, filename = ['CR_location'])
+        
+        counts_per_frame = [np.count_nonzero(hit_map[i,:,:]) for i in range(hit_map.shape[0])]
+        plot_flags_per_time([obs.time.values,], [counts_per_frame,], style='scatter',
+                            title='Temporal outliers counted per frame',
+                            xlabel=['time [mjd]',],
+                            ylabel=['counts [#]',],
+                            show_plot=(show_plots>=1),save_plot=(save_plots>=1),
+                            stage=1,filename=['Time_outliers_per_frame',],output_dir=output_dir)
 
     # if true, check each exposure separately
-    if save_plots == 2:
+    if save_plots == 2 or show_plots == 2:
         for i in range(len(images)):
             xhits, yhits = np.where(hit_map[i] == 1)
             plot_exposure([obs.images.data[i]], scatter_data=[yhits, xhits], min = 0,
-                          title = 'Location of corrected pixels', mark_size = 1,
-                          show_plot=show_plots, save_plot=save_plots, 
+                          title = 'Location of corrected pixels in frame {}'.format(i), mark_size = 1,
+                          show_plot=(show_plots == 2), save_plot=(save_plots == 2),
                           stage=1, output_dir=output_dir, filename = [f'CR_location_frame{i}'])
             
     # modify original images and dq
@@ -130,15 +157,19 @@ def free_iteration_rejection(obs, threshold = 3.5,
     """Function to replace outliers in the temporal dimension
 
     Args:
-        obs (_type_): _description_
-        threshold (float, optional): _description_. Defaults to 3.5.
-        verbose (int, optional): _description_. Defaults to 0.
-        show_plots (int, optional): _description_. Defaults to 0.
-        save_plots (int, optional): _description_. Defaults to 0.
-        output_dir (_type_, optional): _description_. Defaults to None.
+        obs (xarray): Its obs.images DataSet contains the images.
+        threshold (float, optional): Sigma at which to reject outliers until
+        no more are found at this level. Defaults to 3.5.
+        verbose (int, optional): How detailed you want the printed statements
+        to be. Defaults to 0.
+        show_plots (int, optional): How many plots you want to show. Defaults to 0.
+        save_plots (int, optional): How many plots you want to save. Defaults to 0.
+        output_dir (str, optional): Where to save the plots to, if save_plots
+        is greater than 0. Defaults to None.
 
     Returns:
-        _type_: _description_
+        xarray: obs with .images cleaned of CRs and with .data_quality updated
+        to indicate where CRs were found.
     """
     
     # copy images and define hit map
@@ -160,22 +191,36 @@ def free_iteration_rejection(obs, threshold = 3.5,
         thits, xhits, yhits = np.where(hit_map == 1)
         plot_exposure([obs.images.data[0], images[0]], min = 1e0, 
                       title = 'Temporal Bad Pixel removal Example', 
-                      show_plot=show_plots, save_plot=save_plots,
+                      show_plot=(show_plots > 1), save_plot=(save_plots > 1),
                       stage=1, output_dir=output_dir,
                       filename = ['Before_CR_correction', 'After_CR_correction'])
 
         plot_exposure([obs.images.data[0]], scatter_data=[yhits, xhits], min = 1e0, 
                       title = 'Location of corrected pixels', mark_size = 1,
-                      show_plot=show_plots, save_plot=save_plots, 
+                      show_plot=(show_plots > 1), save_plot=(save_plots > 1),
                       stage=1, output_dir=output_dir, filename = ['CR_location'])
+        
+        counts_per_frame = [np.count_nonzero(hit_map[i,:,:]) for i in range(hit_map.shape[0])]
+        plot_flags_per_time([obs.time.values,], [counts_per_frame,], style='scatter',
+                            title='Temporal outliers counted per frame',
+                            xlabel=['time [mjd]',],
+                            ylabel=['counts [#]',],
+                            show_plot=(show_plots>=1),save_plot=(save_plots>=1),
+                            stage=1,filename=['Time_outliers_per_frame',],output_dir=output_dir)
 
     # if true, check each exposure separately
-    if save_plots == 2:
+    if save_plots == 2 or show_plots == 2:
         for i in range(len(images)):
             xhits, yhits = np.where(hit_map[i] == 1)
+<<<<<<< HEAD
             plot_exposure([obs.images.data[i]], scatter_data=[yhits, xhits], min = 1e0,
                           title = 'Location of corrected pixels', mark_size = 1,
                           show_plot=show_plots, save_plot=save_plots, 
+=======
+            plot_exposure([obs.images.data[i]], scatter_data=[yhits, xhits], min = 0,
+                          title = 'Location of corrected pixels in frame {}'.format(i), mark_size = 1,
+                          show_plot=(show_plots == 1), save_plot=(save_plots == 1),
+>>>>>>> ce8ef0b5e7a5875626afd1b75b58699c8cb35cf2
                           stage=1, output_dir=output_dir, filename = [f'CR_location_frame{i}'])
     
     # modify original images

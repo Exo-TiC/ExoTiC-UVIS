@@ -1,4 +1,5 @@
 import os
+from tqdm import tqdm
 import numpy as np
 from astropy.io import fits
 import matplotlib.pyplot as plt 
@@ -10,12 +11,14 @@ from photutils.centroids import centroid_com
 
 
 
-def get_images(data_dir, section):
+def get_images(data_dir, section,
+               verbose = 0):
     """Function to retrieve images and exposure times from data files.
 
     Args:
         data_dir (str): Directory where the images you want to load are.
         section (lst of int): The subsection of image you want to measure flux in.
+        verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
 
     Returns:
         np.array,np.array,np.array,np.array: images, exposure times, flux of the whole images, and flux from the section.
@@ -28,7 +31,9 @@ def get_images(data_dir, section):
     specs_dir = os.path.join(data_dir, 'specimages/')
 
     # iterate over all files in directory
-    for filename in np.sort(os.listdir(specs_dir)):
+    for filename in tqdm(np.sort(os.listdir(specs_dir)),
+                         desc='Parsing files for quicklookup... Progress:',
+                         disable=(verbose < 2)):
 
         # open flt files but avoid f_flt files (embedded) if created
         if (filename[-9:] == '_flt.fits') and (filename[-10] != 'f'):
@@ -69,7 +74,7 @@ def get_transit(exp_times, images):
 
 
 
-def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir, save_fig = False):
+def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir, show_fig = False, save_fig = False):
     """Function to create an animation showing all the exposures.
 
     Args:
@@ -79,6 +84,7 @@ def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir,
         partial_flux (np.array): _description_
         section (lst of int): The subsection of image you want to measure flux in.
         output_dir (str): Where to save the gif to.
+        show_fig (bool, optional): Whether to show the figure or not. Defaults to False.
         save_fig (bool, optional): Whether to save the figure or not. Defaults to False.
     """
     # avoid zero and negative values for log plot
@@ -142,7 +148,8 @@ def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir,
     # create and plot animation
     animation = FuncAnimation(fig, animation_func, init_func = init, frames = np.shape(images)[0], interval = 20)
     plt.tight_layout()
-    plt.show(block = True)
+    if show_fig:
+        plt.show(block = True)
 
 
     # save animation
@@ -158,32 +165,32 @@ def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir,
 
 
 
-def quicklookup(data_dir, output_dir):
+def quicklookup(data_dir,
+                verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Wrapper for quicklookup functions.
 
     Args:
         data_dir (str): Directory where the images you want to load are.
-        output_dir (_type_): _description_
-
-    Returns:
-        _type_: _description_
+        verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): How many plots you want to display. Defaults to 0.
+        save_plots (int, optional): How many plots you want to save. Defaults to 0.
+        output_dir (str, optional): Directory where the gif should be saved, if save_plots >= 1. Defaults to None.
     """
 
     # define partial section
     section = [280, 350, 700, 950] # FIX: possibly redundant now?
 
     # get images and exposure times
-    images, exp_times, total_flux, partial_flux = get_images(data_dir, section)
+    images, exp_times, total_flux, partial_flux = get_images(data_dir, section, verbose)
 
     # get transit
     #get_transit(exp_times, images)
 
     # create animation gif
-    create_gif(exp_times, images, total_flux, partial_flux, section, output_dir, save_fig=False)
-
-
-    return 0
-
-
-
-
+    save_fig = False
+    if save_plots >= 1:
+        save_fig = True
+    show_fig = False
+    if show_plots >= 1:
+        show_fig = True
+    create_gif(exp_times, images, total_flux, partial_flux, section, output_dir, show_fig=show_fig, save_fig=save_fig)
