@@ -258,7 +258,8 @@ def corner_bkg_subtraction(obs, bounds = None, plot = True, check_all = False, f
         #plot_corners([images[0]], bounds, output_dir=output_dir)
         plot_bkgvals(obs.exp_time.data, bkg_vals, output_dir=output_dir, 
                      save_plot=save_plots, show_plot=show_plots)
-        plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', stage=1,
+        plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
+                      show_plot = show_plots, stage=1,
                       output_dir=output_dir, filename = ['before_bkg_subs', 'after_bkg_subs'])
 
     obs.images.data = images

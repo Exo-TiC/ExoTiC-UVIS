@@ -11,13 +11,18 @@ from tqdm import tqdm
 
 
 def cross_corr(spec, temp_spec, plot = False, trim = 1, fit_window = 5, subpix_width = 0.01):
+    """Function to perform cross-correlation of two arrays. Based on ExoTic-JEDI align_spectra.py code
 
+    Args:
+        spec (_type_): _description_
+        temp_spec (_type_): _description_
+        plot (bool, optional): _description_. Defaults to False.
+        trim (int, optional): _description_. Defaults to 1.
+        fit_window (int, optional): _description_. Defaults to 5.
+        subpix_width (float, optional): _description_. Defaults to 0.01.
 
-    """
-    
-    Function to perform cross-correlation of two arrays. Based on ExoTic-JEDI align_spectra.py code
-    
-    
+    Returns:
+        _type_: _description_
     """
 
     xvals = np.arange(0, spec.shape[0])

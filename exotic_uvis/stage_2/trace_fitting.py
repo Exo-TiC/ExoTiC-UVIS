@@ -49,7 +49,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal):
     # Use Gaussian fitting to refine the y positions if asked.
     if refine_calibration:
         trace_y, widths = fit_trace(obs, trace_x, trace_y, profile_width = 70, pol_deg = 7, fit_type = 'Gaussian',
-                                    fit_trace = False, plot_profile = None, check_all = False)
+                                    fit_trace = False, plot_profile = [20, 300], check_all = False)
         
         # test plot
         plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y[0]]], filename = 'None', save_plot=0, show_plot=2, output_dir='None')
@@ -145,7 +145,7 @@ def Gauss1D(x, H, A, x0, sigma):
 
 
 def fit_trace(obs, trace_x, trace_y, 
-              profile_width = 70, pol_deg = 7, fit_type = 'Gaussian',
+              profile_width = 40, pol_deg = 7, fit_type = 'Gaussian',
               fit_trace = False, plot_profile = None, check_all = False):
     '''
     Refines the trace vertical location by fitting profile curves to the cross-dispersion profiles.
@@ -206,7 +206,7 @@ def fit_trace(obs, trace_x, trace_y,
                 plt.xlabel('Detector Pixel Position')
                 plt.title('Example of Profile fitted to Trace')
                 #plt.savefig('PLOTS/profile.pdf', bbox_inches = 'tight')
-                plt.show()
+                plt.show(block=True)
 
         # If true, fit a polynomial to the extracted trace locations and widths.
         if fit_trace:
