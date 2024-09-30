@@ -64,7 +64,7 @@ def full_frame_bckg_subtraction(obs, bin_number=1e5, fit='coarse', value='mode',
     
     if save_plots > 0 or show_plots > 0:
         plot_bkgvals(obs.exp_time.data, bckgs, output_dir=output_dir, 
-                     save_plot=save_plots, show_plot=show_plots)
+                     save_plot=(save_plots>0), show_plot=(show_plots>0))
 
     print("All frames sky-subtracted by {} {} method.".format(fit, value))
     return obs, bckgs
@@ -192,6 +192,8 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, fit = None, show_plots 
         plt.ylabel('Counts')
         plt.show(block=True)
 
+        plt.close() # save memory
+
     return bkg_val
 
 
@@ -259,7 +261,7 @@ def corner_bkg_subtraction(obs, bounds = None, plot = True, check_all = False, f
         plot_bkgvals(obs.exp_time.data, bkg_vals, output_dir=output_dir, 
                      save_plot=save_plots, show_plot=show_plots)
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
-                      show_plot = show_plots, stage=1,
+                      show_plot = (show_plots>0), stage=1,
                       output_dir=output_dir, filename = ['before_bkg_subs', 'after_bkg_subs'])
 
     obs.images.data = images
