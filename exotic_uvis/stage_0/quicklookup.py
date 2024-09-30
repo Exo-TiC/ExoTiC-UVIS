@@ -56,7 +56,40 @@ def get_images(data_dir, section,
 
     return images, exp_times, total_flux, partial_flux
 
+def parse_xarr(obs, section,
+               verbose = 0):
+    """Function to retrieve images and exposure times from reduced xarray.
 
+    Args:
+        obs (xarray): xarray containing the reduced images.
+        section (lst of int): The subsection of image you want to measure flux in.
+        verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
+
+    Returns:
+        np.array,np.array,np.array,np.array: images, exposure times, flux of the whole images, and flux from the section.
+    """
+
+    # initialize flux arrays
+    total_flux, partial_flux = [], []
+
+    # get images and exp_times directly
+    images = obs.images.data
+    exp_times = obs.exp_time.data
+
+    # iterate over all files in directory
+    for i in tqdm(range(images.shape[0]),
+                  desc='Parsing xarray for quicklookup... Progress:',
+                  disable=(verbose < 2)):
+
+        # append total and partial fluxes
+        total_flux.append(np.sum(images[i]))
+        partial_flux.append(np.sum(images[i][section[0]:section[1],section[2]:section[3]]))
+
+    # convert to numpy arrays
+    total_flux = np.array(total_flux)
+    partial_flux = np.array(partial_flux)
+
+    return images, exp_times, total_flux, partial_flux
 
 
 def get_transit(exp_times, images):
@@ -74,7 +107,8 @@ def get_transit(exp_times, images):
 
 
 
-def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir, show_fig = False, save_fig = False):
+def create_gif(exp_times, images, total_flux, partial_flux, section,
+               output_dir, stage, show_fig = False, save_fig = False):
     """Function to create an animation showing all the exposures.
 
     Args:
@@ -84,6 +118,7 @@ def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir,
         partial_flux (np.array): _description_
         section (lst of int): The subsection of image you want to measure flux in.
         output_dir (str): Where to save the gif to.
+        stage (str): Which stage this quicklook is for.
         show_fig (bool, optional): Whether to show the figure or not. Defaults to False.
         save_fig (bool, optional): Whether to save the figure or not. Defaults to False.
     """
@@ -126,16 +161,15 @@ def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir,
 
     # initialize 
     def init():
-        sum_flux_line.set_data(exp_times[0], total_flux[0])
-        transit_line.set_data(exp_times[0], partial_flux[0])
+        sum_flux_line.set_data([exp_times[0],], [total_flux[0],])
+        transit_line.set_data([exp_times[0],], [partial_flux[0],])
 
         return sum_flux_line, transit_line
 
     # define animation function
     def animation_func(i):
-
         # update image data
-        im.set_data(np.log10(images[i]))
+        im.set_data(images[i])
 
         # update line data
         sum_flux_line.set_data(exp_times[:i], total_flux[:i])
@@ -143,7 +177,7 @@ def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir,
         # update line data 2
         transit_line.set_data(exp_times[:i], partial_flux[:i])
     
-        return sum_flux_line, transit_line, 
+        return sum_flux_line, transit_line
         
     # create and plot animation
     animation = FuncAnimation(fig, animation_func, init_func = init, frames = np.shape(images)[0], interval = 20)
@@ -154,7 +188,7 @@ def create_gif(exp_times, images, total_flux, partial_flux, section, output_dir,
 
     # save animation
     if save_fig:
-        stage0dir = os.path.join(output_dir, 'stage0/')
+        stage0dir = os.path.join(output_dir, '{}/'.format(stage))
 
         if not os.path.exists(stage0dir):
                 os.makedirs(stage0dir)
@@ -170,7 +204,8 @@ def quicklookup(data_dir,
     """Wrapper for quicklookup functions.
 
     Args:
-        data_dir (str): Directory where the images you want to load are.
+        data_dir (str or xarray): Directory where the images you want to load are,
+        or axarray containing the data already reduced.
         verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
         show_plots (int, optional): How many plots you want to display. Defaults to 0.
         save_plots (int, optional): How many plots you want to save. Defaults to 0.
@@ -181,7 +216,12 @@ def quicklookup(data_dir,
     section = [280, 350, 700, 950] # FIX: possibly redundant now?
 
     # get images and exposure times
-    images, exp_times, total_flux, partial_flux = get_images(data_dir, section, verbose)
+    if isinstance(data_dir, str):
+        stage = "stage0"
+        images, exp_times, total_flux, partial_flux = get_images(data_dir, section, verbose)
+    else:
+        stage = "stage1"
+        images, exp_times, total_flux, partial_flux = parse_xarr(data_dir, section, verbose)
 
     # get transit
     #get_transit(exp_times, images)
@@ -193,4 +233,4 @@ def quicklookup(data_dir,
     show_fig = False
     if show_plots >= 1:
         show_fig = True
-    create_gif(exp_times, images, total_flux, partial_flux, section, output_dir, show_fig=show_fig, save_fig=save_fig)
+    create_gif(exp_times, images, total_flux, partial_flux, section, output_dir, stage=stage, show_fig=show_fig, save_fig=save_fig)
