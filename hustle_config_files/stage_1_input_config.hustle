@@ -39,27 +39,25 @@ do_smooth       True                                        # Bool. Whether to u
 # WIP
 
 # Step 4: Background subtraction
-# Step 4a: full frame mode or median background subtraction
-do_full_frame   True                                        # Bool. Whether to subtract the background using the full frame mode or median.
-bin_number      10000                                       # Int. Number of histogram bins for full frame background subtraction
-full_value      'Gaussian'                                  # Str. The value to extract from the histogram. Options are 'coarse', 'Gaussian', or 'median'.
-# WIP
+# Step 4a: uniform value background subtraction
+do_uniform      True                                        # Bool. Whether to subtract the background using one uniform value as the value for the entire frame.
+fit             None                                        # Str. The value to extract from the histogram. Options are None (to extract the mode), 'Gaussian' (to fit the mode with a Gaussian), or 'median' (to take the median within hist_min < v < hist_max).
+bounds          [[0,150,0,400],[440,590,0,400]]             # Lst of lst of float. The region from which the background values will be extracted. If None, simply uses the full frame.
+hist_min        -20                                         # Float. Minimum value to consider for the background. Leave as None to use min(data).
+hist_max        50                                          # Float. Maximum value to consider for the background. Leave as None to use max(data).
+hist_bins       1000                                        # Int. Number of histogram bins for background subtraction.
 
-# Step 4b: corners mode or median background subtraction
-do_corners      True                                        # Bool. Whether to subtract the background using the frame corners mode or median.
-bounds          [[0,150,0,400],[440,590,0,400]]             # Lst of lst of float. The region from which the background values will be extracted.
-corners_value   'Gaussian'                                  # Str. The value to extract from the histogram. Options are 'coarse', 'Gaussian', or 'median'.
-
-# Step 4c: Column-by-column background subtraction
+# Step 4b: Column-by-column background subtraction
 do_column       True                                        # Bool. Whether to subtract the background using a column-by-column method.
 rows            [i for i in range(10)]                      # lst of int. The indices defining the rows used as background.
 col_sigma       3                                           # float. How aggressively to mask outliers in the background region.
 # WIP
 
-# Step 4d: Pagul+ 2023 background subtraction
+# Step 4c: Pagul+ 2023 background subtraction
 do_Pagul23      True                                        # Bool. Whether to subtract the background using the scaled Pagul+ 2023 G280 sky image.
 path_to_Pagul23 './'                                        # Str. The absolute path to where the Pagul+ 2023 G280 sky image is stored.
 mask_parameter  0.001                                       # Float. How strong the trace masking should be. Values of 0.001 or less recommended.
+smooth_fits     True                                        # Bool. If True, smooths the values of the Pagul+ fit parameter in time. Helps prevent background "flickering".
 median_columns  True                                        # Bool. If True, takes the median value of each column in the Pagul+ 2023 sky image as the background. As the Pagul+ 2023 image is undersampled, this helps to suppress fluctuations in the image.
 
 # Step 5: Displacement estimation
@@ -68,7 +66,7 @@ do_location     True                                        # Bool. Whether the 
 
 # Step 5b: Source center-of-mass tracking
 do_0thtracking  True                                        # Bool. Whether to track frame displacements by centroiding the 0th order.           
-location        [150, 150]                                  # lst of float.
+location        [970, 170]                                  # lst of float. Initial guess for the location of the target star. You can use this to bypass location fitting in Stage 1.
 # WIP
 
 # Step 5c: Background star tracking
