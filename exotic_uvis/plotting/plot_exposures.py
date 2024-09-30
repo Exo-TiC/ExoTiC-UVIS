@@ -14,7 +14,7 @@ plt.rc('legend',**{'fontsize':11})
 
 def plot_exposure(images, line_data = None, scatter_data = None, 
                   extent = None, title = None, 
-                  min = 1e-3, max = 1e4, mark_size = 30, 
+                  min = 1e-3, max = 1e4, mark_size = 30,
                   show_plot = False, save_plot = False, 
                   stage = 0, filename = None, output_dir = None):
     """Function to plot an image given certain parameters 
