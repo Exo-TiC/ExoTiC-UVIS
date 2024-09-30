@@ -76,7 +76,11 @@ do_bkg_stars    True                                        # Bool. Whether to t
 bkg_stars_loc   [[0, 0], [0, 0]]                            # Lst of lst of float. Every list should indicate the estimated location of every background star
 # WIP
 
-# Step 6: Save outputs
+# Step 6: Quality quicklook
+do_quicklook    True                                        # Bool. Whether to perform this step.
+gif_dir         './'                                        # str. Where to save the quicklook gif to.
+
+# Step 7: Save outputs
 do_save         True                                        # Bool. If True, saves the output xarray to be used in Stage 2.
 
 # ENDPARSE
