@@ -13,8 +13,7 @@ from exotic_uvis.stage_0 import locate_target
 
 from exotic_uvis.stage_1 import load_data_S1
 from exotic_uvis.stage_1 import save_data_S1
-from exotic_uvis.stage_1 import corner_bkg_subtraction
-from exotic_uvis.stage_1 import full_frame_bckg_subtraction
+from exotic_uvis.stage_1 import uniform_value_bkg_subtraction
 from exotic_uvis.stage_1 import Pagul_bckg_subtraction
 from exotic_uvis.stage_1 import column_by_column_subtraction
 from exotic_uvis.stage_1 import track_bkgstars
@@ -74,10 +73,10 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         # create quicklook gif
         if stage0_dict['do_quicklook']:
             quicklookup(stage0_dict['toplevel_dir'],
-                        stage0_dict['gif_dir'],
                         stage0_dict['verbose'], 
                         stage0_dict['show_plots'], 
-                        stage0_dict['save_plots'])
+                        stage0_dict['save_plots'],
+                        stage0_dict['gif_dir'])
 
         # write config
         config_dir = os.path.join(stage0_dict['toplevel_dir'],'stage0')
@@ -93,11 +92,18 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         stage1_dict = parse_config(stage1_config)
 
         # read the 'location' keyword from the Stage 0 config
-        stage0_output_config = os.path.join(stage1_dict['toplevel_dir'],'stage0/stage_0_.hustle')
-        stage0_output_dict = parse_config(stage0_output_config)
+        try:
+            stage0_output_config = os.path.join(stage1_dict['toplevel_dir'],'stage0/stage_0_.hustle')
+            stage0_output_dict = parse_config(stage0_output_config)
 
-        # and grab the location of the source
-        stage1_dict['location'] = stage0_output_dict['location']
+            # and grab the location of the source
+            if stage0_output_dict['location'] != None:
+                if stage1_dict['verbose'] > 0:
+                    print("Stage 0 .hustle located, using 'location' parameter supplied by Stage 0 fitting process.")
+                stage1_dict['location'] = stage0_output_dict['location']
+        except FileNotFoundError:
+            if stage1_dict['verbose'] > 0:
+                print("No Stage 0 .hustle located, using 'location' parameter supplied by Stage 1 .hustle instead.")
 
         # read data
         obs = load_data_S1(stage1_dict['toplevel_dir'],
@@ -149,47 +155,48 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             obs = spatial_smoothing(obs,
                                     sigma=10) # WIP!
 
-        # background subtraction
-        if stage1_dict['do_full_frame']:
-            obs = full_frame_bckg_subtraction(obs, 
-                                              bin_number = stage1_dict['bin_number'], 
-                                              fit=stage1_dict['full_value'], 
-                                              value=stage1_dict['full_value'],
-                                              verbose=stage1_dict['verbose'],
-                                              show_plots=stage1_dict['show_plots'],
-                                              save_plots=stage1_dict['save_plots'],
-                                              output_dir=run_dir)
+        # background subtraction with a uniform bckg value
+        if stage1_dict['do_uniform']:
+            obs = uniform_value_bkg_subtraction(obs,
+                                                fit=stage1_dict['fit'],
+                                                bounds=stage1_dict['bounds'],
+                                                hist_min=stage1_dict['hist_min'],
+                                                hist_max=stage1_dict['hist_max'],
+                                                hist_bins=stage1_dict['hist_bins'],
+                                                verbose=stage1_dict['verbose'],
+                                                show_plots=stage1_dict['show_plots'],
+                                                save_plots=stage1_dict['save_plots'],
+                                                output_dir=run_dir)
         
-        if stage1_dict['do_corners']:
-            obs = corner_bkg_subtraction(obs, bounds=stage1_dict['bounds'],
-                                         fit=stage1_dict['corners_value'],
-                                         verbose=stage1_dict['verbose'],
-                                         show_plots=stage1_dict['show_plots'],
-                                         save_plots=stage1_dict['save_plots'],
-                                         output_dir=run_dir)
-            
+        # background subtraction with the Pagul et al. image scaled
         if stage1_dict['do_Pagul23']:
             obs = Pagul_bckg_subtraction(obs,
                                          Pagul_path=stage1_dict['path_to_Pagul23'],
                                          masking_parameter=stage1_dict['mask_parameter'],
+                                         smooth_fits=stage1_dict['smooth_fits'],
                                          median_on_columns=stage1_dict['median_columns'],
                                          verbose=stage1_dict['verbose'],
                                          show_plots=stage1_dict['show_plots'],
                                          save_plots=stage1_dict['save_plots'],
                                          output_dir=run_dir)
             
+        # background subtraction by columnal medians
         if stage1_dict['do_column']:
             obs = column_by_column_subtraction(obs,
                                                rows=stage1_dict['rows'],
-                                               sigma=stage1_dict['col_sigma'])
-        print(stage1_dict['location'])
+                                               sigma=stage1_dict['col_sigma'],
+                                               verbose=stage1_dict['verbose'],
+                                               show_plots=stage1_dict['show_plots'],
+                                               save_plots=stage1_dict['save_plots'],
+                                               output_dir=run_dir)
+
+        # refine location of the source by frame using COM fitting
         if stage1_dict['do_location']:
             refine_location(obs, location=stage1_dict['location'], 
                           verbose=stage1_dict['verbose'],
                           show_plots=stage1_dict['show_plots'],
                           save_plots=stage1_dict['save_plots'],
                           output_dir=run_dir)
-
 
         # displacements by 0th order tracking
         if stage1_dict['do_0thtracking']:
@@ -200,6 +207,14 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             track_bkgstars(obs,  bkg_stars=stage1_dict['bkg_stars_loc'], 
                                  verbose_plots=stage1_dict['verbose'],
                                  output_dir=run_dir)
+            
+        # create quicklook gif
+        if stage1_dict['do_quicklook']:
+            quicklookup(obs,
+                        stage1_dict['verbose'], 
+                        stage1_dict['show_plots'], 
+                        stage1_dict['save_plots'],
+                        stage1_dict['gif_dir'])
 
         # save results
         if stage1_dict['do_save']:

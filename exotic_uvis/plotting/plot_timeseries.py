@@ -11,23 +11,30 @@ plt.rc('ytick', labelsize=14)
 plt.rc('axes', labelsize=14)
 plt.rc('legend',**{'fontsize':11})
 
-
-def plot_exposure(images, line_data = None, scatter_data = None, 
-                  extent = None, title = None, 
-                  min = 1e-3, max = 1e4, mark_size = 30,
-                  show_plot = False, save_plot = False, 
-                  stage = 0, filename = None, output_dir = None):
-    """Function to plot an image given certain parameters 
+def plot_flags_per_time(series_x, series_y, style='line',
+                        line_data = None, scatter_data = None, 
+                        title = None, xlabel=None, ylabel=None,
+                        xmin = 0, xmax = 1, ymin = 0, ymax = 1e4,
+                        mark_size = 30, line_style='-',
+                        show_plot = False, save_plot = False, 
+                        stage = 0, filename = None, output_dir = None):
+    """Function to plot number of flagged pixels vs time.
 
     Args:
-        images (_type_): _description_
+        series_x (_type_): _description_
+        series_y (_type_): _description_
+        style (_type_): _description_
         line_data (_type_, optional): _description_. Defaults to None.
         scatter_data (_type_, optional): _description_. Defaults to None.
-        extent (_type_, optional): _description_. Defaults to None.
         title (_type_, optional): _description_. Defaults to None.
-        min (int, optional): _description_. Defaults to -3.
-        max (int, optional): _description_. Defaults to 4.
+        xlabel (_type_, optional): _description_. Defaults to None.
+        ylabel (_type_, optional): _description_. Defaults to None.
+        xmin (int, optional): _description_. Defaults to 0.
+        xmax (_type_, optional): _description_. Defaults to 1.
+        ymin (int, optional): _description_. Defaults to 0.
+        ymax (_type_, optional): _description_. Defaults to 1e4.
         mark_size (int, optional): _description_. Defaults to 30.
+        line_style (str, optional): _description_. Defaults to '-'.
         show_plot (bool, optional): _description_. Defaults to False.
         save_plot (bool, optional): _description_. Defaults to False.
         stage (int, optional): _description_. Defaults to 0.
@@ -35,18 +42,24 @@ def plot_exposure(images, line_data = None, scatter_data = None,
         output_dir (_type_, optional): _description_. Defaults to None.
     """
     
-    for i, data in enumerate(images): 
-
-        image = data.copy()
-        image[image <= 0] = 1e-10
+    for i, (x, y) in enumerate(zip(series_x, series_y)):
 
         plt.figure(figsize = (20, 4))
-        plt.imshow(image, origin = 'lower', norm='log', 
-                   vmin = min, vmax = max, 
-                   cmap = 'gist_gray', extent = extent)
-        plt.xlabel('Detector x-pixel')
-        plt.ylabel('Detector y-pixel')
+        if style == 'scatter':
+            plt.scatter(x, y, color='k', s=mark_size)
+        elif style == 'line':
+            plt.plot(x, y, color='k', ls=line_style)
+        if xlabel:
+            plt.xlabel(xlabel[i])
+        if ylabel:
+            plt.ylabel(ylabel[i])
         plt.colorbar()
+
+        if xmin or xmax:
+            plt.xlim(xmin, xmax)
+
+        if ymin or ymax:
+            plt.ylim(ymin, ymax)
 
         if line_data:
             for j, line in enumerate(line_data):
@@ -71,3 +84,8 @@ def plot_exposure(images, line_data = None, scatter_data = None,
     plt.close() # save memory
     
     return
+
+
+def plot_light_curve():
+    # Placeholder
+    return "yo"

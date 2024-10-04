@@ -49,7 +49,6 @@ def refine_location(obs, location=None,
         
 
     if show_plots > 0 or save_plots > 0:
-        print("Target location:", obs.attrs['target_posx'], obs.attrs['target_posy'])
         plot_exposure([image], 
                       scatter_data = [[obs.attrs['target_posx']], [obs.attrs['target_posy']]],
                       title = 'Computed direct image target location',

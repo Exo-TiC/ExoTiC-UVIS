@@ -20,22 +20,30 @@ def locate_target(direct_image):
     satisfied = False       # whether the user is happy with the location identified by DAOStarFinder
     search_radius = 100     # how far to search from the initial guess
     threshold = 50          # how many sigma from the frame median your source is, which is quite a few
+    fwhm = 3.0              # expected FWHM of a star
     with fits.open(direct_image) as fits_file:
-        # Open the data and show it to the user.
+        # Open the data so we can show it to the user.
         d = fits_file[1].data
-        # Show the direct image. This supercedes any show_plots/save_plots call because it is mandatory for locating the image.
-        plt.imshow(d, vmin=0, vmax=100, origin='lower', cmap='binary_r')
-        plt.title("Direct image for target finding")
-        plt.show(block=True)
-        plt.close()
         while not satisfied:
             # Use DAOStarFinder to locate possible targets.
             mean, median, std = sigma_clipped_stats(d, sigma=3.0) 
-            daofind = DAOStarFinder(fwhm=3.0, threshold=threshold*std)    
+            daofind = DAOStarFinder(fwhm=fwhm, threshold=threshold*std)    
 
             sources = daofind(d - median)
             for col in sources.colnames:    
                 sources[col].info.format = '%.8g'  # for consistent table output
+
+            # Pull all DAOStarFinder sources to show the user what has been identified.
+            xs = [x[1] for x in sources]
+            ys = [y[2] for y in sources]
+
+            # Show the direct image. This supercedes any show_plots/save_plots call because it is mandatory for locating the image.
+            plt.imshow(d, vmin=0, vmax=100, origin='lower', cmap='binary_r')
+            plt.scatter(xs,ys,color='red',marker='*',alpha=0.5,label='DAOStarFinder sources',s=2)
+            plt.title("Direct image for target finding")
+            plt.legend()
+            plt.show(block=True)
+            plt.close()
 
             # Ask the user to guess where the star is.
             bestx = int(input("Please input your best guess for the x position of the source star: "))
@@ -44,14 +52,14 @@ def locate_target(direct_image):
             # Present options from the sources list that are close to the guess.
             possible_sources = []
 
-            for ind1, ind2 in zip(sources[1][:], sources[2][:]):
+            for ind1, ind2 in zip(xs,ys):
                 if (((ind1-bestx)**2 + (ind2-besty)**2)**0.5 < search_radius):
                     possible_sources.append((ind1, ind2))
             print("Located %.0f possible sources." % len(possible_sources))
             if len(possible_sources) == 0:
                 # Skip the source selection step because no options were found. Give chance to update search parameters, too!
                 print("If your guess was definitely consistent with a source location,\ntry updating the threshold/search radius!")
-                check = int(input("Enter 1 to search again,\n2 to update the threshold/search radius and then search again,\nor 3 to select manually: "))
+                check = int(input("Enter 1 to search again,\n2 to update the search parameters and then search again,\nor 3 to select manually: "))
             else:
                 # Ask the user to view one of the possible sources.
                 print("Please select the source from this list:")
@@ -66,12 +74,13 @@ def locate_target(direct_image):
                 plt.scatter(xs, ys, s=8, marker='x', color='red')
                 plt.xlim(int(xs-70), int(xs+70))
                 plt.ylim(int(ys-70), int(ys+70))
+                plt.title("Selected source")
 
                 plt.show(block=True)
                 plt.close()
 
                 # Ask the user to review the chosen source and decide if it is correct.
-                check = int(input("Enter 0 to keep this source,\n1 to search again,\n2 to update the threshold/search radius and then search again,\nor 3 to select manually: "))
+                check = int(input("Enter 0 to keep this source,\n1 to search again,\n2 to update the search parameters and then search again,\nor 3 to select manually: "))
             if check == 0:
                 # We found the source!
                 satisfied = True
@@ -83,6 +92,8 @@ def locate_target(direct_image):
                 threshold = int(input("Enter new threshold: "))
                 print("Current search radius: %.3f" % search_radius)
                 search_radius = int(input("Enter new search radius: "))
+                print("Current FWHM: %.3f" % fwhm)
+                fwhm = int(input("Enter new FWHM: "))
             if check == 3:
                 # Let the user manually set the source position.
                 xs = float(input("Enter x: "))
