@@ -22,6 +22,3 @@ from exotic_uvis.stage_1.bckg_subtract import Pagul_bckg_subtraction, full_frame
 from exotic_uvis.stage_1.temporal_outlier_rejection import fixed_iteration_rejection, free_iteration_rejection
 from exotic_uvis.stage_1.compute_displacements import track_bkgstars, track_0thOrder, refine_location
 from exotic_uvis.plotting.plot_exposures import plot_exposure
-
-
-
