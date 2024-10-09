@@ -32,6 +32,8 @@ from exotic_uvis.stage_2 import standard_extraction
 from exotic_uvis.stage_2 import optimal_extraction
 from exotic_uvis.stage_2 import clean_spectra
 from exotic_uvis.stage_2 import align_spectra
+from exotic_uvis.stage_2 import plot_one_spectrum
+from exotic_uvis.stage_2 import plot_spec_gif
 
 
 def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
@@ -185,6 +187,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             obs = column_by_column_subtraction(obs,
                                                rows=stage1_dict['rows'],
                                                sigma=stage1_dict['col_sigma'],
+                                               mask_trace=stage1_dict['mask_trace'],
+                                               width=stage1_dict['dist_from_trace'],
                                                verbose=stage1_dict['verbose'],
                                                show_plots=stage1_dict['show_plots'],
                                                save_plots=stage1_dict['save_plots'],
@@ -255,10 +259,10 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         for i, order in enumerate(stage2_dict['traces_to_conf']):
             # configure trace
             trace_x, trace_y, wav, widths, fs = get_trace_solution(obs,
-                                                                    order=order,
-                                                                    source_pos=stage2_dict['location'],
-                                                                    refine_calibration=stage2_dict['refine_fit'],
-                                                                    path_to_cal=stage2_dict['path_to_config'])
+                                                                   order=order,
+                                                                   source_pos=stage2_dict['location'],
+                                                                   refine_calibration=stage2_dict['refine_fit'],
+                                                                   path_to_cal=stage2_dict['path_to_config'])
             
             # extract
             if stage2_dict['method'] == 'box':
@@ -315,6 +319,26 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         if stage2_dict['outlier_sigma']:
             specs = clean_spectra(specs,
                                   sigma=stage2_dict['outlier_sigma'])
+            
+        # plot
+        if (stage2_dict['show_plots'] > 0 or stage2_dict['save_plots'] > 0):
+            for oneD_spec, wav, order in zip(specs,wavs,stage2_dict['traces_to_conf']):
+                # edit order name to be filesaving-friendly
+                save_order = str.replace(order,"+","p")
+                save_order = str.replace(order,"-","m")
+                plot_one_spectrum(wav,oneD_spec[0,:],order,
+                                  show_plot=(stage2_dict['show_plots'] > 0),
+                                  save_plot=(stage2_dict['save_plots'] > 0),
+                                  filename='s2_1Dspec_order{}'.format(save_order),
+                                  output_dir=run_dir,
+                                  )
+            plot_spec_gif(wavs,specs,
+                          orders=stage2_dict['traces_to_conf'],
+                          show_plot=(stage2_dict['show_plots'] > 0),
+                          save_plot=(stage2_dict['save_plots'] > 0),
+                          filename='s2_1Dspec',
+                          output_dir=run_dir)
+            
             
         # save 1D spectra
         save_data_S2(obs, specs, specs_err, traces_x, traces_y, 

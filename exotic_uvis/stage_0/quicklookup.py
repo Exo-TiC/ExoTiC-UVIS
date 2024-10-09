@@ -54,7 +54,12 @@ def get_images(data_dir, section,
     total_flux = np.array(total_flux)
     partial_flux = np.array(partial_flux)
 
-    return images, exp_times, total_flux, partial_flux
+    # locate section
+    x, y = centroid_com(images[0]) # exploit the saturation of the 0th order to get in the vicinity of it
+    x, y = (int(x), int(y))
+    section = [y-20, y+40, x-350, x-100] # +1 order will always fall within these values, more or less
+
+    return images, exp_times, total_flux, partial_flux, section
 
 def parse_xarr(obs, section,
                verbose = 0):
@@ -76,6 +81,9 @@ def parse_xarr(obs, section,
     images = obs.images.data
     exp_times = obs.exp_time.data
 
+    # get data quality
+    dq = obs.data_quality.data
+
     # iterate over all files in directory
     for i in tqdm(range(images.shape[0]),
                   desc='Parsing xarray for quicklookup... Progress:',
@@ -89,7 +97,12 @@ def parse_xarr(obs, section,
     total_flux = np.array(total_flux)
     partial_flux = np.array(partial_flux)
 
-    return images, exp_times, total_flux, partial_flux
+    # locate section
+    x, y = centroid_com(images[0]) # exploit the saturation of the 0th order to get in the vicinity of it
+    x, y = (int(x), int(y))
+    section = [y-20, y+40, x-350, x-100] # +1 order will always fall within these values, more or less
+
+    return images, dq, exp_times, total_flux, partial_flux, section
 
 
 def get_transit(exp_times, images):
@@ -129,10 +142,6 @@ def create_gif(exp_times, images, total_flux, partial_flux, section,
     fig = plt.figure(figsize = (10, 7))
     gs = fig.add_gridspec(2, 2)
     #fig.subplots_adjust(left=0.1, bottom=0.1, right=0.95, top=0.95, wspace=None, hspace = None)
-
-    # locate section
-    x, y = centroid_com(images[0]) # exploit the saturation of the 0th order to get in the vicinity of it
-    section = [y-20, y+40, x-350, x-100] # +1 order will always fall within these values, more or less
   
     # initialize exposure subplot and add exposure
     ax1 = fig.add_subplot(gs[0, :])
@@ -198,6 +207,94 @@ def create_gif(exp_times, images, total_flux, partial_flux, section,
     plt.close() # save memory
 
 
+def create_dq_gif(exp_times, images, dq, section,
+                  output_dir, stage, show_fig = False, save_fig = False):
+    """Function to create an animation showing all the data quality flags.
+
+    Args:
+        exp_times (np.array): Exposure times for each image.
+        images (np.array): Array of 2D images to pull a light curve from.
+        dq (np.array): Array of 2D images showing pixels flagged for DQ.
+        section (lst of int): The subsection of image you want to measure flux in.
+        output_dir (str): Where to save the gif to.
+        stage (str): Which stage this quicklook is for.
+        show_fig (bool, optional): Whether to show the figure or not. Defaults to False.
+        save_fig (bool, optional): Whether to save the figure or not. Defaults to False.
+    """
+
+    # create animation
+    fig = plt.figure(figsize = (10, 7))
+    gs = fig.add_gridspec(2, 2)
+    #fig.subplots_adjust(left=0.1, bottom=0.1, right=0.95, top=0.95, wspace=None, hspace = None)
+  
+    # initialize exposure subplot and add exposure
+    ax1 = fig.add_subplot(gs[0, :])
+    im = ax1.imshow(dq[0], norm='linear', cmap = 'gist_gray', origin = 'lower', vmin = 0, vmax = 1)
+    # draw the box that defines the +1 rough aperture
+    rect = patches.Rectangle((section[2], section[0]), section[3] - section[2], section[1] - section[0], linewidth=1, edgecolor='r', facecolor='none')
+    ax1.add_patch(rect)
+    ax1.set_xlabel('Detector x pixel')
+    ax1.set_ylabel('Detector y pixel')
+
+    # initialize total Dq flags per frame subplot
+    ax2 = fig.add_subplot(gs[1, 0])
+    ax2.set_title('Flags per frame', size = 10)
+    dq_flags_per_frame = np.empty_like(exp_times)
+    for k in range(dq.shape[0]):
+        dq_flags_per_frame[k] = np.count_nonzero(dq[k,:,:])
+    sum_flux_line, = ax2.plot(exp_times, dq_flags_per_frame, '.', color = 'indianred')
+    #sum_flux_line,  = ax2.plot([], [], '.', color = 'indianred')
+    ax2.set_xlabel('Time of Exposure (BJD TDB)')
+    ax2.set_ylabel('Flags (N)')
+
+    # initialize transit subplot
+    ax3 = fig.add_subplot(gs[1, 1])
+    ax3.set_title('Flags per Box', size = 10)
+    dq_flags_per_box = np.empty_like(exp_times)
+    for k in range(dq.shape[0]):
+        dq_flags_per_box[k] = np.count_nonzero(dq[k,section[0]:section[1],section[2]:section[3]])
+    transit_line, = ax3.plot(exp_times, dq_flags_per_box, '.', color = 'indianred')
+    ax3.set_xlabel('Time of Exposure (BJD TDB)')
+    ax3.set_ylabel('Flags (N)')
+    
+
+    # initialize 
+    def init():
+        sum_flux_line.set_data([exp_times[0],], [dq_flags_per_frame[0],])
+        transit_line.set_data([exp_times[0],], [dq_flags_per_box[0],])
+
+        return sum_flux_line, transit_line
+
+    # define animation function
+    def animation_func(i):
+        # update image data
+        im.set_data(dq[i])
+
+        # update line data
+        sum_flux_line.set_data(exp_times[:i], dq_flags_per_frame[:i])
+
+        # update line data 2
+        transit_line.set_data(exp_times[:i], dq_flags_per_box[:i])
+    
+        return sum_flux_line, transit_line
+        
+    # create and plot animation
+    animation = FuncAnimation(fig, animation_func, init_func = init, frames = np.shape(images)[0], interval = 20)
+    plt.tight_layout()
+    if show_fig:
+        plt.show(block = True)
+
+
+    # save animation
+    if save_fig:
+        stage0dir = os.path.join(output_dir, '{}/'.format(stage))
+
+        if not os.path.exists(stage0dir):
+                os.makedirs(stage0dir)
+
+        animation.save(os.path.join(stage0dir, 'quicklookupDQ.gif'), writer = 'ffmpeg', fps = 10)
+
+    plt.close() # save memory
 
 def quicklookup(data_dir,
                 verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
@@ -218,10 +315,12 @@ def quicklookup(data_dir,
     # get images and exposure times
     if isinstance(data_dir, str):
         stage = "stage0"
-        images, exp_times, total_flux, partial_flux = get_images(data_dir, section, verbose)
+        images, exp_times, total_flux, partial_flux, section = get_images(data_dir, section, verbose)
+        have_dq = False
     else:
         stage = "stage1"
-        images, exp_times, total_flux, partial_flux = parse_xarr(data_dir, section, verbose)
+        images, dq, exp_times, total_flux, partial_flux, section = parse_xarr(data_dir, section, verbose)
+        have_dq = True
 
     # get transit
     #get_transit(exp_times, images)
@@ -234,3 +333,5 @@ def quicklookup(data_dir,
     if show_plots >= 1:
         show_fig = True
     create_gif(exp_times, images, total_flux, partial_flux, section, output_dir, stage=stage, show_fig=show_fig, save_fig=save_fig)
+    if have_dq:
+        create_dq_gif(exp_times, images, dq, section, output_dir, stage=stage, show_fig=show_fig, save_fig=save_fig)

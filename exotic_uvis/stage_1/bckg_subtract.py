@@ -4,7 +4,7 @@ from astropy.io import fits
 import numpy as np
 from scipy.optimize import least_squares
 from scipy.optimize import curve_fit
-from scipy.signal import medfilt2d
+from scipy.signal import medfilt, medfilt2d
 import matplotlib.pyplot as plt
 from exotic_uvis.plotting import plot_exposure, plot_corners, plot_bkgvals
 
@@ -263,7 +263,7 @@ def uniform_value_bkg_subtraction(obs, fit = None, bounds = None,
 
     return obs
 
-def column_by_column_subtraction(obs, rows=[i for i in range(10)], sigma=3,
+def column_by_column_subtraction(obs, rows=[i for i in range(10)], sigma=3, mask_trace=True, width=100,
                                  verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     '''
     Perform 1/f or column-by-column subtraction on each frame.
@@ -283,15 +283,41 @@ def column_by_column_subtraction(obs, rows=[i for i in range(10)], sigma=3,
     for i, image in enumerate(tqdm(images, desc = 'Removing background... Progress:',
                                    disable=(verbose<1))):
         # define background region
-        bckg_region = image[rows,:]
+        bckg_region = np.ma.masked_array(image[rows,:],mask=np.zeros_like(image[rows,:]))
+
+        # or define background as image with data masked.
+        if mask_trace:
+            centroids = []
+            for j in range(image.shape[1]):
+                centroids.append(np.argmax(image[:,j]))
+            centroids = medfilt(centroids,kernel_size=7)
+            mask = np.zeros_like(image)
+            for j in range(image.shape[1]):
+                n = 1
+                if np.max(image[:,j]) > 65000:
+                    n = 2 # broaden the mask near the 0th order
+                l,r = (centroids[j]-n*width,centroids[j]+n*width)
+                if l < 0:
+                    l = 0
+                if r > image.shape[1]:
+                    r = image.shape[1]
+                mask[l:r,j] = 1
+            bckg_region = np.ma.masked_array(image,mask=mask)
+
+            # if true, plot calculated background region
+            if (save_plots > 0 or show_plots > 0) and i == 0:
+                plot_exposure([bckg_region,], title = 'Col-by-col Background Region Example', 
+                              show_plot = (show_plots>0), save_plot = (save_plots>0), stage=1,
+                              output_dir=output_dir, filename = ['bkg_region_col-by-col',])
 
         # smooth outliers
-        smooth_bckg = medfilt2d(bckg_region, kernel_size=3)
-        std_bckg = np.std(smooth_bckg)
+        smooth_bckg = medfilt2d(bckg_region, kernel_size=7)
+        std_bckg = np.ma.std(smooth_bckg)
         bckg_region = np.where(np.abs(smooth_bckg - bckg_region) > sigma*std_bckg, smooth_bckg, bckg_region)
 
-        # median normalize on columns
-        bckg = np.median(bckg_region,axis=0)
+        # median normalize on columns, kick final outliers, and append
+        bckg = np.ma.median(bckg_region,axis=0)
+        bckg = np.where(bckg > 100, np.ma.median(bckg),bckg)
         bckgs.append(bckg)
 
         # extend to full array

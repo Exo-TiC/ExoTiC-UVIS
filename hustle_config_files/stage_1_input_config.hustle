@@ -50,6 +50,8 @@ hist_bins       1000                                        # Int. Number of his
 # Step 4b: Column-by-column background subtraction
 do_column       True                                        # Bool. Whether to subtract the background using a column-by-column method.
 rows            [i for i in range(10)]                      # lst of int. The indices defining the rows used as background.
+mask_trace      True                                        # Bool. If True, ignores rows parameter and instead masks the traces and 0th order to build a background region.
+dist_from_trace 100                                         # Int. If mask_trace is True, this is how many rows away a pixel must be from the trace to qualify as background.
 col_sigma       3                                           # float. How aggressively to mask outliers in the background region.
 # WIP
 

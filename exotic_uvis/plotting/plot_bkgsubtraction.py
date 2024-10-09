@@ -63,7 +63,7 @@ def plot_bkgvals(exp_times, bkg_vals, method,
             plt.title('Scaling parameter per exposure')
     
     else:
-        v = np.nanmean(bkg_vals)
+        v = np.nanmedian(bkg_vals)
         plt.imshow(bkg_vals,aspect=20, vmin=0.5*v,vmax=1.5*v)
         plt.colorbar(fraction=0.01)
         plt.xlabel('Column #')
