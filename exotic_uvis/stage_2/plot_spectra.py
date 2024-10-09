@@ -71,10 +71,10 @@ def plot_spec_gif(wavelengths, spectra, orders=("+1",),
     colors = {"+1":'red',"-1":'blue',
               "+2":'orangered',"-2":'royalblue',
               "+3":'darkorange',"-3":'dodgerblue',
-              "+4":'orange',"-4":'deepyskyblue'}
+              "+4":'orange',"-4":'deepskyblue'}
 
     # create animation
-    fig,ax = plt.subplots(ncols=len(spectra),figsize = (10, 7))
+    fig,ax = plt.subplots(nrows=len(spectra),figsize = (10, 7*len(spectra)))
     spec_lines = []
   
     # plot first spectrum on each axis get things started
@@ -82,7 +82,7 @@ def plot_spec_gif(wavelengths, spectra, orders=("+1",),
         spec_line = ax[n].plot(wavelengths[n],spectra[n,0,:],color = colors[order])
         spec_lines.append(spec_line)
         ax[n].set_xlim(2000,8000)
-        ax[n].set_ylim(0, np.max(spectra[n,:,:]))
+        ax[n].set_ylim(0, np.nanmax(spectra[n,:,:]))
         ax[n].set_title("{} order, frame 0".format(order))
         ax[n].set_xlabel('wavelength [AA]')
         ax[n].set_ylabel('counts [a.u.]')
@@ -111,10 +111,10 @@ def plot_spec_gif(wavelengths, spectra, orders=("+1",),
 
     # save animation
     if save_plot:
-        stagedir = os.path.join(output_dir, '{}/'.format(stage))
+        stagedir = os.path.join(output_dir, f'stage{stage}/plots')
 
         if not os.path.exists(stagedir):
-                os.makedirs(stagedir)
+            os.makedirs(stagedir)
 
         animation.save(os.path.join(stagedir, '{}.gif'.format(filename)), writer = 'ffmpeg', fps = 10)
 

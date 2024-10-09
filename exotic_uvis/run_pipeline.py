@@ -294,9 +294,32 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             traces_y.append(trace_y)
             sens.append(fs)
         
-        wavs = np.array(wavs)
-        traces_x = np.array(traces_x)
-        traces_y = np.array(traces_y)
+        # Pad all wavs arrays to be as long as the longest array.
+        length = max([len(k) for k in wavs])
+        time = np.shape(np.array(spec))[0]
+
+        new_specs, new_specs_err, new_wavs, new_tx, new_ty = [],[],[],[],[]
+        for spec, spec_err, wav, x, y in zip(specs,specs_err,wavs,traces_x,traces_y):
+            new_spec, new_spec_err = [np.empty((time,length)),np.empty((time,length))]
+            new_wav = np.empty((length))
+            new_x, new_y = [np.empty((length)),np.empty((time,length))]
+            for i in range(len(wav)):
+                for t in range(time):
+                    new_spec[t,i] = spec[t,i]
+                    new_spec_err[t,i] = spec_err[t,i]
+                    new_y[t,i] = y[t,i]
+                new_wav[i] = wav[i]
+                new_x[i] = x[i]
+            new_specs.append(new_spec)
+            new_specs_err.append(new_spec_err)
+            new_wavs.append(new_wav)
+            new_tx.append(new_x)
+            new_ty.append(new_y)
+        specs = np.array(new_specs)
+        specs_err = np.array(new_specs_err)
+        wavs = np.array(new_wavs)
+        traces_x = np.array(new_tx)
+        traces_y = np.array(new_ty)
         sens = np.array(sens)
 
         # align
@@ -325,7 +348,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             for oneD_spec, wav, order in zip(specs,wavs,stage2_dict['traces_to_conf']):
                 # edit order name to be filesaving-friendly
                 save_order = str.replace(order,"+","p")
-                save_order = str.replace(order,"-","m")
+                save_order = str.replace(save_order,"-","m")
                 plot_one_spectrum(wav,oneD_spec[0,:],order,
                                   show_plot=(stage2_dict['show_plots'] > 0),
                                   save_plot=(stage2_dict['save_plots'] > 0),

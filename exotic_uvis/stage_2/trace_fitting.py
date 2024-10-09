@@ -110,6 +110,10 @@ def get_calibration_trace(order,x0,y0,dxs,path_to_cal):
     # Initialize the GRISMCONF configuration.
     C = grismconf.Config(path_to_cal)
 
+    # Get dx limits using t.
+    dxs = C.DISPX(order,x0,y0,np.array([0,1]))
+    dxs = np.sort(dxs)
+
     # Turn the dxs limits into a full span of column positions.
     dxs = np.arange(dxs[0],dxs[1],1)
 
