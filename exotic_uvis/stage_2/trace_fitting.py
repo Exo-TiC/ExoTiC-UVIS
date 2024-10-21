@@ -17,9 +17,6 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal):
     :param path_to_cal: str. Path to the GRISMCONF calibration file used to locate the trace.
     :return: the trace x and y positions from the direct image, with the wavelength solution and optional sensitivity corrections.
     '''
-    # Use the order and calibration software information to get the x range.
-    dxs = get_x_range(order)
-
     # Get the mean subarr_coords offsets.
     offset_x0 = obs.subarr_coords.values[0]
     offset_y0 = obs.subarr_coords.values[2]
@@ -30,7 +27,6 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal):
     trace_x, trace_y, wavs, fs = get_calibration_trace(order,
                                                        adjusted_x0,
                                                        adjusted_y0,
-                                                       dxs,
                                                        path_to_cal)
 
     # Undo the offsets from the subarray coordinates.
@@ -63,54 +59,23 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal):
         widths = None
     return trace_x, trace_y, wavs, widths, fs
 
-def get_x_range(order):
+def get_calibration_trace(order,x0,y0,path_to_cal):
     '''
-    Gets the x range of the order requested.
+    Uses the supplied calibration software and source position to locate the
+    trace and assign wavelength solution.
 
-    :param order: str. Options are "+1", "-1", "+2", "-2", etc. Which order you want to pull.
-    :return: the x range and the order-to-letter/symbol translator dictionary.
-    '''
-    if order == "+1":
-        dxs = (-550, 0)
-    
-    if order == "-1":
-        dxs = (225, 775)
-    
-    if order == "+2":
-        dxs = (-700, -150) # is this right?
-
-    if order == "-2":
-        dxs = (225+150, 225+150+550) # is this right?
-    
-    if order == "+3":
-        dxs = (-950, -300) # is this right?
-    
-    if order == "-3":
-        dxs = (625, 625+550) # is this right?
-
-    if order == "+4":
-        dxs = (-1300, -1300+550) # is this right?
-    
-    if order == "-4":
-        dxs = (875, 875+550) # is this right?
-
-    return dxs
-
-def get_calibration_trace(order,x0,y0,dxs,path_to_cal):
-    '''
-    Uses the supplied calibration software and source position to locate the trace and assign wavelength solution.
-
-    :param order: str. Options are "+1", "-1", "+2", "-2", etc. Used to grab the right calibration from the calibration file.
+    :param order: str. Options are "+1", "-1", "+2", "-2", etc. Used to grab
+    the right calibration from the calibration file.
     :param x0: float. Embedded x position of the source.
     :param y0: float. Embedded y position of the source.
-    :param dxs: tuple of int. The x range spanned by the trace.
     :param path_to_cal: str. Path to the calibration file used to locate the trace.
-    :return: the x and y positions of the calibrated trace, the assigned wavelength solution, and the sensitivity corrections.
+    :return: the x and y positions of the calibrated trace, the assigned wavelength
+    solution, and the sensitivity corrections.
     '''
     # Initialize the GRISMCONF configuration.
     C = grismconf.Config(path_to_cal)
 
-    # Get dx limits using t.
+    # Get dx limits using 0<t<1.
     dxs = C.DISPX(order,x0,y0,np.array([0,1]))
     dxs = np.sort(dxs)
 
@@ -123,12 +88,17 @@ def get_calibration_trace(order,x0,y0,dxs,path_to_cal):
     dys = C.DISPY(order,x0,y0,ts)
     # Compute wavelength of each of the pixels
     wavs = C.DISPL(order,x0,y0,ts)
+
+    # Restrict attention to just where 200 nm < wavs < 800 nm.
+    dxs = dxs[np.logical_and(wavs>=2000,wavs<=8000)]
+    dys = dys[np.logical_and(wavs>=2000,wavs<=8000)]
+    wavs = wavs[np.logical_and(wavs>=2000,wavs<=8000)]
     
     # Combine the displacements with the source position to get the trace location.
     xs = [i+x0 for i in dxs]
     ys = [i+y0 for i in dys]
 
-    # Get the sensitivity correction.
+    # Get the sensitivity correction function.
     s = C.SENS[order]
     fs = s.f
 
