@@ -1,25 +1,36 @@
+import os
+from tqdm import tqdm
 import numpy as np
+
 import matplotlib.pyplot as plt
 from astropy.io import fits
 from scipy.stats import norm
 from scipy import optimize
 from scipy.interpolate import interp1d
 from scipy import signal
-from tqdm import tqdm
 
 
 
 
-def cross_corr(spec, temp_spec, plot = False, trim = 1, fit_window = 5, subpix_width = 0.01):
-    """Function to perform cross-correlation of two arrays. Based on ExoTic-JEDI align_spectra.py code
+def cross_corr(spec, temp_spec, order, i, trim = 1, fit_window = 5, subpix_width = 0.01,
+               verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
+    """Function to perform cross-correlation of two arrays.
+    Based on ExoTic-JEDI align_spectra.py code
 
     Args:
         spec (_type_): _description_
         temp_spec (_type_): _description_
-        plot (bool, optional): _description_. Defaults to False.
+        order (str): for labelling plots correctly.
+        i (float): for labelling plots correctly.
         trim (int, optional): _description_. Defaults to 1.
         fit_window (int, optional): _description_. Defaults to 5.
         subpix_width (float, optional): _description_. Defaults to 0.01.
+        verbose (int, optional): How detailed you want the printed statements
+        to be. Defaults to 0.
+        show_plots (int, optional): How many plots you want to show. Defaults to 0.
+        save_plots (int, optional): How many plots you want to save. Defaults to 0.
+        output_dir (str, optional): Where to save the plots to, if save_plots
+        is greater than 0. Defaults to None.
 
     Returns:
         _type_: _description_
@@ -58,37 +69,54 @@ def cross_corr(spec, temp_spec, plot = False, trim = 1, fit_window = 5, subpix_w
 
     parab_vtx = -p_coeffs[1] / (2 * p_coeffs[0]) * subpix_width
     
-    if plot:
+    if (show_plots == 2 or save_plots == 2):
         plt.figure()
         plt.plot(corr_lags, corr)
 
         plt.figure()
         plt.plot(cent_lags, cent_corr)
         plt.plot(cent_lags, p_val)
-        plt.show()
+
+        if save_plots == 2:
+            stagedir = os.path.join(output_dir, "stage2/plots")
+            if not os.path.exists(stagedir):
+                os.makedirs(stagedir)
+            plt.savefig(os.path.join(stagedir,'s2_cross_corr_order{}_f{}.png'.format(order,i)),
+                        dpi=300,bbox_inches='tight')
+        if show_plots == 2:
+            plt.show(block=True)
+        plt.close()
+        plt.close() # save memory
 
     return parab_vtx + trim
 
 
 
 
-def align_spectra(obs, specs, specs_err, trace_x, align = False, ind1 = 0, ind2 = -1, plot_shifts = True):
-    """Aligns 1D spectra and uncertainties using cross-correlation
+def align_spectra(obs, specs, specs_err, order, trace_x, align = False, ind1 = 0, ind2 = -1,
+                  verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
+    """Aligns 1D spectra and uncertainties using cross-correlation.
 
     Args:
-        obs (xarray): _description_
-        specs (_type_): _description_
-        specs_err (_type_): _description_
-        trace_x (_type_): _description_
-        align (bool, optional): _description_. Defaults to False.
+        obs (xarray): used to attach the spectra to an xarray object.
+        specs (np.array): array of 1D spectra.
+        specs_err (np.array): array of 1D spectral uncertainties.
+        order (str): for labelling plots correctly.
+        trace_x (np.array): x positions of the trace solution.
+        align (bool, optional): whether to apply the alignment to the spectra.
+        Defaults to False.
         ind1 (int, optional): _description_. Defaults to 0.
         ind2 (int, optional): _description_. Defaults to -1.
-        plot_shifts (bool, optional): _description_. Defaults to True.
+        verbose (int, optional): How detailed you want the printed statements
+        to be. Defaults to 0.
+        show_plots (int, optional): How many plots you want to show. Defaults to 0.
+        save_plots (int, optional): How many plots you want to save. Defaults to 0.
+        output_dir (str, optional): Where to save the plots to, if save_plots
+        is greater than 0. Defaults to None.
 
     Returns:
-        xarray: _description_
+        xarray: aligned obs spectra.
     """
-
     # initialize variables and define median spectrum as template
     align_specs = []
     align_specs_err = []
@@ -97,10 +125,15 @@ def align_spectra(obs, specs, specs_err, trace_x, align = False, ind1 = 0, ind2 
 
     
     # iterate over all spectra
-    for i, spec in enumerate(specs):
+    for i, spec in tqdm(enumerate(specs),
+                        desc='Aligning spectra in order {}... Progress:'.format(order),
+                        disable=(verbose==0)):
 
         # calculate shift wrt template via cross-correlation
-        shift = cross_corr(spec[ind1:ind2], temp_spec[ind1:ind2], plot = False, fit_window = 5, subpix_width=0.01)
+        shift = cross_corr(spec[ind1:ind2], temp_spec[ind1:ind2], order, i,
+                           trim = 1, fit_window = 5, subpix_width=0.01,
+                           verbose = verbose, show_plots = show_plots,
+                           save_plots = save_plots, output_dir = output_dir)
         x_shifts.append(shift)
         
         # if true, correct the spectrum with the computed shift
@@ -120,14 +153,20 @@ def align_spectra(obs, specs, specs_err, trace_x, align = False, ind1 = 0, ind2 
     align_specs_err = np.array(align_specs_err)
 
 
-    if plot_shifts:
-
+    if (save_plots > 0 or show_plots > 0):
         plt.figure(figsize = (10, 7))
         plt.plot(obs.exp_time.data, x_shifts, '-o')
         plt.xlabel('Exposure time')
         plt.ylabel('X shift')
         plt.title('Spectrum shift')
-        plt.show()
+        if save_plots > 0:
+            stagedir = os.path.join(output_dir, "stage2/plots")
+            if not os.path.exists(stagedir):
+                os.makedirs(stagedir)
+            plt.savefig(os.path.join(stagedir,'s2_cross_corr_order{}.png'.format(order)),
+                        dpi=300,bbox_inches='tight')
+        if show_plots > 0:
+            plt.show(block=True)
         
         plt.close() # save memory
 
@@ -140,8 +179,17 @@ def align_spectra(obs, specs, specs_err, trace_x, align = False, ind1 = 0, ind2 
         plt.figure(figsize = (10, 7))
         for i, spec in enumerate(align_specs[0:25, ind1:ind2]):
             plt.plot(spec, color = colors[i])
-        plt.show()
 
+        if save_plots > 0:
+            stagedir = os.path.join(output_dir, "stage2/plots")
+            if not os.path.exists(stagedir):
+                os.makedirs(stagedir)
+            plt.savefig(os.path.join(stagedir,'s2_shifted_spec_order{}.png'.format(order)),
+                        dpi=300,bbox_inches='tight')
+        if show_plots > 0:
+            plt.show(block=True)
+
+        plt.close() # save memory
         plt.close() # save memory
 
     return align_specs, align_specs_err, np.array(x_shifts)

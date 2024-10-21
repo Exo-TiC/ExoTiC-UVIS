@@ -32,9 +32,10 @@ def plot_one_spectrum(wavelengths, spectrum, order="+1",
     Returns:
         _type_: _description_
     """
+    ok = (wavelengths>2000) & (wavelengths<8000)
 
     plt.figure(figsize = (10, 7))
-    plt.plot(wavelengths, spectrum)
+    plt.plot(wavelengths[ok], spectrum[ok])
     plt.xlabel('Wavelength (nm)')
     plt.ylabel('Extracted Counts')
     plt.title('Example of extracted order {} spectrum'.format(order))

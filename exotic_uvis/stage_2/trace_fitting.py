@@ -65,7 +65,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
     # Use Gaussian fitting to refine the y positions if asked.
     if refine_calibration:
         trace_y, widths = fit_trace(obs, trace_x, trace_y, profile_width = 70, pol_deg = 7, fit_type = 'Gaussian',
-                                    fit_trace = False, plot_profile = [20, 300], check_all = False)
+                                    fit_trace = False, plot_profile = [20, 300], check_all = False, verbose = verbose)
         
         # Plot refined calibration.
         plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y[0]]],
@@ -147,7 +147,7 @@ def Gauss1D(x, H, A, x0, sigma):
 
 def fit_trace(obs, trace_x, trace_y, 
               profile_width = 40, pol_deg = 7, fit_type = 'Gaussian',
-              fit_trace = False, plot_profile = None, check_all = False):
+              fit_trace = False, plot_profile = None, check_all = False, verbose = 0):
     """Refines the trace vertical location by fitting profile curves to the
     cross-dispersion profiles.
 
@@ -177,7 +177,8 @@ def fit_trace(obs, trace_x, trace_y,
     y_data = range(obs.dims['y'])
 
     # Iterate over all images.
-    for i, image in enumerate(tqdm(images, desc = 'Computing trace... Progress:')):
+    for i, image in enumerate(tqdm(images, desc = 'Computing trace... Progress:',
+                                   disable=(verbose<1))):
         # Initialize trace y positions and profile widths and for this image.
         trace, width = [], []
 

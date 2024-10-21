@@ -272,11 +272,15 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             if stage2_dict['method'] == 'box':
                 # determine ideal halfwidth
                 if stage2_dict['determine_hw']:
-                    halfwidth = determine_ideal_halfwidth(obs,
+                    halfwidth = determine_ideal_halfwidth(obs, order,
                                                           trace_x=trace_x,
                                                           trace_y=trace_y,
                                                           wavs=wav,
-                                                          indices=stage2_dict['indices'])
+                                                          indices=stage2_dict['indices'],
+                                                          verbose=stage2_dict['verbose'],
+                                                          show_plots=stage2_dict['show_plots'], 
+                                                          save_plots=stage2_dict['save_plots'],
+                                                          output_dir=run_dir)
                 else:
                     halfwidth = stage2_dict['halfwidths_box'][i]
                 
@@ -284,7 +288,11 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                 spec, spec_err = standard_extraction(obs,
                                                      halfwidth=halfwidth,
                                                      trace_x=trace_x,
-                                                     trace_y=trace_y)
+                                                     trace_y=trace_y,
+                                                     verbose=stage2_dict['verbose'],
+                                                     show_plots=stage2_dict['show_plots'], 
+                                                     save_plots=stage2_dict['save_plots'],
+                                                     output_dir=run_dir)
                 
             elif stage2_dict['method'] == 'optimum':
                 # optimum extraction
@@ -330,13 +338,16 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         if stage2_dict['align']:
             aligned_specs = []
             aligned_specs_err = []
-            for spec, spec_err, wav in zip(specs, specs_err, wavs):
-                spec, spec_err, shifts = align_spectra(obs,spec,spec_err,
+            for spec, spec_err, wav, order in zip(specs, specs_err, wavs, stage2_dict['traces_to_conf']):
+                spec, spec_err, shifts = align_spectra(obs,spec,spec_err,order,
                                                       trace_x=wav,
                                                       align=True,
                                                       ind1=0,
                                                       ind2=-1,
-                                                      plot_shifts=False)
+                                                      verbose=stage2_dict['verbose'],
+                                                      show_plots=stage2_dict['show_plots'], 
+                                                      save_plots=stage2_dict['save_plots'],
+                                                      output_dir=run_dir)
                 aligned_specs.append(spec)
                 aligned_specs_err.append(spec_err)
             specs = np.array(aligned_specs)
