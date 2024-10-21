@@ -281,6 +281,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                           show_plots=stage2_dict['show_plots'], 
                                                           save_plots=stage2_dict['save_plots'],
                                                           output_dir=run_dir)
+                    if stage2_dict['verbose'] > 0:
+                        print("Optimized half-width for extraction of order {}: {} pixels".format(order,halfwidth))
                 else:
                     halfwidth = stage2_dict['halfwidths_box'][i]
                 

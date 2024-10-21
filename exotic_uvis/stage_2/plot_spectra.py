@@ -80,10 +80,11 @@ def plot_spec_gif(wavelengths, spectra, orders=("+1",),
   
     # plot first spectrum on each axis get things started
     for n, order in enumerate(orders):
-        spec_line = ax[n].plot(wavelengths[n],spectra[n,0,:],color = colors[order])
+        ok = (wavelengths[n]>2000) & (wavelengths[n]<8000)
+        spec_line = ax[n].plot(wavelengths[n][ok],spectra[n,0,ok],color = colors[order])
         spec_lines.append(spec_line)
         ax[n].set_xlim(2000,8000)
-        ax[n].set_ylim(0, np.nanmax(spectra[n,:,:]))
+        ax[n].set_ylim(0, np.nanmax(spectra[n,:,ok]))
         ax[n].set_title("{} order, frame 0".format(order))
         ax[n].set_xlabel('wavelength [AA]')
         ax[n].set_ylabel('counts [a.u.]')
@@ -91,7 +92,8 @@ def plot_spec_gif(wavelengths, spectra, orders=("+1",),
     # initialize 
     def init():
         for n, order in enumerate(orders):
-            spec_lines[n][0].set_data([wavelengths[n],spectra[n,0,:]])
+            ok = (wavelengths[n]>2000) & (wavelengths[n]<8000)
+            spec_lines[n][0].set_data([wavelengths[n][ok],spectra[n,0,ok]])
             ax[n].set_title("{} order, frame {}".format(order,0))
 
         return spec_lines
@@ -100,7 +102,8 @@ def plot_spec_gif(wavelengths, spectra, orders=("+1",),
     def animation_func(i,orders):
         # update line data
         for n, order in enumerate(orders):
-            spec_lines[n][0].set_data([wavelengths[n],spectra[n,i,:]])
+            ok = (wavelengths[n]>2000) & (wavelengths[n]<8000)
+            spec_lines[n][0].set_data([wavelengths[n][ok],spectra[n,i,ok]])
             ax[n].set_title("{} order, frame {}".format(order,i))
 
         return spec_lines

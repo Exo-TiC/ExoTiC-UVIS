@@ -121,7 +121,8 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False, ind1 = 0
     align_specs = []
     align_specs_err = []
     x_shifts, y_shifts = [], []
-    temp_spec = np.median(specs[:], axis = 0)
+    ok = (trace_x>2000) & (trace_x<8000)
+    temp_spec = np.median(specs[:,ok], axis = 0)
 
     
     # iterate over all spectra
@@ -130,10 +131,10 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False, ind1 = 0
                         disable=(verbose==0)):
 
         # calculate shift wrt template via cross-correlation
-        shift = cross_corr(spec[ind1:ind2], temp_spec[ind1:ind2], order, i,
+        shift = cross_corr(spec[ok][ind1:ind2], temp_spec[ind1:ind2], order, i,
                            trim = 1, fit_window = 5, subpix_width=0.01,
-                           verbose = verbose, show_plots = show_plots,
-                           save_plots = save_plots, output_dir = output_dir)
+                           verbose = 0, show_plots = 0,
+                           save_plots = 0, output_dir = None)
         x_shifts.append(shift)
         
         # if true, correct the spectrum with the computed shift
@@ -191,7 +192,7 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False, ind1 = 0
 
         plt.close() # save memory
         plt.close() # save memory
-
+    
     return align_specs, align_specs_err, np.array(x_shifts)
 
 
