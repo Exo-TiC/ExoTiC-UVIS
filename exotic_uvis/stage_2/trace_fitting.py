@@ -6,17 +6,34 @@ from tqdm import tqdm
 
 from exotic_uvis.plotting import plot_exposure
 
-def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal):
-    '''
-    Pulls the region of each image that has the trace in it, with wavelength solution provided by GRISMCONF.
+def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
+                       verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
+    """Pulls the region of each image that has the trace in it, with wavelength
+    solution provided by GRISMCONF.
 
-    :param obs: xarray. Its obs.images DataSet contains the images and its obs.subarr_coords DataSet is used to trick the configuration into thinking it is embedded.
-    :param order: str. Options are "+1", "-1", "+2", "-2", etc. Which order you want to pull.
-    :param source_pos: tuple of float. The x, y position of the source in the unembedded direct image.
-    :param refine_calibration: bool. If True, uses Gaussian fitting to improve the location of the trace.
-    :param path_to_cal: str. Path to the GRISMCONF calibration file used to locate the trace.
-    :return: the trace x and y positions from the direct image, with the wavelength solution and optional sensitivity corrections.
-    '''
+    Args:
+        obs (xarray): obs.images DataSet contains the images and obs.subarr_coords
+        DataSet is used to trick the configuration into thinking it is embedded.
+        order (str): options are "+1", "-1", "+2", "-2", etc. Which order you
+        want to pull.
+        source_pos (tup): x, y float position of the source in the unembedded
+        direct image.
+        refine_calibration (bool): if True, uses Gaussian fitting to improve
+        the location of the trace.
+        path_to_cal (str): path to the GRISMCONF calibration file used to
+        locate the trace.
+        verbose (int, optional): How detailed you want the printed statements
+        to be. Defaults to 0.
+        show_plots (int, optional): How many plots you want to show. Defaults to 0.
+        save_plots (int, optional): How many plots you want to save. Defaults to 0.
+        output_dir (str, optional): Where to save the plots to, if save_plots
+        is greater than 0. Defaults to None.
+
+    Returns:
+        np.array,np.array,np.array,np.array,scipy.interpolate: trace x and y
+        positions, wavelength solutions, optional trace widths, and optional
+        sensitivity correction functions.
+    """
     # Get the mean subarr_coords offsets.
     offset_x0 = obs.subarr_coords.values[0]
     offset_y0 = obs.subarr_coords.values[2]
@@ -37,18 +54,24 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal):
     trace_x = np.array(trace_x)
     trace_y = np.array(trace_y)
     wavs = np.array(wavs)
-    fs = np.array(fs)
 
-    # test plot
-    plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y]], filename = 'None', save_plot=0, show_plot=2, output_dir='None')
+    # Plot the calibration over the image.
+    if (show_plots > 0 or save_plots > 0):
+        plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y]],
+                      filename = ['s2_calibration_{}'.format(order)], stage=2,
+                      save_plot=(save_plots>0), show_plot=(show_plots>0),
+                      output_dir=output_dir)
     
     # Use Gaussian fitting to refine the y positions if asked.
     if refine_calibration:
         trace_y, widths = fit_trace(obs, trace_x, trace_y, profile_width = 70, pol_deg = 7, fit_type = 'Gaussian',
                                     fit_trace = False, plot_profile = [20, 300], check_all = False)
         
-        # test plot
-        plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y[0]]], filename = 'None', save_plot=0, show_plot=2, output_dir='None')
+        # Plot refined calibration.
+        plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y[0]]],
+                      filename = ['s2_refined-calibration_{}'.format(order)], stage=2,
+                      save_plot=(save_plots>0), show_plot=(show_plots>0),
+                      output_dir=output_dir)
     
     else:
         # No information obtained about trace widths.
@@ -60,18 +83,20 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal):
     return trace_x, trace_y, wavs, widths, fs
 
 def get_calibration_trace(order,x0,y0,path_to_cal):
-    '''
-    Uses the supplied calibration software and source position to locate the
+    """Uses the supplied calibration software and source position to locate the
     trace and assign wavelength solution.
 
-    :param order: str. Options are "+1", "-1", "+2", "-2", etc. Used to grab
-    the right calibration from the calibration file.
-    :param x0: float. Embedded x position of the source.
-    :param y0: float. Embedded y position of the source.
-    :param path_to_cal: str. Path to the calibration file used to locate the trace.
-    :return: the x and y positions of the calibrated trace, the assigned wavelength
-    solution, and the sensitivity corrections.
-    '''
+    Args:
+        order (str): Options are "+1", "-1", "+2", "-2", etc. Used to grab the
+        right calibration from the calibration file.
+        x0 (float): Embedded x position of the source.
+        y0 (float): Embedded y position of the source.
+        path_to_cal (str): Path to the calibration file used to locate the trace.
+
+    Returns:
+        list,list,np.array,scipy.interpolate: the x and y positions of the calibrated
+        trace, the assigned wavelength solution, and the sensitivity correction function.
+    """
     # Initialize the GRISMCONF configuration.
     C = grismconf.Config(path_to_cal)
 
@@ -105,36 +130,45 @@ def get_calibration_trace(order,x0,y0,path_to_cal):
     return xs, ys, wavs, fs
 
 def Gauss1D(x, H, A, x0, sigma):
-    '''
-    Plots a 1D Gaussian on the given x range.
+    """Plots a 1D Gaussian on the given x range.
 
-    :param x: independent variable in the Gaussian.
-    :param H: vertical offset.
-    :param A: amplitude of the Gaussian.
-    :param x0: center of the Gaussian.
-    :param sigma: width of the Gaussian.
-    :return: np.array of Gaussian profile fitted to x.
-    '''
+    Args:
+        x (np.array): independent variable in the Gaussian.
+        H (float): vertical offset.
+        A (float): amplitude of the Gaussian.
+        x0 (float): center of the Gaussian.
+        sigma (float): width of the Gaussian.
+
+    Returns:
+        np.array: Gaussian profile on domain x.
+    """
     return H + A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
 
 
 def fit_trace(obs, trace_x, trace_y, 
               profile_width = 40, pol_deg = 7, fit_type = 'Gaussian',
               fit_trace = False, plot_profile = None, check_all = False):
-    '''
-    Refines the trace vertical location by fitting profile curves to the cross-dispersion profiles.
+    """Refines the trace vertical location by fitting profile curves to the
+    cross-dispersion profiles.
 
-    :param obs: xarray. Its obs.images DataSet contains the images.
-    :param trace_x: lst of floats. The calibrated x positions of the trace pixels.
-    :param trace_y: lst of floats. The calibrated y positions of the trace pixels.
-    :param profile_width: float. How far up and down from the calibrated y positions to fit the Gaussian profiles.
-    :param pol_deg: int. The degree of polynomial to fit to the trace position, if fit_trace is True.
-    :param fit_type: str. Only choicee is 'Gaussian'. Type of profile to fit to the cross-dispersion profiles.
-    :param fit_trace: bool. If True, fit a polynomial to the refined x, y positions of the trace in each frame.
-    :param plot_profile: None.
-    :param check_all: bool.
-    :return: refined vertical positions of the traces and widths of the fitted profiles.
-    '''
+    Args:
+        obs (xarray): obs.images contains the images.
+        trace_x (np.array): calibrated x positions of trace pixels.
+        trace_y (np.array): calibrated y positions of trace pixels.
+        profile_width (int, optional): how far up and down to fit the trace
+        profile. Defaults to 40.
+        pol_deg (int, optional): degree of polynomial to fit to the trace
+        position, if fit_trace is True. Defaults to 7.
+        fit_type (str, optional): Actually has to be Gaussian? Defaults to
+        'Gaussian'.
+        fit_trace (bool, optional): if True, fit a polynomial to the refined
+        x, y positions of the trace in each frame. Defaults to False.
+        plot_profile (_type_, optional): _description_. Defaults to None.
+        check_all (bool, optional): _description_. Defaults to False.
+
+    Returns:
+        np.array,np.array: refined trace positions and widths.
+    """
     # Initialize traces and widths.
     traces, widths = [], []
 

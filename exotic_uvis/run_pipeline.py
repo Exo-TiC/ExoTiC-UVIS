@@ -262,7 +262,11 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                                    order=order,
                                                                    source_pos=stage2_dict['location'],
                                                                    refine_calibration=stage2_dict['refine_fit'],
-                                                                   path_to_cal=stage2_dict['path_to_config'])
+                                                                   path_to_cal=stage2_dict['path_to_config'],
+                                                                   verbose=stage2_dict['verbose'],
+                                                                   show_plots=stage2_dict['show_plots'], 
+                                                                   save_plots=stage2_dict['save_plots'],
+                                                                   output_dir=run_dir)
             
             # extract
             if stage2_dict['method'] == 'box':
