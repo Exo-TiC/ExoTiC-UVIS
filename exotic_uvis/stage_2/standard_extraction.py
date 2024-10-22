@@ -5,7 +5,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import least_squares
 
-def standard_extraction(obs, halfwidth, trace_x, trace_y,
+from exotic_uvis.plotting import plot_exposure
+
+def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = [],
                         verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Extracts a standard 1D spectrum from every image using no weighting.
 
@@ -15,6 +17,8 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y,
         from A-hw to A+hw where A is the index of the central row.
         trace_x (np.array): x positions of the pixels in the trace solution.
         trace_y (np.array): y positions of the pixels in the trace solution.
+        order (str): for labelling plots correctly.
+        masks (list): x, y, radii of objects in the aperture you want to mask.
         verbose (int, optional): How detailed you want the printed statements
         to be. Defaults to 0.
         show_plots (int, optional): How many plots you want to show. Defaults to 0.
@@ -29,12 +33,37 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y,
     traces = []
     err_traces = []
 
+    # Plot planned aperture of extraction.
+    if (save_plots > 0 or show_plots > 0):
+        plot_exposure([obs.images[0].values,], line_data=[[trace_x,trace_y[0]],
+                                                          [trace_x,[i+halfwidth for i in trace_y[0]]],
+                                                          [trace_x,[i-halfwidth for i in trace_y[0]]]],
+                      stage=2,
+                      title='Extraction Aperture', save_plot=(save_plots>0), show_plot=(show_plots>0),
+                      filename=['s2_aperture{}'.format(order)],output_dir=output_dir)
+
     # Iterate over frames.
     for k in tqdm(range(obs.images.shape[0]),desc='Extracting standard spectra... Progress:',
                   disable=(verbose==0)):
         # Get array values and error values of the current frame.
         frame = obs.images[k].values
         err = obs.errors[k].values
+
+        if masks:
+            for mask in masks:
+                # Build a circle mask on top of the object.
+                obj_mask = create_circular_mask(frame.shape[0], frame.shape[1],
+                                                center=[mask[0],mask[1]], radius=mask[2])
+                # 0 out that data.
+                frame[obj_mask] = 0
+                err[obj_mask] = 0
+            if ((save_plots > 0 or show_plots > 0) and k == 0):
+                plot_exposure([frame,], line_data=[[trace_x,trace_y[0]],
+                                                                [trace_x,[i+halfwidth for i in trace_y[0]]],
+                                                                [trace_x,[i-halfwidth for i in trace_y[0]]]],
+                              stage=2,
+                              title='Extraction Aperture', save_plot=(save_plots>0), show_plot=(show_plots>0),
+                              filename=['s2_aperture-masked{}'.format(order)],output_dir=output_dir)
 
         # Pull out just the trace from the frame.
         trace = get_trace(frame, halfwidth, trace_x, trace_y[k])
@@ -234,3 +263,15 @@ def rampslope(x,a,b,c,d):
         np.array: ramp-slope trend.
     """
     return a*np.exp(b*(x-np.nanmean(x))) + c*(x-np.nanmean(x)) + d
+
+def create_circular_mask(h, w, center=None, radius=None):
+    if center is None: # use the middle of the image
+        center = (int(w/2), int(h/2))
+    if radius is None: # use the smallest distance between the center and image walls
+        radius = min(center[0], center[1], w-center[0], h-center[1])
+
+    Y, X = np.ogrid[:h, :w]
+    dist_from_center = np.sqrt((X - center[0])**2 + (Y-center[1])**2)
+
+    mask = dist_from_center <= radius
+    return mask

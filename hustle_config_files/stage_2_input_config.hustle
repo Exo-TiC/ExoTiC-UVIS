@@ -19,6 +19,7 @@ refine_fit      True                                        # Bool. If True, use
 method          'box'                                       # Str. Options are 'box' (draw a box around the trace and sum without weights) or 'optimum' (weight using Horne 1986 methods).
 subtract_contam False                                       # Bool. Whether to model the contaminating orders and subtract them from your trace during extraction. Sometimes works, sometimes just adds lots of scatter.
 sens_correction False                                       # Bool. Whether to correct for the G280's changing sensitivity as a function of wavelength. Since absolute calibrated spectra aren't needed in exoplanetary sciences, you can skip this safely.
+mask_objs       [[0,0,0],]                                  # List of lists. If there are background objects in your planned aperture, mask them here. Each entry is (x,y,radius).
 
 # Step 3a: Box extraction parameters
 determine_hw    True                                        # Bool. If True, automatically determines preferred half-width for each order by minimizing out-of-transit/eclipse residuals.
