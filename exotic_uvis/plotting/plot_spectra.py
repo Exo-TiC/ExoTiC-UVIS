@@ -75,18 +75,24 @@ def plot_spec_gif(wavelengths, spectra, orders=("+1",),
               "+4":'orange',"-4":'deepskyblue'}
 
     # create animation
-    fig,ax = plt.subplots(nrows=len(spectra),figsize = (10, 7*len(spectra)))
+    fig,ax = plt.subplots(nrows=len(spectra),figsize = (6, 4*len(spectra)),sharex=True)
+    fig.subplots_adjust(hspace=0.02)
     spec_lines = []
+    legends = []
   
     # plot first spectrum on each axis get things started
     for n, order in enumerate(orders):
         ok = (wavelengths[n]>2000) & (wavelengths[n]<8000)
-        spec_line = ax[n].plot(wavelengths[n][ok],spectra[n,0,ok],color = colors[order])
+        spec_line = ax[n].plot(wavelengths[n][ok],spectra[n,0,ok],color = colors[order],
+                               label="{} order, frame 0".format(order))
         spec_lines.append(spec_line)
+        l=ax[n].legend(loc='upper right')
+        legends.append(l)
         ax[n].set_xlim(2000,8000)
         ax[n].set_ylim(0, np.nanmax(spectra[n,:,ok]))
-        ax[n].set_title("{} order, frame 0".format(order))
-        ax[n].set_xlabel('wavelength [AA]')
+        #ax[n].set_title("{} order, frame 0".format(order))
+        if n == len(orders)-1:
+            ax[n].set_xlabel('wavelength [AA]')
         ax[n].set_ylabel('counts [a.u.]')
 
     # initialize 
@@ -94,7 +100,8 @@ def plot_spec_gif(wavelengths, spectra, orders=("+1",),
         for n, order in enumerate(orders):
             ok = (wavelengths[n]>2000) & (wavelengths[n]<8000)
             spec_lines[n][0].set_data([wavelengths[n][ok],spectra[n,0,ok]])
-            ax[n].set_title("{} order, frame {}".format(order,0))
+            legends[n].get_texts()[0].set_text("{} order, frame {}".format(order,0))
+            #ax[n].set_title("{} order, frame {}".format(order,0))
 
         return spec_lines
 
@@ -104,7 +111,8 @@ def plot_spec_gif(wavelengths, spectra, orders=("+1",),
         for n, order in enumerate(orders):
             ok = (wavelengths[n]>2000) & (wavelengths[n]<8000)
             spec_lines[n][0].set_data([wavelengths[n][ok],spectra[n,i,ok]])
-            ax[n].set_title("{} order, frame {}".format(order,i))
+            legends[n].get_texts()[0].set_text("{} order, frame {}".format(order,i))
+            #ax[n].set_title("{} order, frame {}".format(order,i))
 
         return spec_lines
         

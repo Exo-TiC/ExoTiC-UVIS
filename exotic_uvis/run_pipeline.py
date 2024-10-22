@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 from exotic_uvis.read_and_write_config import parse_config
 from exotic_uvis.read_and_write_config import write_config
 
+from exotic_uvis.plotting import plot_one_spectrum
+from exotic_uvis.plotting import plot_spec_gif
+
 from exotic_uvis.stage_0 import quicklookup
 from exotic_uvis.stage_0 import collect_and_move_files
 from exotic_uvis.stage_0 import get_files_from_mast
@@ -32,8 +35,6 @@ from exotic_uvis.stage_2 import standard_extraction
 from exotic_uvis.stage_2 import optimal_extraction
 from exotic_uvis.stage_2 import clean_spectra
 from exotic_uvis.stage_2 import align_spectra
-from exotic_uvis.stage_2 import plot_one_spectrum
-from exotic_uvis.stage_2 import plot_spec_gif
 
 
 def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
@@ -365,13 +366,10 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         # plot
         if (stage2_dict['show_plots'] > 0 or stage2_dict['save_plots'] > 0):
             for oneD_spec, wav, order in zip(specs,wavs,stage2_dict['traces_to_conf']):
-                # edit order name to be filesaving-friendly
-                save_order = str.replace(order,"+","p")
-                save_order = str.replace(save_order,"-","m")
                 plot_one_spectrum(wav,oneD_spec[0,:],order,
                                   show_plot=(stage2_dict['show_plots'] > 0),
                                   save_plot=(stage2_dict['save_plots'] > 0),
-                                  filename='s2_1Dspec_order{}'.format(save_order),
+                                  filename='s2_1Dspec_order{}'.format(order),
                                   output_dir=run_dir,
                                   )
             plot_spec_gif(wavs,specs,
