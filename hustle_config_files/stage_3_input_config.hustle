@@ -8,13 +8,18 @@ show_plots      2                                           # Int from 0 to 2. 0
 save_plots      2                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
 
 # Step 1: Read in the data
+orders          ('+1','-1')                                 # List of string. The orders you want to load and operate on.
 
 # Step 2: Light curve extraction
 bin_method      'wavelengths'                               # Str. How to bin the light curves. Options are 'columns' (bin N columns at a time) or 'wavelengths' (bin from wavelength1 to wavelength2).
 wavelength_bins np.linspace(2000,8100,100)                  # Lst of floats or numpy array. If bin_method is 'wavelengths', defines edges of each wavelength bin.
 N_columns       10                                          # Int. If bin_method is 'columns', how many columns go into each bin.
+reject_bad_cols True                                        # bool. If True, masks contributions from columns deemed too noisy.
+bad_col_thres   0.001                                       # float. Used to control how aggressively we flag columns. The lower the number, the less noisiness we tolerate in our columns.
+
+# Step 3: Light curve post-processing
+normalize       True                                        # Bool. If True, normalizes curves by out-of-transit/eclipse flux.
 time_binning    None                                        # Int or None. If int, how many frames in time should be binned. Reduces computation time but degrades time resolution.
 sigma_clip      3.5                                         # Float or None. If float, the sigma at which to mask outliers in sigma clipping.
-normalize       True                                        # Bool. If True, normalizes curves by out-of-transit/eclipse flux.
 
 # ENDPARSE

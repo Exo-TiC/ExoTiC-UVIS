@@ -36,6 +36,9 @@ from exotic_uvis.stage_2 import optimal_extraction
 from exotic_uvis.stage_2 import clean_spectra
 from exotic_uvis.stage_2 import align_spectra
 
+from exotic_uvis.stage_3 import load_data_S3
+from exotic_uvis.stage_3 import save_data_S3
+
 
 def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
     '''
@@ -389,3 +392,19 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         if not os.path.exists(config_dir):
             os.makedirs(config_dir)
         write_config(stage2_dict, stage2_dict['run_name'], 2, config_dir)
+    
+
+    ####### Run Stage 3 #######
+    if 3 in stages:
+        # read out the stage 3 config
+        stage3_config = glob.glob(os.path.join(config_files_dir,'stage_3*'))[0]
+        stage3_dict = parse_config(stage3_config)
+
+        # read data, one order at a time
+        S3_data_path = os.path.join(stage3_dict['toplevel_dir'],os.path.join('outputs',stage3_dict['run_name']))
+
+        for order in stage3_dict['orders']:
+            # load the spectrum for this order
+            spex = load_data_S3(S3_data_path, order=order, verbose = stage3_dict['verbose'])
+
+            
