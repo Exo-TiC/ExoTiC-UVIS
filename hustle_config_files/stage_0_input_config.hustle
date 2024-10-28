@@ -15,13 +15,11 @@ extensions      ['_flt.fits','_spt.fits']                   # lst of str or None
 # Step 2: Organizing files
 do_organize     True                                        # Bool. Whether to perform this step.
 visit_number    '00'                                        # The visit number you want to operate on.
-filesfrom_dir   None                                        # None or str. If you downloaded data in Step 1, leave this as None.
-                                                            # If you have pre-downloaded data, please place all of it in filesfrom_dir. Don't sort it into sub-folders; ExoTiC-UVIS won't be able to find them if they are inside sub-folders!
+filesfrom_dir   None                                        # None or str. If you downloaded data in Step 1, leave this as None. If you have pre-downloaded data, please place all of it in filesfrom_dir. Don't sort it into sub-folders; ExoTiC-UVIS won't be able to find them if they are inside sub-folders!
 
 # Step 3: Locating the target star
 do_locate       True                                        # Bool. Whether to perform this step.
-location        None                                        # None or tuple of float. Prior to running Stage 0, this will be None.
-                                                            # After running Stage 0, a copy of this .hustle file will be made with this information included.
+location        None                                        # None or tuple of float. Prior to running Stage 0, this will be None. After running Stage 0, a copy of this .hustle file will be made with this information included.
 
 # Step 4: Quality quicklook
 do_quicklook    True                                        # Bool. Whether to perform this step.

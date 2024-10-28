@@ -64,7 +64,7 @@ median_columns  True                                        # Bool. If True, tak
 
 # Step 5: Displacement estimation
 # Step 5a: Refine target location
-do_location     True                                        # Bool. Whether the location of the target in the direct image extracted from Stage 0
+do_location     True                                        # Bool. Whether the location of the target in the direct image extracted from Stage 0 should be refined by fitting.
 
 # Step 5b: Source center-of-mass tracking
 do_0thtracking  True                                        # Bool. Whether to track frame displacements by centroiding the 0th order.           
@@ -73,7 +73,7 @@ location        [970, 170]                                  # lst of float. Init
 
 # Step 5c: Background star tracking
 do_bkg_stars    True                                        # Bool. Whether to track frame displacements by centroiding background stars.
-bkg_stars_loc   [[0, 0], [0, 0]]                            # Lst of lst of float. Every list should indicate the estimated location of every background star
+bkg_stars_loc   [[0, 0], [0, 0]]                            # Lst of lst of float. Every list should indicate the estimated location of every background star.
 # WIP
 
 # Step 6: Quality quicklook
