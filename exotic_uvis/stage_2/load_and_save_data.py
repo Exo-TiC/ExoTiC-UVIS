@@ -23,9 +23,9 @@ def load_data_S2(data_dir, filename = 'clean_obs', verbose = 0):
 
 
 def save_data_S2(obs, specs, specs_err, 
-                 trace_x, trace_y, wavelengths,
-                 orders = ("+1", "-1"), output_dir = None,
-                 filename = 'specs'):
+                 trace_x, trace_y, widths, wavelengths,
+                 spec_shifts, orders = ("+1", "-1"),
+                 output_dir = None, filename = 'specs'):
     """Function to create and save xarray containing the information extracted
     from stage 2.
 
@@ -35,7 +35,9 @@ def save_data_S2(obs, specs, specs_err,
         specs_err (_type_): _description_
         trace_x (_type_): _description_
         trace_y (_type_): _description_
+        widths (_type_): _description_
         wavelengths (_type_): _description_
+        spec_shifts (_type_): _description_
         orders (tuple, optional): _description_. Defaults to ("+1", "-1").
         output_dir (_type_, optional): _description_. Defaults to None.
         filename (str, optional): _description_. Defaults to 'specs'.
@@ -46,22 +48,27 @@ def save_data_S2(obs, specs, specs_err,
 
     # Create and save xarray for each order
     for o,order in enumerate(orders):
+        try:
+             w = widths[o]
+        except TypeError:
+             w = np.empty_like(specs[o])
         spectra = xr.Dataset(
             data_vars=dict(
-                spec = (['exp_time', 'x'], specs[o,:,:]),
-                spec_err = (['exp_time', 'x'], specs_err[o,:,:]),
-                #fit_trace = (['exp_time', 'x'], traces),
-                #fit_widths = (['exp_time', 'x'], widths),
+                spec = (['exp_time', 'x'], specs[o]),
+                spec_err = (['exp_time', 'x'], specs_err[o]),
+                fit_trace_y = (['exp_time', 'x'], trace_y[o]),
+                fit_widths = (['exp_time', 'x'], w),
                 #spec_disp = (['exp_time'], spec_disp),
                 #prof_disp = (['exp_time', 'x'], prof_disp),
-                cal_trace = (['exp_time', 'x'], trace_y[o,:,:])
+                cal_trace = (['exp_time', 'x'], trace_y[o]),
+                shifts=(['exp_time',],spec_shifts[o]),
                 ),
             coords=dict(
                 wave=(['x'], wavelengths[o]),
                 trace_x=(['x'], trace_x[o]),
-                exp_time = obs.exp_time.data
-            ),
-        )
+                exp_time = obs.exp_time.data,
+                ),
+            )
         
         #for i in range(len(bkg_stars)):
         #    Res['stars{}_disp'.format(i + 1)] = obs['star{}_disp'.format(i)]   
