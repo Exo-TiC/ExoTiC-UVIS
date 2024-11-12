@@ -34,6 +34,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
         positions, wavelength solutions, optional trace widths, and optional
         sensitivity correction functions.
     """
+   
     # Get the mean subarr_coords offsets.
     offset_x0 = obs.subarr_coords.values[0]
     offset_y0 = obs.subarr_coords.values[2]

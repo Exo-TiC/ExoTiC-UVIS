@@ -242,6 +242,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
     ####### Run Stage 2 #######
     if 2 in stages:
+
         # read out the stage 2 config
         stage2_config = glob.glob(os.path.join(config_files_dir,'stage_2*'))[0]
         stage2_dict = parse_config(stage2_config)
