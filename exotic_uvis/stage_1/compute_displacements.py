@@ -120,7 +120,7 @@ def track_bkgstars(obs, bkg_stars, window = 15, verbose_plots = 0, check_all = F
         plot_bkg_stars(image, obs.exp_time.data, mean_loc, mean_pos, stars_pos, output_dir=output_dir)
 
     
-    return pos
+    return stars_pos, mean_pos
 
 def track_0thOrder(obs, guess):
     """Tracks the 0th order through all frames using centroiding.
@@ -132,11 +132,6 @@ def track_0thOrder(obs, guess):
     Returns:
         lst of float: location of the direct image in x, y floats.
     """
-    # Correct direct image guess to be appropriate for spec images.
-    # FIX: hardcoded based on WASP-31 test. There must be a better way...
-    guess[0] += 100
-    guess[1] += 150
-
     # Open lists of position.
     X, Y = [], []
     for k in range(obs.images.shape[0]):
