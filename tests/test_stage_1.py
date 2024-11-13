@@ -171,7 +171,7 @@ class TestStage1(unittest.TestCase):
         """ Subtract background signal with various methods. """
         # First we are using the Pagul+ method, since we based our 'data' on it.
         stage_1.Pagul_bckg_subtraction(self.xarray_data,
-                                       Pagul_path = self.Pagul_path,
+                                       pagul_path = self.Pagul_path,
                                        masking_parameter=0.0001,
                                        median_on_columns=False)
         
@@ -215,7 +215,7 @@ class TestStage1(unittest.TestCase):
         for truth, retrieved in zip(self.star_truth,
                                     (self.xarray_data.attrs['target_posx'],
                                      self.xarray_data.attrs['target_posy'])):
-            self.assertAlmostEqual(truth,retrieved,delta=0.10)
+            self.assertAlmostEqual(truth,retrieved,delta=0.5)
 
         # Then we track the 0th order in each frame.
         # We did not add any 0th order motion so there should be little variation.

@@ -130,7 +130,7 @@ def plot_spec_gif(wavelengths, spectra, orders=("+1",),
             if not os.path.exists(stagedir):
                 os.makedirs(stagedir)
 
-            animation.save(os.path.join(stagedir, '{}_order.gif'.format(filename,order)), writer = 'ffmpeg', fps = 10)
+            animation.save(os.path.join(stagedir, '{}_order{}.gif'.format(filename,order)), writer = 'ffmpeg', fps = 10)
 
         if show_plot:
             plt.show(block = True)
