@@ -5,7 +5,6 @@ import unittest
 from astroquery.mast import Observations
 from astropy.io import fits
 import numpy as np
-import matplotlib.pyplot as plt
 import xarray as xr
 
 from exotic_uvis import stage_0, stage_1
