@@ -41,6 +41,7 @@ def get_images(data_dir,
     specs_dir = os.path.join(data_dir, 'specimages/')
 
     # iterate over all files in directory
+    have_xy = False
     for filename in tqdm(np.sort(os.listdir(specs_dir)),
                          desc='Parsing files for quicklookup... Progress:',
                          disable=(verbose < 2)):
@@ -55,6 +56,14 @@ def get_images(data_dir,
             # append image and exposure data
             exp_times.append((hdul[0].header['EXPSTART'] + hdul[0].header['EXPEND'])/2)
             images.append(image) 
+
+            # locate section
+            if not have_xy:
+                x, y = centroid_com(images[0]) # exploit the saturation of the 0th order to get in the vicinity of it
+                x, y = (int(x), int(y))
+                section = [y-20, y+40, x-350, x-100] # +1 order will always fall within these values, more or less
+                have_xy = True
+
             total_flux.append(np.sum(image))
             partial_flux.append(np.sum(image[section[0]:section[1],section[2]:section[3]]))
 
@@ -63,11 +72,6 @@ def get_images(data_dir,
     exp_times = np.array(exp_times)
     total_flux = np.array(total_flux)
     partial_flux = np.array(partial_flux)
-
-    # locate section
-    x, y = centroid_com(images[0]) # exploit the saturation of the 0th order to get in the vicinity of it
-    x, y = (int(x), int(y))
-    section = [y-20, y+40, x-350, x-100] # +1 order will always fall within these values, more or less
 
     return images, exp_times, total_flux, partial_flux, section
 
@@ -97,10 +101,17 @@ def parse_xarr(obs,
     dq = obs.data_quality.data
 
     # iterate over all files in directory
+    have_xy = False
     for i in tqdm(range(images.shape[0]),
                   desc='Parsing xarray for quicklookup... Progress:',
                   disable=(verbose < 2)):
-
+        # locate section
+        if not have_xy:
+            x, y = centroid_com(images[0]) # exploit the saturation of the 0th order to get in the vicinity of it
+            x, y = (int(x), int(y))
+            section = [y-20, y+40, x-350, x-100] # +1 order will always fall within these values, more or less
+            have_xy = True
+        
         # append total and partial fluxes
         total_flux.append(np.sum(images[i]))
         partial_flux.append(np.sum(images[i][section[0]:section[1],section[2]:section[3]]))
@@ -108,11 +119,6 @@ def parse_xarr(obs,
     # convert to numpy arrays
     total_flux = np.array(total_flux)
     partial_flux = np.array(partial_flux)
-
-    # locate section
-    x, y = centroid_com(images[0]) # exploit the saturation of the 0th order to get in the vicinity of it
-    x, y = (int(x), int(y))
-    section = [y-20, y+40, x-350, x-100] # +1 order will always fall within these values, more or less
 
     return images, dq, exp_times, total_flux, partial_flux, section
 

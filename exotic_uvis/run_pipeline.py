@@ -82,7 +82,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                         stage0_dict['verbose'], 
                         stage0_dict['show_plots'], 
                         stage0_dict['save_plots'],
-                        stage0_dict['gif_dir'])
+                        os.path.join(stage0_dict['toplevel_dir'],stage0_dict['gif_dir']))
 
         # write config
         config_dir = os.path.join(stage0_dict['toplevel_dir'],'stage0')

@@ -23,6 +23,6 @@ location        None                                        # None or tuple of f
 
 # Step 4: Quality quicklook
 do_quicklook    True                                        # Bool. Whether to perform this step.
-gif_dir         './'                                        # str. Where to save the quicklook gif to.
+gif_dir         './'                                        # str. Where to save the quicklook gif to, relative to the toplevel_dir.
 
 # ENDPARS
