@@ -1,9 +1,12 @@
+import os
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import xarray as xr
-import os
+
 from exotic_uvis.plotting import plot_exposure
+
 
 #define plotting parameters
 plt.rc('font', family='serif')
@@ -40,6 +43,8 @@ def plot_corners(image, corners,
     filedir = os.path.join(stagedir, 'bkg_corners.png')
     
     if save_plot:
+        if not os.path.exists(stagedir):
+            os.makedirs(stagedir) 
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
 
     if show_plot:
@@ -91,6 +96,8 @@ def plot_bkgvals(exp_times, bkg_vals, method,
     filedir = os.path.join(stagedir, 'bkg_values_{}.png'.format(method))
     
     if save_plot:
+        if not os.path.exists(stagedir):
+            os.makedirs(stagedir) 
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
 
     if show_plot:
@@ -130,6 +137,8 @@ def plot_mode_v_params(exp_times, modes, params,
     filedir = os.path.join(stagedir, 'bkg_scaling_parameters.png')
     
     if save_plot:
+        if not os.path.exists(stagedir):
+            os.makedirs(stagedir) 
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
 
     if show_plot:
