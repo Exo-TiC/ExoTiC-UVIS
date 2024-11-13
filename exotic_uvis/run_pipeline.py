@@ -8,8 +8,8 @@ from exotic_uvis.read_and_write_config import write_config
 
 from exotic_uvis.plotting import plot_one_spectrum
 from exotic_uvis.plotting import plot_spec_gif
+from exotic_uvis.plotting import quicklookup
 
-from exotic_uvis.stage_0 import quicklookup
 from exotic_uvis.stage_0 import collect_and_move_files
 from exotic_uvis.stage_0 import get_files_from_mast
 from exotic_uvis.stage_0 import locate_target
@@ -198,13 +198,15 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                save_plots=stage1_dict['save_plots'],
                                                output_dir=run_dir)
 
-        # refine location of the source by frame using COM fitting
+        # refine location of the source in the direct image using COM fitting
         if stage1_dict['do_location']:
             refine_location(obs, location=stage1_dict['location'], 
-                          verbose=stage1_dict['verbose'],
-                          show_plots=stage1_dict['show_plots'],
-                          save_plots=stage1_dict['save_plots'],
-                          output_dir=run_dir)
+                            verbose=stage1_dict['verbose'],
+                            show_plots=stage1_dict['show_plots'],
+                            save_plots=stage1_dict['save_plots'],
+                            output_dir=run_dir)
+            stage1_dict['location'] = [obs.attrs['target_posx'],
+                                       obs.attrs['target_posy']]
 
         # displacements by 0th order tracking
         if stage1_dict['do_0thtracking']:
@@ -213,13 +215,19 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             # want to avoid, so we need to think of a better way...
             guess = [stage1_dict['location'][0]+100,
                      stage1_dict['location'][1]+150]
-            track_0thOrder(obs,  guess=guess)
+            track_0thOrder(obs, guess=guess,
+                           verbose=stage1_dict['verbose'],
+                           show_plots=stage1_dict['show_plots'],
+                           save_plots=stage1_dict['save_plots'],
+                           output_dir=run_dir)
 
         # displacements by background stars
         if stage1_dict['do_bkg_stars']:
-            track_bkgstars(obs,  bkg_stars=stage1_dict['bkg_stars_loc'], 
-                                 verbose_plots=stage1_dict['verbose'],
-                                 output_dir=run_dir)
+            track_bkgstars(obs, bkg_stars=stage1_dict['bkg_stars_loc'], 
+                           verbose=stage1_dict['verbose'],
+                           show_plots=stage1_dict['show_plots'],
+                           save_plots=stage1_dict['save_plots'],
+                           output_dir=run_dir)
             
         # create quicklook gif
         if stage1_dict['do_quicklook']:

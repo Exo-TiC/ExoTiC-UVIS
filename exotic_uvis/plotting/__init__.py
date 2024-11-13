@@ -1,4 +1,5 @@
 __all__ = [
+    "quicklookup",
     "plot_exposure",
     "plot_corners",
     "plot_bkg_stars",
@@ -11,6 +12,7 @@ __all__ = [
 ]
 
 
+from exotic_uvis.plotting.plot_quicklook import quicklookup
 from exotic_uvis.plotting.plot_exposures import plot_exposure
 from exotic_uvis.plotting.plot_displacements import plot_bkg_stars, plot_0th_order
 from exotic_uvis.plotting.plot_bkgsubtraction import plot_corners, plot_bkgvals, plot_mode_v_params
