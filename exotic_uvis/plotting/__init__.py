@@ -3,6 +3,7 @@ __all__ = [
     "plot_corners",
     "plot_bkg_stars",
     "plot_bkgvals",
+    "plot_mode_v_params",
     "plot_flags_per_time",
     "plot_one_spectrum",
     "plot_spec_gif",
