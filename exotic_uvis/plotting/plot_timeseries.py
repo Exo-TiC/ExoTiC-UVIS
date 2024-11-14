@@ -1,8 +1,7 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import xarray as xr
 import os
+
+import matplotlib.pyplot as plt
+
 
 #define plotting parameters
 plt.rc('font', family='serif')
@@ -10,6 +9,7 @@ plt.rc('xtick', labelsize=14)
 plt.rc('ytick', labelsize=14)
 plt.rc('axes', labelsize=14)
 plt.rc('legend',**{'fontsize':11})
+
 
 def plot_flags_per_time(series_x, series_y, style='line',
                         line_data = None, scatter_data = None, 

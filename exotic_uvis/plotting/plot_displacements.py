@@ -2,8 +2,6 @@ import os
 
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import xarray as xr
 
 from exotic_uvis.plotting import plot_exposure
 

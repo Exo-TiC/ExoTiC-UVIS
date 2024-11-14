@@ -6,8 +6,6 @@ from astropy.io import fits
 import matplotlib.pyplot as plt 
 from matplotlib.animation import FuncAnimation
 import matplotlib.patches as patches
-from matplotlib.pyplot import rc
-from scipy import optimize
 
 from photutils.centroids import centroid_com
 
@@ -135,8 +133,10 @@ def create_gif(exp_times, images, total_flux, partial_flux, section,
         section (lst of int): the subsection of image you measured flux in.
         output_dir (str): where to save the gif to.
         stage (str): which stage this quicklook is for, for naming files.
-        show_fig (bool, optional): whether to show the figure or not. Defaults to False.
-        save_fig (bool, optional): wether to save the figure or not. Defaults to False.
+        show_fig (bool, optional): whether to show the figure or not.
+        Defaults to False.
+        save_fig (bool, optional): wether to save the figure or not.
+        Defaults to False.
     """
 
     # avoid zero and negative values for log plot
@@ -224,8 +224,10 @@ def create_dq_gif(exp_times, images, dq, section,
         section (lst of int): the subsection of image you measured flux in.
         output_dir (str): where to save the gif to.
         stage (str): which stage this quicklook is for, for naming files.
-        show_fig (bool, optional): whether to show the figure or not. Defaults to False.
-        save_fig (bool, optional): wether to save the figure or not. Defaults to False.
+        show_fig (bool, optional): whether to show the figure or not.
+        Defaults to False.
+        save_fig (bool, optional): wether to save the figure or not.
+        Defaults to False.
     """
 
     # create animation
@@ -311,12 +313,16 @@ def quicklookup(data_dir,
     """Wrapper for quicklookup functions.
 
     Args:
-        data_dir (str or xarray): directory where the images you want to load are,
-        or axarray containing the data already reduced.
-        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to display. Defaults to 0.
-        save_plots (int, optional): how many plots you want to save. Defaults to 0.
-        output_dir (str, optional): directory where the gif should be saved, if save_plots >= 1. Defaults to None.
+        data_dir (str or xarray): directory where the images you want to load
+        are, or axarray containing the data already reduced.
+        verbose (int, optional): how detailed you want the printed statements
+        to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to display.
+        Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. 
+        Defaults to 0.
+        output_dir (str, optional): directory where the gif should be saved,
+        if save_plots >= 1. Defaults to None.
     """
 
     # get images and exposure times
