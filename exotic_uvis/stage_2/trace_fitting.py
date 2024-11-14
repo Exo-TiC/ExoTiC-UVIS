@@ -42,11 +42,10 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
     adjusted_y0 = source_pos[1] + offset_y0
 
     # Get the x, y positions of the trace as well as wavelength solution and sensitivity correction.
-    trace_x, trace_y, wavs, fs = get_calibration_trace(obs,
-                                                       order,
-                                                       adjusted_x0,
-                                                       adjusted_y0,
-                                                       path_to_cal)
+    trace_x, trace_y, wavs, sens = get_calibration_trace(order,
+                                                         adjusted_x0,
+                                                         adjusted_y0,
+                                                         path_to_cal)
 
     # Undo the offsets from the subarray coordinates.
     trace_x = [i - offset_x0 for i in trace_x]
@@ -56,6 +55,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
     trace_x = np.array(trace_x)
     trace_y = np.array(trace_y)
     wavs = np.array(wavs)
+    sens = np.array(sens)
 
     # Plot the calibration over the image.
     if (show_plots > 0 or save_plots > 0):
@@ -82,7 +82,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
             refined_trace_y[k,:] = trace_y
         trace_y = refined_trace_y
         widths = None
-    return trace_x, trace_y, wavs, widths, fs
+    return trace_x, trace_y, wavs, widths, sens
 
 def get_calibration_trace(obs, order, x0, y0, path_to_cal):
     """Uses the supplied calibration software and source position to locate the
@@ -130,11 +130,12 @@ def get_calibration_trace(obs, order, x0, y0, path_to_cal):
     xs = [i+x0 for i in dxs]
     ys = [i+y0 for i in dys]
 
-    # Get the sensitivity correction function.
+    # Get the sensitivity correction for the wavelength range we are working on.
     s = C.SENS[order]
     fs = s.f
+    sens = fs(wavs)
 
-    return xs, ys, wavs, fs
+    return xs, ys, wavs, sens
 
 def Gauss1D(x, H, A, x0, sigma):
     """Plots a 1D Gaussian on the given x range.

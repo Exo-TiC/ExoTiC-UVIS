@@ -7,6 +7,7 @@ from matplotlib.animation import FuncAnimation
 import matplotlib.patches as patches
 import xarray as xr
 
+
 #define plotting parameters
 plt.rc('font', family='serif')
 plt.rc('xtick', labelsize=14)
@@ -18,22 +19,27 @@ plt.rc('legend',**{'fontsize':11})
 def plot_one_spectrum(wavelengths, spectrum, order="+1",
                       stage = 2, show_plot = False, save_plot = False,
                       filename = None, output_dir = None):
-    """Function to plot one extracted spectrum
+    """Function to plot one extracted spectrum.
 
     Args:
-        wavelengths (_type_): _description_
-        spectrum (_type_): _description_
-        order (str, optional): _description_. Defaults to "+1".
-        show_plot (bool, optional): _description_. Defaults to False.
-        save_plot (bool, optional): _description_. Defaults to False.
-        filename (_type_, optional): _description_. Defaults to None.
-        output_dir (_type_, optional): _description_. Defaults to None.
-
-    Returns:
-        _type_: _description_
+        wavelengths (np.array): wavelength solution for given order.
+        spectrum (np.array): 1D extracted spectrum.
+        order (str, optional): which order this is, for plot naming.
+        Defaults to "+1".
+        show_plot (bool, optional): whether to interrupt execution to
+        show the user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot to a file.
+        Defaults to False.
+        filename (str, optional): name to give this file, if saving.
+        Defaults to None.
+        output_dir (str, optional): where to save the file, if saving.
+        Defaults to None.
     """
+
+    # bound wavelengths to the region G280 is sensitive to
     ok = (wavelengths>2000) & (wavelengths<8000)
 
+    # initialize plot and plot data that's in the okay range
     plt.figure(figsize = (10, 7))
     plt.plot(wavelengths[ok], spectrum[ok])
     plt.xlabel('Wavelength (nm)')
@@ -52,85 +58,83 @@ def plot_one_spectrum(wavelengths, spectrum, order="+1",
 
     plt.close() # save memory
 
-    return 0
+    return 
+
 
 def plot_spec_gif(wavelengths, spectra, orders=("+1",),
                   stage = 2, show_plot = False, save_plot = False,
                   filename = None, output_dir = None):
-    """Plots a gif of the extracted spectra over time.
+    """Plots gifs of the extracted spectra over time.
 
     Args:
-        wavelengths (_type_): _description_
-        spectra (_type_): _description_
-        order (str, optional): _description_. Defaults to "+1".
-        show_plot (bool, optional): _description_. Defaults to False.
-        save_plot (bool, optional): _description_. Defaults to False.
-        filename (_type_, optional): _description_. Defaults to None.
-        output_dir (_type_, optional): _description_. Defaults to None.
+        wavelengths (np.array): wavelength solution for given orders.
+        spectra (np.array): 1D extracted spectra.
+        order (str, optional): which orders we have, for plot naming.
+        Defaults to ("+1",).
+        show_plot (bool, optional): whether to interrupt execution to
+        show the user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot to a file.
+        Defaults to False.
+        filename (str, optional): name to give this file, if saving.
+        Defaults to None.
+        output_dir (str, optional): where to save the file, if saving.
+        Defaults to None.
     """
+
     # define order colors
     colors = {"+1":'red',"-1":'blue',
               "+2":'orangered',"-2":'royalblue',
               "+3":'darkorange',"-3":'dodgerblue',
               "+4":'orange',"-4":'deepskyblue'}
 
-    # create animation
-    fig,ax = plt.subplots(nrows=len(spectra),figsize = (6, 4*len(spectra)),sharex=True)
-    fig.subplots_adjust(hspace=0.02)
-    spec_lines = []
-    legends = []
-  
-    # plot first spectrum on each axis get things started
-    for n, order in enumerate(orders):
-        ok = (wavelengths[n]>2000) & (wavelengths[n]<8000)
-        spec_line = ax[n].plot(wavelengths[n][ok],spectra[n,0,ok],color = colors[order],
-                               label="{} order, frame 0".format(order))
-        spec_lines.append(spec_line)
-        l=ax[n].legend(loc='upper right')
-        legends.append(l)
-        ax[n].set_xlim(2000,8000)
-        ax[n].set_ylim(0, np.nanmax(spectra[n,:,ok]))
-        #ax[n].set_title("{} order, frame 0".format(order))
-        if n == len(orders)-1:
-            ax[n].set_xlabel('wavelength [AA]')
-        ax[n].set_ylabel('counts [a.u.]')
-
-    # initialize 
-    def init():
-        for n, order in enumerate(orders):
-            ok = (wavelengths[n]>2000) & (wavelengths[n]<8000)
-            spec_lines[n][0].set_data([wavelengths[n][ok],spectra[n,0,ok]])
-            legends[n].get_texts()[0].set_text("{} order, frame {}".format(order,0))
-            #ax[n].set_title("{} order, frame {}".format(order,0))
-
-        return spec_lines
-
-    # define animation function
-    def animation_func(i,orders):
-        # update line data
-        for n, order in enumerate(orders):
-            ok = (wavelengths[n]>2000) & (wavelengths[n]<8000)
-            spec_lines[n][0].set_data([wavelengths[n][ok],spectra[n,i,ok]])
-            legends[n].get_texts()[0].set_text("{} order, frame {}".format(order,i))
-            #ax[n].set_title("{} order, frame {}".format(order,i))
-
-        return spec_lines
+    # create animation for each order
+    for wav, spec, order in zip(wavelengths, spectra, orders):
+        fig,ax = plt.subplots(figsize=(6,4))
         
-    # create and plot animation
-    animation = FuncAnimation(fig, animation_func, init_func = init, frames = np.shape(spectra)[1], interval = 20,
-                              fargs=(orders,))
-    plt.tight_layout()
+        # plot first spectrum to get things started
+        ok = (wav>2000) & (wav<8000)
+        spec_line = ax.plot(wav[ok],spec[0,ok],color = colors[order],
+                            label="{} order, frame 0".format(order))
+        leg = ax.legend(loc='upper right')
+        ax.set_xlim(2000,8000)
+        ax.set_ylim(0, np.nanmax(spec[:,ok]))
+        ax.set_xlabel('wavelength [AA]')
+        ax.set_ylabel('counts [a.u.]')
 
-    # save animation
-    if save_plot:
-        stagedir = os.path.join(output_dir, f'stage{stage}/plots')
+        # initialize 
+        def init():
+            ok = (wav>2000) & (wav<8000)
+            spec_line[0].set_data([wav[ok],spec[0,ok]])
+            leg.get_texts()[0].set_text("{} order, frame {}".format(order,0))
 
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir)
+            return spec_line
 
-        animation.save(os.path.join(stagedir, '{}.gif'.format(filename)), writer = 'ffmpeg', fps = 10)
+        # define animation function
+        def animation_func(i):
+            # update line data
+            ok = (wav>2000) & (wav<8000)
+            spec_line[0].set_data([wav[ok],spec[i,ok]])
+            leg.get_texts()[0].set_text("{} order, frame {}".format(order,i))
 
-    if show_plot:
-        plt.show(block = True)
+            return spec_line
+            
+        # create and plot animation
+        animation = FuncAnimation(fig, animation_func, init_func = init,
+                                  frames = np.shape(spec)[0], interval = 20)
+        plt.tight_layout()
 
-    plt.close() # save memory
+        # save animation
+        if save_plot:
+            stagedir = os.path.join(output_dir, f'stage{stage}/plots')
+
+            if not os.path.exists(stagedir):
+                os.makedirs(stagedir)
+
+            animation.save(os.path.join(stagedir, '{}_order{}.gif'.format(filename,order)), writer = 'ffmpeg', fps = 10)
+
+        if show_plot:
+            plt.show(block = True)
+
+        plt.close() # save memory
+
+    return 

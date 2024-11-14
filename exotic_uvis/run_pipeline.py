@@ -8,8 +8,8 @@ from exotic_uvis.read_and_write_config import write_config
 
 from exotic_uvis.plotting import plot_one_spectrum
 from exotic_uvis.plotting import plot_spec_gif
+from exotic_uvis.plotting import quicklookup
 
-from exotic_uvis.stage_0 import quicklookup
 from exotic_uvis.stage_0 import collect_and_move_files
 from exotic_uvis.stage_0 import get_files_from_mast
 from exotic_uvis.stage_0 import locate_target
@@ -82,7 +82,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                         stage0_dict['verbose'], 
                         stage0_dict['show_plots'], 
                         stage0_dict['save_plots'],
-                        stage0_dict['gif_dir'])
+                        os.path.join(stage0_dict['toplevel_dir'],stage0_dict['gif_dir']))
 
         # write config
         config_dir = os.path.join(stage0_dict['toplevel_dir'],'stage0')
@@ -198,25 +198,36 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                save_plots=stage1_dict['save_plots'],
                                                output_dir=run_dir)
 
-        # refine location of the source by frame using COM fitting
+        # refine location of the source in the direct image using COM fitting
         if stage1_dict['do_location']:
             refine_location(obs, location=stage1_dict['location'], 
-                          verbose=stage1_dict['verbose'],
-                          show_plots=stage1_dict['show_plots'],
-                          save_plots=stage1_dict['save_plots'],
-                          output_dir=run_dir)
+                            verbose=stage1_dict['verbose'],
+                            show_plots=stage1_dict['show_plots'],
+                            save_plots=stage1_dict['save_plots'],
+                            output_dir=run_dir)
+            stage1_dict['location'] = [obs.attrs['target_posx'],
+                                       obs.attrs['target_posy']]
 
         # displacements by 0th order tracking
         if stage1_dict['do_0thtracking']:
-            track_0thOrder(obs,  guess=stage1_dict['location'])
+            # FIX: The below hardcodes an adjustment to your guess that shifts it
+            # from direct image pos to spec image. Hardcoding is something that we
+            # want to avoid, so we need to think of a better way...
+            guess = [stage1_dict['location'][0]+100,
+                     stage1_dict['location'][1]+150]
+            track_0thOrder(obs, guess=guess,
+                           verbose=stage1_dict['verbose'],
+                           show_plots=stage1_dict['show_plots'],
+                           save_plots=stage1_dict['save_plots'],
+                           output_dir=run_dir)
 
         # displacements by background stars
         if stage1_dict['do_bkg_stars']:
             track_bkgstars(obs, bkg_stars=stage1_dict['bkg_stars_loc'], 
-                                verbose=stage1_dict['verbose'],
-                                show_plots=stage1_dict['show_plots'],
-                                save_plots=stage1_dict['save_plots'],
-                                output_dir=run_dir)
+                           verbose=stage1_dict['verbose'],
+                           show_plots=stage1_dict['show_plots'],
+                           save_plots=stage1_dict['save_plots'],
+                           output_dir=run_dir)
             
         # create quicklook gif
         if stage1_dict['do_quicklook']:
@@ -248,12 +259,12 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         stage0_output_config = os.path.join(stage2_dict['toplevel_dir'],'stage0/stage_0_.hustle')
         stage0_output_dict = parse_config(stage0_output_config)
 
-        # and grab the location of the source
-        stage2_dict['location'] = stage0_output_dict['location']
-
         # read data
         S2_data_path = os.path.join(stage2_dict['toplevel_dir'],os.path.join('outputs',stage2_dict['run_name']))
         obs = load_data_S2(S2_data_path, verbose = stage2_dict['verbose'])
+
+        # get the location from the obs.nc file
+        stage2_dict['location'] = [obs.attrs['target_posx'],obs.attrs['target_posy']]
 
         # create output directory
         output_dir = os.path.join(stage2_dict['toplevel_dir'],'outputs')
@@ -262,7 +273,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             os.makedirs(run_dir)
 
         # iterate over orders
-        wavs, specs, specs_err, traces_x, traces_y, sens = [], [], [], [], [], []
+        wavs, specs, specs_err, traces_x, traces_y = [], [], [], [], []
         for i, order in enumerate(stage2_dict['traces_to_conf']):
             # configure trace
             trace_x, trace_y, wav, widths, fs = get_trace_solution(obs,
@@ -309,49 +320,29 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                 # optimum extraction
                 spec, spec_err = optimal_extraction(obs)
 
+            if stage2_dict['sens_correction']:
+                # apply sens correction function 'fs' to the data
+                ok = (wav>2000) & (wav<8000)
+                for k in range(spec.shape[0]):
+                    spec[k,:]/=fs[ok]
+                    spec_err[k,:]/=fs[ok]
+                spec[~np.isfinite(spec)] = 0
+                spec_err[~np.isfinite(spec_err)] = 0
 
             wavs.append(wav)
             specs.append(spec)
             specs_err.append(spec_err)
             traces_x.append(trace_x)
             traces_y.append(trace_y)
-            sens.append(fs)
         
-        # Pad all wavs arrays to be as long as the longest array.
-        length = max([len(k) for k in wavs])
-        time = np.shape(np.array(spec))[0]
-
-        new_specs, new_specs_err, new_wavs, new_tx, new_ty = [],[],[],[],[]
-        for spec, spec_err, wav, x, y in zip(specs,specs_err,wavs,traces_x,traces_y):
-            new_spec, new_spec_err = [np.empty((time,length)),np.empty((time,length))]
-            new_wav = np.empty((length))
-            new_x, new_y = [np.empty((length)),np.empty((time,length))]
-            for i in range(len(wav)):
-                for t in range(time):
-                    new_spec[t,i] = spec[t,i]
-                    new_spec_err[t,i] = spec_err[t,i]
-                    new_y[t,i] = y[t,i]
-                new_wav[i] = wav[i]
-                new_x[i] = x[i]
-            new_specs.append(new_spec)
-            new_specs_err.append(new_spec_err)
-            new_wavs.append(new_wav)
-            new_tx.append(new_x)
-            new_ty.append(new_y)
-        specs = np.array(new_specs)
-        specs_err = np.array(new_specs_err)
-        wavs = np.array(new_wavs)
-        traces_x = np.array(new_tx)
-        traces_y = np.array(new_ty)
-        sens = np.array(sens)
-
         # align
+        spec_shifts = []
         if stage2_dict['align']:
             aligned_specs = []
             aligned_specs_err = []
             for spec, spec_err, wav, order in zip(specs, specs_err, wavs, stage2_dict['traces_to_conf']):
-                spec, spec_err, shifts = align_spectra(obs,spec,spec_err,order,
-                                                      trace_x=wav,
+                spec, spec_err, shifts = align_spectra(obs,np.array(spec),np.array(spec_err),order,
+                                                      trace_x=np.array(wav),
                                                       align=True,
                                                       ind1=0,
                                                       ind2=-1,
@@ -361,14 +352,15 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                       output_dir=run_dir)
                 aligned_specs.append(spec)
                 aligned_specs_err.append(spec_err)
-            specs = np.array(aligned_specs)
-            specs_err = np.array(aligned_specs_err)
+                spec_shifts.append(shifts)
+            specs = aligned_specs
+            specs_err = aligned_specs_err
             
         # clean
         if stage2_dict['outlier_sigma']:
             specs = clean_spectra(specs,
                                   sigma=stage2_dict['outlier_sigma'])
-            
+        
         # plot
         if (stage2_dict['show_plots'] > 0 or stage2_dict['save_plots'] > 0):
             for oneD_spec, wav, order in zip(specs,wavs,stage2_dict['traces_to_conf']):
@@ -387,8 +379,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             
             
         # save 1D spectra
-        save_data_S2(obs, specs, specs_err, traces_x, traces_y, 
-                     wavs, stage2_dict['traces_to_conf'], output_dir=run_dir)
+        save_data_S2(obs, specs, specs_err, traces_x, traces_y, widths, wavs,
+                     spec_shifts, stage2_dict['traces_to_conf'], output_dir=run_dir)
         
         # write config
         config_dir = os.path.join(run_dir,'stage2')

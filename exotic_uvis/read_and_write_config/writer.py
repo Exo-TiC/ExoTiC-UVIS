@@ -201,7 +201,7 @@ def Stage1_info():
                                       "# Float. How strong the trace masking should be. Values of 0.001 or less recommended.",
                                       "# Bool. If True, smooths the values of the Pagul+ fit parameter in time. Helps prevent background 'flickering'.",
                                       "# Bool. If True, takes the median value of each column in the Pagul+ 2023 sky image as the background. As the Pagul+ 2023 image is undersampled, this helps to suppress fluctuations in the image.",],
-                           "Step 5a:":["# Bool. Whether the location of the target in the direct image extracted from Stage 0 should be refined by fitting.",],
+                           "Step 5a":["# Bool. Whether the location of the target in the direct image extracted from Stage 0 should be refined by fitting.",],
                            "Step 5b":["# Bool. Whether to track frame displacements by centroiding the 0th order.",
                                       "# lst of float. Initial guess for the location of the target star. You can use this to bypass location fitting in Stage 1.",],
                            "Step 5c":["# Bool. Whether to track frame displacements by centroiding background stars.",

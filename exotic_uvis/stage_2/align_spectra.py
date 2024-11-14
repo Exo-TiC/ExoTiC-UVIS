@@ -121,6 +121,7 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False, ind1 = 0
     align_specs = []
     align_specs_err = []
     x_shifts, y_shifts = [], []
+    # align only on the intended wavelengths of analysis
     ok = (trace_x>2000) & (trace_x<8000)
     temp_spec = np.median(specs[:,ok], axis = 0)
 

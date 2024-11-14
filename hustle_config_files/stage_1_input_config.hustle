@@ -78,7 +78,7 @@ bkg_stars_loc   [[0, 0], [0, 0]]                            # Lst of lst of floa
 
 # Step 6: Quality quicklook
 do_quicklook    True                                        # Bool. Whether to perform this step.
-gif_dir         './'                                        # str. Where to save the quicklook gif to.
+gif_dir         './'                                        # str. Where to save the quicklook gif to, relative to the toplevel_dir.
 
 # Step 7: Save outputs
 do_save         True                                        # Bool. If True, saves the output xarray to be used in Stage 2.

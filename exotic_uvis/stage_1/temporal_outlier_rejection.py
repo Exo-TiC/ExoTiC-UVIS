@@ -29,8 +29,6 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
     images = obs.images.data.copy()
     hit_map = np.zeros_like(images)
 
-    # Track pixels corrected.
-    bad_pix_removed = 0
     # Iterate over each sigma.
     for j, sigma in tqdm(enumerate(sigmas),
                          desc='Iterating with fixed sigmas to remove CRs... Progess:',
@@ -73,12 +71,12 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
         
         if verbose == 2:
             print("Bad pixels removed on iteration %.0f with sigma %.2f: %.0f" % (j, sigma, bad_pix_this_sigma))
-        bad_pix_removed += bad_pix_this_sigma
     
     # Correct hit map.
     hit_map[hit_map != 0] = 1
     if verbose >= 1:
-        print("All iterations complete. Total pixels corrected: %.0f out of %.0f" % (bad_pix_removed, S.shape[0]*S.shape[1]))
+        print("Fixed iterations complete. Total pixels corrected: %.0f out of %.0f" % (np.count_nonzero(hit_map),
+                                                                                       hit_map.shape[0]*hit_map.shape[1]*hit_map.shape[2]))
 
     # if true, plot one exposure and draw location of all detected cosmic rays in all exposures
     if save_plots > 0 or show_plots > 0:
@@ -177,11 +175,12 @@ def free_iteration_rejection(obs, threshold = 3.5,
     # copy images and define hit map
     images = obs.images.data.copy()
     hit_map = np.zeros_like(images)
-
+    
     # iterate over all rows
     for i in tqdm(range(obs.dims['x']), desc = 'Removing cosmic rays and bad pixels... Progress:'):
         #iterate over all columns
-        for j in range(obs.dims['y']):    
+        for j in range(obs.dims['y']):
+            og = np.copy(images[:, i, j])
             # check that sum of pixel along temporal dimension is non-zero (i.e., that the pixel is inside the subarray)
             if np.sum(images[:, i, j]):
                 _, hit_map[:, i, j] = array1D_clip(images[:, i, j], threshold, mode = 'median')
@@ -221,5 +220,10 @@ def free_iteration_rejection(obs, threshold = 3.5,
     
     # modify original images
     obs.images.data = images
+
+    # Report bad pixels.
+    if verbose >= 1:
+        print("Free iterations complete. Total pixels corrected: %.0f out of %.0f" % (np.count_nonzero(hit_map),
+                                                                                      hit_map.shape[0]*hit_map.shape[1]*hit_map.shape[2]))
 
     return obs
