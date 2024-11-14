@@ -55,7 +55,7 @@ dist_from_trace 100                                         # Int. If mask_trace
 col_sigma       3                                           # float. How aggressively to mask outliers in the background region.
 # WIP
 
-# Step 4c: Pagul+ 2023 background subtraction
+# Step 4c: Pagul et al. background subtraction
 do_Pagul23      True                                        # Bool. Whether to subtract the background using the scaled Pagul+ 2023 G280 sky image.
 path_to_Pagul23 './'                                        # Str. The absolute path to where the Pagul+ 2023 G280 sky image is stored.
 mask_parameter  0.001                                       # Float. How strong the trace masking should be. Values of 0.001 or less recommended.
