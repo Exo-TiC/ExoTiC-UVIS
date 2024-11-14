@@ -21,25 +21,31 @@ def plot_flags_per_time(series_x, series_y, style='line',
     """Function to plot number of flagged pixels vs time.
 
     Args:
-        series_x (_type_): _description_
-        series_y (_type_): _description_
-        style (_type_): _description_
-        line_data (_type_, optional): _description_. Defaults to None.
-        scatter_data (_type_, optional): _description_. Defaults to None.
-        title (_type_, optional): _description_. Defaults to None.
-        xlabel (_type_, optional): _description_. Defaults to None.
-        ylabel (_type_, optional): _description_. Defaults to None.
-        xmin (int, optional): _description_. Defaults to 0.
-        xmax (_type_, optional): _description_. Defaults to 1.
-        ymin (int, optional): _description_. Defaults to 0.
-        ymax (_type_, optional): _description_. Defaults to 1e4.
-        mark_size (int, optional): _description_. Defaults to 30.
-        line_style (str, optional): _description_. Defaults to '-'.
-        show_plot (bool, optional): _description_. Defaults to False.
-        save_plot (bool, optional): _description_. Defaults to False.
-        stage (int, optional): _description_. Defaults to 0.
-        filename (_type_, optional): _description_. Defaults to None.
-        output_dir (_type_, optional): _description_. Defaults to None.
+        series_x (array-like): series of x coordinates for plotting.
+        series_y (array-like): series of y coordinates for plotting.
+        style (str): options are 'line' or 'scatter'. Defaults to 'line'.
+        line_data (array-like, optional): x, y values defining lines
+        to overplot on top of series_x, series_y. Defaults to None.
+        scatter_data (array-like, optional): x, y values defining scatter
+        points to overplot on top of series_x, series_y. Defaults to None.
+        title (str, optional): title for the plot. Defaults to None.
+        xlabel (str, optional): x axis label. Defaults to None.
+        ylabel (str, optional): y axis label. Defaults to None.
+        xmin (float, optional): x axis lower limit. Defaults to 0.
+        xmax (float, optional): x axis upper limit. Defaults to 1.
+        ymin (float, optional): y axis lower limit. Defaults to 0.
+        ymax (float, optional): y axis upper limit. Defaults to 1e4.
+        mark_size (float, optional): size of scatter points. Defaults to 30.
+        line_style (str, optional): mpl style of line. Defaults to '-'.
+        show_plot (bool, optional): whether to interrupt execution to show the
+        user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot to a file.
+        Defaults to False.
+        stage (int, optional): which stage this is being executed in, for
+        file naming purposes. Defaults to 0.
+        filename (list of str, optional): names to give each output file,
+        if saving. Defaults to None.
+        output_dir (str, optional): where to save the files to. Defaults to None.
     """
     
     for i, (x, y) in enumerate(zip(series_x, series_y)):
@@ -78,10 +84,10 @@ def plot_flags_per_time(series_x, series_y, style='line',
             filedir = os.path.join(stagedir, f'{filename[i]}.png')
             plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
         
-    if show_plot:
-        plt.show(block=True)
+        if show_plot:
+            plt.show(block=True)
 
-    plt.close() # save memory
+        plt.close() # save memory
     
     return
 
