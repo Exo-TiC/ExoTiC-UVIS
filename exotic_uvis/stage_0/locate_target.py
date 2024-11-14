@@ -5,6 +5,7 @@ from photutils import DAOStarFinder
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def locate_target(direct_image,test=False):
     """Uses the direct image and user feedback to locate the
     target, necessary for trace calibration and source
