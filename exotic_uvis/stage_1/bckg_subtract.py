@@ -138,6 +138,10 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0,
         _type_: _description_
     """
 
+    # calculate hist_min and max if not given
+    if (hist_min == None) or (hist_max == None): 
+        hist_min, hist_max = np.percentile(array, [1, 99])
+   
     # create a histogram of counts
     hist, bin_edges = np.histogram(array, bins = np.linspace(hist_min, hist_max, hist_bins))
     bin_cents = (bin_edges[:-1] + bin_edges[1:])/2
@@ -155,10 +159,8 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0,
 
     elif fit == 'median':
         # need to mask values outside of hist_min and hist_max, then take the median
-        mask = np.where(array < hist_min, -99, array)
-        mask = np.where(mask > hist_max, -99, mask)
-        mask = np.where(mask == -99, 1, 0)
-        bkg_val = np.ma.median(np.ma.masked_array(data=array,mask=mask))
+        mask = (array > hist_min) & (array < hist_max)
+        bkg_val = np.median(array[mask])
 
     else:
         bkg_val = (bin_edges[np.argmax(hist)] + bin_edges[np.argmax(hist) + 1])/2

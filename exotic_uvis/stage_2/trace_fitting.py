@@ -4,7 +4,9 @@ from scipy import optimize
 import grismconf
 from tqdm import tqdm
 
+from exotic_uvis.plotting import plot_profile_fit
 from exotic_uvis.plotting import plot_exposure
+
 
 def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
                        verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
@@ -40,7 +42,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
     offset_y0 = obs.subarr_coords.values[2]
     adjusted_x0 = source_pos[0] + offset_x0
     adjusted_y0 = source_pos[1] + offset_y0
-
+    
     # Get the x, y positions of the trace as well as wavelength solution and sensitivity correction.
     trace_x, trace_y, wavs, sens = get_calibration_trace(order,
                                                          adjusted_x0,
@@ -56,7 +58,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
     trace_y = np.array(trace_y)
     wavs = np.array(wavs)
     sens = np.array(sens)
-
+    
     # Plot the calibration over the image.
     if (show_plots > 0 or save_plots > 0):
         plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y]],
@@ -67,7 +69,8 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
     # Use Gaussian fitting to refine the y positions if asked.
     if refine_calibration:
         trace_y, widths = fit_trace(obs, trace_x, trace_y, profile_width = 70, pol_deg = 7, fit_type = 'Gaussian',
-                                    fit_trace = False, plot_profile = [20, 300], check_all = False, verbose = verbose)
+                                    fit_trace = True, plot_profile = [20, 300], 
+                                    verbose = 0, show_plots = 0, save_plots = 0, output_dir = None)
         
         # Plot refined calibration.
         plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y[0]]],
@@ -82,9 +85,10 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
             refined_trace_y[k,:] = trace_y
         trace_y = refined_trace_y
         widths = None
+    
     return trace_x, trace_y, wavs, widths, sens
 
-def get_calibration_trace(obs, order, x0, y0, path_to_cal):
+def get_calibration_trace(order, x0, y0, path_to_cal):
     """Uses the supplied calibration software and source position to locate the
     trace and assign wavelength solution.
 
@@ -100,8 +104,8 @@ def get_calibration_trace(obs, order, x0, y0, path_to_cal):
         trace, the assigned wavelength solution, and the sensitivity correction function.
     """
     # Initialize the GRISMCONF configuration.
-    C = grismconf.Config(path_to_cal)
-
+    C = grismconf.Config(path_to_cal) # this line produces 'nan'
+    
     # Get dx limits using 0<t<1.
     dxs = C.DISPX(order,x0,y0,np.array([0,1]))
     dxs = np.sort(dxs)
@@ -117,7 +121,7 @@ def get_calibration_trace(obs, order, x0, y0, path_to_cal):
 
     # Compute the dys values for the same pixels
     dys = C.DISPY(order,x0,y0,ts)
-
+    
     # Compute wavelength of each of the pixels
     wavs = C.DISPL(order,x0,y0,ts)
 
@@ -208,10 +212,13 @@ def fit_trace(obs, trace_x, trace_y,
 
             # Append refined y0 position and fwhm of the profile.
             trace.append(parameters[2])
-            width.append(2*np.sqrt(2*np.log(2)) * parameters[3])
+            width.append(2*np.sqrt(2*np.log(2))*parameters[3])
     
             # Plot the j profile in the i image.
             if (int(plot_profile[0]) == i) and (int(plot_profile[1]) == j): 
+                
+                '''
+                
                 plt.figure(figsize = (10, 7))
                 plt.plot(y_vals, profile, color = 'indianred')
                 plt.plot(y_vals, Gauss1D(y_vals, parameters[0], parameters[1], parameters[2], parameters[3]), linestyle = '--', linewidth = 1.2, color = 'gray')
@@ -224,6 +231,7 @@ def fit_trace(obs, trace_x, trace_y,
                 plt.title('Example of Profile fitted to Trace')
                 #plt.savefig('PLOTS/profile.pdf', bbox_inches = 'tight')
                 plt.show(block=True)
+                '''
 
         # If true, fit a polynomial to the extracted trace locations and widths.
         if fit_trace:

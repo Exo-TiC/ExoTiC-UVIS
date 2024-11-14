@@ -69,7 +69,12 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             collect_and_move_files(stage0_dict['visit_number'], 
                                    stage0_dict['filesfrom_dir'],
                                    stage0_dict['toplevel_dir'])
-        
+            
+        # check if output directory exists, otherwise create output directory
+        output_dir = os.path.join(stage0_dict['toplevel_dir'],'outputs')
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
         # locate target in direct image
         if stage0_dict['do_locate']:
             source_x, source_y = locate_target(os.path.join(stage0_dict['toplevel_dir'],'directimages/or01dr001_flt.fits'))
@@ -85,7 +90,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                         os.path.join(stage0_dict['toplevel_dir'],stage0_dict['gif_dir']))
 
         # write config
-        config_dir = os.path.join(stage0_dict['toplevel_dir'],'stage0')
+        config_dir = os.path.join(output_dir,'stage0')
         if not os.path.exists(config_dir):
             os.makedirs(config_dir)
         write_config(stage0_dict, '', 0, config_dir)
@@ -329,11 +334,14 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                 spec[~np.isfinite(spec)] = 0
                 spec_err[~np.isfinite(spec_err)] = 0
 
+
+        '''
             wavs.append(wav)
             specs.append(spec)
             specs_err.append(spec_err)
             traces_x.append(trace_x)
             traces_y.append(trace_y)
+        
         
         # align
         spec_shifts = []
@@ -387,7 +395,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         if not os.path.exists(config_dir):
             os.makedirs(config_dir)
         write_config(stage2_dict, stage2_dict['run_name'], 2, config_dir)
-    
+        '''
 
     ####### Run Stage 3 #######
     if 3 in stages:
