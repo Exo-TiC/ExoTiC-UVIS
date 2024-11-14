@@ -56,7 +56,6 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos,
     plt.plot(exp_time, np.transpose(stars_pos[:, :, 1]), '-o', alpha = 0.5)
     plt.xlabel('Exposure times')
     plt.ylabel('Y pixel displacement')
-    plt.show(block=True)
 
     filedir = os.path.join(stagedir, 'bkg_stars_y_displacement.png')
     if save_plot:

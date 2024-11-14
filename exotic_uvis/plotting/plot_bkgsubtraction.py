@@ -13,7 +13,10 @@ plt.rc('axes', labelsize=14)
 plt.rc('legend',**{'fontsize':11})
 
 
-def plot_corners(image, corners, output_dir = None):
+def plot_corners(image, corners, 
+                 min = 1e-3, max = 1e4,
+                 show_plot = False, save_plot = False, 
+                 output_dir = None):
     """Function to plot exposure with rectangles to indicate the corners used for background subtraction
 
     Args:
@@ -21,8 +24,15 @@ def plot_corners(image, corners, output_dir = None):
         corners (_type_): _description_
         output_dir (_type_, optional): _description_. Defaults to None.
     """
+    
+    image = image.copy()
+    image[image <= 0] = 1e-10
 
-    plot_exposure(image, show = False)
+    plt.figure(figsize = (20, 4))
+    plt.imshow(image, origin = 'lower', norm='log', 
+                vmin = min, vmax = max, 
+                cmap = 'gist_gray')
+
     ax = plt.gca()
 
     for corner in corners:
@@ -30,13 +40,22 @@ def plot_corners(image, corners, output_dir = None):
                                  corner[1] - corner[0], linewidth=1, edgecolor='r', facecolor='none')
 
         ax.add_patch(rect)
-    #plt.show()
+    plt.xlabel('Detector x-pixel')
+    plt.ylabel('Detector y-pixel')
+    plt.colorbar()
 
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
-    filedir = os.path.join(stagedir, 'bkg_corners.png')
-    plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
-    plt.close() # save memory
-
+    if save_plot:
+        stagedir = os.path.join(output_dir, f'stage1/plots/')
+        if not os.path.exists(stagedir):
+            os.makedirs(stagedir) 
+        filedir = os.path.join(stagedir, f'background_corner_location.png')
+        plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
+        
+    if show_plot:
+        plt.show(block=True)
+    else:
+        plt.close() # save memory
+    
     return 
 
 

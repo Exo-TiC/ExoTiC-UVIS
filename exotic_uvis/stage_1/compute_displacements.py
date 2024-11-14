@@ -58,7 +58,8 @@ def refine_location(obs, location=None,
     return 
 
 
-def track_bkgstars(obs, bkg_stars, window = 15, verbose_plots = 0, check_all = False, output_dir = None):
+def track_bkgstars(obs, bkg_stars, window = 15, verbose = 0, show_plots = 0, 
+                   save_plots = 0, check_all = False, output_dir = None):
     """Function to compute the x & y displacement of a given background star
 
     Args:
@@ -115,11 +116,11 @@ def track_bkgstars(obs, bkg_stars, window = 15, verbose_plots = 0, check_all = F
     obs["meanstar_disp"] = (("exp_time", "xy"), mean_pos)
     
     # if true, plot the calculated displacements
-    if verbose_plots > 0:
+    if (show_plots > 0) or (save_plots > 0):
         mean_loc = list(np.mean(abs_pos, axis = 1).transpose())
-        plot_bkg_stars(image, obs.exp_time.data, mean_loc, mean_pos, stars_pos, output_dir=output_dir)
+        plot_bkg_stars(image, obs.exp_time.data, mean_loc, mean_pos, stars_pos, 
+                       show_plot = show_plots, save_plot = save_plots, output_dir=output_dir)
 
-    
     return pos
 
 def track_0thOrder(obs, guess):

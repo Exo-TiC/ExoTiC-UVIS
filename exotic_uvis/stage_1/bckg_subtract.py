@@ -1,3 +1,4 @@
+import os
 from tqdm import tqdm
 import xarray as xr
 from astropy.io import fits
@@ -121,7 +122,8 @@ def Gauss1D(x, H, A, x0, sigma):
     return H + A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
 
 
-def calculate_mode(array, hist_min, hist_max, hist_bins, fit = None, show_plots = 0):
+def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0, 
+                   fit = None, show_plots = 0, save_plots = 0, output_dir=None):
     """Function to return the mode of an image
 
     Args:
@@ -162,7 +164,7 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, fit = None, show_plots 
         bkg_val = (bin_edges[np.argmax(hist)] + bin_edges[np.argmax(hist) + 1])/2
     
     # if true, plot histrogram and location of maximum
-    if show_plots == 2:
+    if save_plots == 2 or show_plots == 2:
         plt.figure(figsize = (10, 7))
         plt.hist(array, bins = np.linspace(hist_min, hist_max, hist_bins), color = 'indianred', alpha = 0.7, density=False)
         plt.axvline(bkg_val, color = 'gray', linestyle = '--')
@@ -174,7 +176,17 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, fit = None, show_plots 
         plt.axvline((bin_edges[np.argmax(hist)] + bin_edges[np.argmax(hist) + 1])/2, linestyle = '--', color = 'blue')
         plt.xlabel('Pixel Value')
         plt.ylabel('Counts')
-        plt.show(block=True)
+        plt.title(f'Background Values histogram Exposure {exp_num}')
+    
+        if save_plots == 2:
+            stagedir = os.path.join(output_dir, f'stage1/plots/')
+            if not os.path.exists(stagedir):
+                os.makedirs(stagedir) 
+            filedir = os.path.join(stagedir, f'bkg_histogram_exposure{exp_num}.png')
+            plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
+        
+        if show_plots == 2:
+            plt.show(block=True)
 
         plt.close() # save memory
 
@@ -225,19 +237,20 @@ def uniform_value_bkg_subtraction(obs, fit = None, bounds = None,
         if bounds:
             if len(bounds) == 1:
                 bound = bounds[0]
-                
                 img_bkg = calculate_mode(image[bound[0]:bound[1], bound[2]:bound[3]].flatten(), 
-                                         hist_min, hist_max, hist_bins, fit = fit, show_plots = show_plots)
+                                         hist_min, hist_max, hist_bins, exp_num = i, fit = fit, show_plots = show_plots,
+                                           save_plots=save_plots, output_dir=output_dir)
             else:
                 image_vals = []
-
                 for bound in bounds:       
                     image_vals = np.concatenate((image_vals, image[bound[0]:bound[1], bound[2]:bound[3]].flatten()))
 
-                img_bkg = calculate_mode(image_vals, hist_min, hist_max, hist_bins, fit = fit, show_plots = show_plots)
+                img_bkg = calculate_mode(image_vals, hist_min, hist_max, hist_bins, exp_num = i, fit = fit, 
+                                         show_plots = show_plots, save_plots=save_plots, output_dir=output_dir)
                 
         else:
-            img_bkg = calculate_mode(image.flatten(), hist_min, hist_max, hist_bins, fit = fit, show_plots = show_plots)
+            img_bkg = calculate_mode(image.flatten(), hist_min, hist_max, hist_bins, exp_num = i, 
+                                     fit = fit, show_plots = show_plots, save_plots=save_plots, output_dir=output_dir)
 
         # append background value
         bkg_vals.append(img_bkg)
@@ -253,12 +266,15 @@ def uniform_value_bkg_subtraction(obs, fit = None, bounds = None,
         method = 'full-frame'
         if bounds:
             method = 'corners'
+            plot_corners(image, bounds, show_plot=(show_plots > 0), 
+                         save_plot=(save_plots > 0), output_dir=output_dir)
+
         plot_bkgvals(obs.exp_time.data, bkg_vals, method=method,
                      output_dir=output_dir, save_plot=save_plots, show_plot=show_plots)
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
                       show_plot = (show_plots>0), save_plot = (save_plots>0), stage=1,
                       output_dir=output_dir, filename = ['before_bkg_subs', 'after_bkg_subs'])
-
+        
     obs.images.data = images
 
     return obs

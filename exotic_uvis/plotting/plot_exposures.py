@@ -67,7 +67,7 @@ def plot_exposure(images, line_data = None, scatter_data = None,
         
     if show_plot:
         plt.show(block=True)
-
+    #else:
     plt.close() # save memory
     
     return

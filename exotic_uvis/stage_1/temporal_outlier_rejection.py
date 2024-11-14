@@ -145,7 +145,7 @@ def array1D_clip(array, threshold = 3.5, mode = 'median'):
         sigma = np.std(array[mask])
 
         # mask values below threshold
-        mask = np.abs(array - median) < threshold * sigma     
+        mask = np.abs(array - median) < threshold*sigma     
         found_outlier = n_hits - np.sum(mask)
     
     # replace masked values with median
@@ -180,10 +180,8 @@ def free_iteration_rejection(obs, threshold = 3.5,
 
     # iterate over all rows
     for i in tqdm(range(obs.dims['x']), desc = 'Removing cosmic rays and bad pixels... Progress:'):
-
         #iterate over all columns
-        for j in range(obs.dims['y']):
-            
+        for j in range(obs.dims['y']):    
             # check that sum of pixel along temporal dimension is non-zero (i.e., that the pixel is inside the subarray)
             if np.sum(images[:, i, j]):
                 _, hit_map[:, i, j] = array1D_clip(images[:, i, j], threshold, mode = 'median')

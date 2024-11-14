@@ -36,8 +36,8 @@ from exotic_uvis.stage_2 import optimal_extraction
 from exotic_uvis.stage_2 import clean_spectra
 from exotic_uvis.stage_2 import align_spectra
 
-from exotic_uvis.stage_3 import load_data_S3
-from exotic_uvis.stage_3 import save_data_S3
+#from exotic_uvis.stage_3 import load_data_S3
+#from exotic_uvis.stage_3 import save_data_S3
 
 
 def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
@@ -212,9 +212,11 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
         # displacements by background stars
         if stage1_dict['do_bkg_stars']:
-            track_bkgstars(obs,  bkg_stars=stage1_dict['bkg_stars_loc'], 
-                                 verbose_plots=stage1_dict['verbose'],
-                                 output_dir=run_dir)
+            track_bkgstars(obs, bkg_stars=stage1_dict['bkg_stars_loc'], 
+                                verbose=stage1_dict['verbose'],
+                                show_plots=stage1_dict['show_plots'],
+                                save_plots=stage1_dict['save_plots'],
+                                output_dir=run_dir)
             
         # create quicklook gif
         if stage1_dict['do_quicklook']:
