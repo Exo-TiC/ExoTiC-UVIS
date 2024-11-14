@@ -1,15 +1,17 @@
 import os
 
 def write_config(config_dict, run_name, stage, outdir):
-    '''
-    Unpacks a dictionary and writes it out to a config file.
+    """Unpacks a dictionary and writes it out to a config file.
 
-    :param config_dict: dict. The dictionary used to guide the execution of a Stage of ExoTiC-UVIS.
-    :param run_name: Str. The name of this run.
-    :param stage: int from 0 to 5. Which Stage was executed, which sets the template of the config file.
-    :param outdir: str. The path to where the config file is to be stored.
-    :return: config .hustle file written to the outdir.
-    '''
+    Args:
+        config_dict (dict): dictionary used to guide the execution of a
+        Stage of ExoTiC-UVIS.
+        run_name (str): name of this run, used to give the config file
+        a unique and identifiable name.
+        stage (int): which Stage was executed, which sets the template
+        of the config file.
+        outdir (outdir): path to where the config file is to be stored.
+    """
     # Get correct print info.
     if stage == 0:
         header, subsection_headers, subsection_keys, subsection_comments = Stage0_info()
@@ -51,9 +53,12 @@ def write_config(config_dict, run_name, stage, outdir):
             
 
 def Stage0_info():
-    '''
-    Specific keys and subsections for Stage 0.
-    '''
+    """Retrieves writer information for Stage 0.
+
+    Returns:
+        str, list, dict, dict: header and comments for writing the config.
+    """
+
     header = "# ExoTiC-UVIS config file for launching Stage 0: Data Handling"
 
     subsection_headers = ["# Setup for Stage 0",
@@ -93,14 +98,17 @@ def Stage0_info():
                            "Step 3":["# Bool. Whether to perform this step.",
                                      "# None or tuple of float. Prior to running Stage 0, this will be None. After running Stage 0, a copy of this .hustle file will be made with this information included.",],
                            "Step 4":["# Bool. Whether to perform this step.",
-                                     "# str. Where to save the quicklook gif to.",],
+                                     "# str. Where to save the quicklook gif to, relative to the toplevel_dir.",],
                            }
     return header, subsection_headers, subsection_keys, subsection_comments
 
 def Stage1_info():
-    '''
-    Specific keys and subsections for Stage 1.
-    '''
+    """Retrieves writer information for Stage 1.
+
+    Returns:
+        str, list, dict, dict: header and comments for writing the config.
+    """
+    
     header = "# ExoTiC-UVIS config file for launching Stage 1: Reduction"
 
     subsection_headers = ["# Setup for Stage 1",
@@ -112,7 +120,7 @@ def Stage1_info():
                           "# Step 3b: Spatial smoothing parameters",
                           "# Step 4: Background subtraction\n# Step 4a: uniform value background subtraction",
                           "# Step 4b: Column-by-column background subtraction",
-                          "# Step 4c: Pagul+ 2023 background subtraction",
+                          "# Step 4c: Pagul et al. background subtraction",
                           "# Step 5: Displacement estimation\n# Step 5a: Refine target location",
                           "# Step 5b: Source center-of-mass tracking",
                           "# Step 5c: Background star tracking",
@@ -213,9 +221,12 @@ def Stage1_info():
     return header, subsection_headers, subsection_keys, subsection_comments
 
 def Stage2_info():
-    '''
-    Specific keys and subsections for Stage 2.
-    '''
+    """Retrieves writer information for Stage 2.
+
+    Returns:
+        str, list, dict, dict: header and comments for writing the config.
+    """
+
     header = "# ExoTiC-UVIS config file for launching Stage 2: Extraction"
 
     subsection_headers = ["# Setup for Stage 2",
@@ -275,9 +286,12 @@ def Stage2_info():
     return header, subsection_headers, subsection_keys, subsection_comments
 
 def Stage3_info():
-    '''
-    Specific keys and subsections for Stage 3.
-    '''
+    """Retrieves writer information for Stage 3.
+
+    Returns:
+        str, list, dict, dict: header and comments for writing the config.
+    """
+
     header = "# ExoTiC-UVIS config file for launching Stage 3: Binning"
 
     subsection_headers = ["# Setup for Stage 3",
