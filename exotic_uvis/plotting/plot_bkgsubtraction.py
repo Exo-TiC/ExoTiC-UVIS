@@ -17,9 +17,10 @@ plt.rc('legend',**{'fontsize':11})
 
 
 def plot_corners(image, corners, 
-                 output_dir = None, save_plot = False, show_plot = False):
-    """Function to plot exposure with rectangles to indicate the corners used
-    for background subtraction.
+                 min = 1e-3, max = 1e4,
+                 show_plot = False, save_plot = False, 
+                 output_dir = None):
+    """Function to plot exposure with rectangles to indicate the corners used for background subtraction
 
     Args:
         image (np.array): 2D image from the obs xarray.
@@ -28,8 +29,15 @@ def plot_corners(image, corners,
         output_dir (str, optional): output directory where the plot will be
         saved. Defaults to None.
     """
-    # plot the image first
-    plot_exposure(image, title = 'Background Removal Corners')
+    
+    image = image.copy()
+    image[image <= 0] = 1e-10
+
+    plt.figure(figsize = (20, 4))
+    plt.imshow(image, origin = 'lower', norm='log', 
+                vmin = min, vmax = max, 
+                cmap = 'gist_gray')
+
     ax = plt.gca()
 
     # draw each corner region onto the exposure
@@ -38,20 +46,22 @@ def plot_corners(image, corners,
                                  corner[1] - corner[0], linewidth=1, edgecolor='r', facecolor='none')
 
         ax.add_patch(rect)
-    
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
-    filedir = os.path.join(stagedir, 'bkg_corners.png')
-    
+    plt.xlabel('Detector x-pixel')
+    plt.ylabel('Detector y-pixel')
+    plt.colorbar()
+
     if save_plot:
+        stagedir = os.path.join(output_dir, f'stage1/plots/')
         if not os.path.exists(stagedir):
             os.makedirs(stagedir) 
-        plt.savefig(filedir, bbox_inches='tight', dpi=300)
-
+        filedir = os.path.join(stagedir, f'background_corner_location.png')
+        plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
+        
     if show_plot:
         plt.show(block=True)
+    else:
+        plt.close() # save memory
     
-    plt.close() # save memory
-
     return 
 
 

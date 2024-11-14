@@ -84,7 +84,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
         widths = None
     return trace_x, trace_y, wavs, widths, sens
 
-def get_calibration_trace(order,x0,y0,path_to_cal):
+def get_calibration_trace(obs, order, x0, y0, path_to_cal):
     """Uses the supplied calibration software and source position to locate the
     trace and assign wavelength solution.
 
@@ -109,17 +109,22 @@ def get_calibration_trace(order,x0,y0,path_to_cal):
     # Turn the dxs limits into a full span of column positions.
     dxs = np.arange(dxs[0],dxs[1],1)
 
+    # extract x values relative to x00 (need to change y to x)
+    #xvals_rel = np.arange(obs.dims['y']) - x0
+
     # Compute the t values corresponding to the exact offsets
     ts = C.INVDISPX(order,x0,y0,dxs)
+
     # Compute the dys values for the same pixels
     dys = C.DISPY(order,x0,y0,ts)
+
     # Compute wavelength of each of the pixels
     wavs = C.DISPL(order,x0,y0,ts)
 
     # Restrict attention to just where 200 nm < wavs < 800 nm.
-    dxs = dxs[np.logical_and(wavs>=2000,wavs<=8000)]
-    dys = dys[np.logical_and(wavs>=2000,wavs<=8000)]
-    wavs = wavs[np.logical_and(wavs>=2000,wavs<=8000)]
+    dxs = dxs[np.logical_and(wavs>=2000, wavs<=8000)]
+    dys = dys[np.logical_and(wavs>=2000, wavs<=8000)]
+    wavs = wavs[np.logical_and(wavs>=2000, wavs<=8000)]
     
     # Combine the displacements with the source position to get the trace location.
     xs = [i+x0 for i in dxs]

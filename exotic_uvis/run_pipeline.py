@@ -36,8 +36,8 @@ from exotic_uvis.stage_2 import optimal_extraction
 from exotic_uvis.stage_2 import clean_spectra
 from exotic_uvis.stage_2 import align_spectra
 
-from exotic_uvis.stage_3 import load_data_S3
-from exotic_uvis.stage_3 import save_data_S3
+#from exotic_uvis.stage_3 import load_data_S3
+#from exotic_uvis.stage_3 import save_data_S3
 
 
 def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
