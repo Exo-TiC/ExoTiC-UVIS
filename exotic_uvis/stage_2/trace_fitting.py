@@ -84,7 +84,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
         widths = None
     return trace_x, trace_y, wavs, widths, sens
 
-def get_calibration_trace(obs, order, x0, y0, path_to_cal):
+def get_calibration_trace(order, x0, y0, path_to_cal):
     """Uses the supplied calibration software and source position to locate the
     trace and assign wavelength solution.
 

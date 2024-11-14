@@ -8,7 +8,7 @@ save_plots      2                                           # Int from 0 to 2. 0
 
 # Step 1: Download files from MAST
 do_download     True                                        # Bool. Whether to perform this step.
-programID       '12345'                                     # ID of the observing program you want to query data from On MAST, referred to as "proposal_ID".
+programID       '12345'                                     # ID of the observing program you want to query data from. On MAST, referred to as "proposal_ID".
 target_name     'PLANET-B'                                  # Name of the target object you want to query data from. On MAST, referred to as "target_name".
 extensions      ['_flt.fits','_spt.fits']                   # lst of str or None. File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified. _flt.fits, _spt.fits recommended as minimum working case.
 
@@ -25,4 +25,4 @@ location        None                                        # None or tuple of f
 do_quicklook    True                                        # Bool. Whether to perform this step.
 gif_dir         './'                                        # str. Where to save the quicklook gif to, relative to the toplevel_dir.
 
-# ENDPARS
+# ENDPARSE

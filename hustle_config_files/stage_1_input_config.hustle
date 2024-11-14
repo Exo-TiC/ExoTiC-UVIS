@@ -49,18 +49,17 @@ hist_bins       1000                                        # Int. Number of his
 
 # Step 4b: Column-by-column background subtraction
 do_column       True                                        # Bool. Whether to subtract the background using a column-by-column method.
-rows            [i for i in range(10)]                      # lst of int. The indices defining the rows used as background.
+rows            [i for i in range(10)]                      # list of int. The indices defining the rows used as background.
 mask_trace      True                                        # Bool. If True, ignores rows parameter and instead masks the traces and 0th order to build a background region.
 dist_from_trace 100                                         # Int. If mask_trace is True, this is how many rows away a pixel must be from the trace to qualify as background.
 col_sigma       3                                           # float. How aggressively to mask outliers in the background region.
-# WIP
 
 # Step 4c: Pagul et al. background subtraction
-do_Pagul23      True                                        # Bool. Whether to subtract the background using the scaled Pagul+ 2023 G280 sky image.
-path_to_Pagul23 './'                                        # Str. The absolute path to where the Pagul+ 2023 G280 sky image is stored.
+do_Pagul        True                                        # Bool. Whether to subtract the background using the scaled Pagul et al. G280 sky image.
+path_to_Pagul   './'                                        # Str. The absolute path to where the Pagul et al. G280 sky image is stored.
 mask_parameter  0.001                                       # Float. How strong the trace masking should be. Values of 0.001 or less recommended.
-smooth_fits     True                                        # Bool. If True, smooths the values of the Pagul+ fit parameter in time. Helps prevent background "flickering".
-median_columns  True                                        # Bool. If True, takes the median value of each column in the Pagul+ 2023 sky image as the background. As the Pagul+ 2023 image is undersampled, this helps to suppress fluctuations in the image.
+smooth_fits     True                                        # Bool. If True, smooths the values of the Pagul et al. fit parameter in time. Helps prevent background "flickering".
+median_columns  True                                        # Bool. If True, takes the median value of each column in the Pagul et al. sky image as the background. As the Pagul et al. 2023 image is undersampled, this helps to suppress fluctuations in the image.
 
 # Step 5: Displacement estimation
 # Step 5a: Refine target location
@@ -69,12 +68,10 @@ do_location     True                                        # Bool. Whether the 
 # Step 5b: Source center-of-mass tracking
 do_0thtracking  True                                        # Bool. Whether to track frame displacements by centroiding the 0th order.           
 location        [970, 170]                                  # lst of float. Initial guess for the location of the target star. You can use this to bypass location fitting in Stage 1.
-# WIP
 
 # Step 5c: Background star tracking
 do_bkg_stars    True                                        # Bool. Whether to track frame displacements by centroiding background stars.
 bkg_stars_loc   [[0, 0], [0, 0]]                            # Lst of lst of float. Every list should indicate the estimated location of every background star.
-# WIP
 
 # Step 6: Quality quicklook
 do_quicklook    True                                        # Bool. Whether to perform this step.

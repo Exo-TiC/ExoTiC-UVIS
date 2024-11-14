@@ -10,8 +10,7 @@ save_plots      2                                           # Int from 0 to 2. 0
 # Step 1: Read in the data
 
 # Step 2: Trace configuration
-config          'GRISMCONF'                                 # Str. The type of configuration you are using. Options are 'aXe' or 'GRISMCONF'.
-path_to_config  './'                                        # Str. The absolute path to the .conf file used by aXe or GRISMCONF.
+path_to_cal     './'                                        # Str. The absolute path to the .conf file used by GRISMCONF for the chip your data were taken on.
 traces_to_conf  ('+1','-1')                                 # Lst of str. The traces you want to configure and extraction from.
 refine_fit      True                                        # Bool. If True, uses Gaussian fitting to refine the trace solution.
 
@@ -31,7 +30,7 @@ aperture_type   'median'                                    # Str. Type of apert
 halfwidths_opt  (12,12)                                     # Lst of ints. The half-width of extraction aperture to use for each order. For optimum extraction, you should make this big (>12 pixels at least). There is no 'preferred' half-width in optimum extraction due to the weights.
 
 # Step 4: 1D spectral cleaning and aligning
-outlier_sigma   3.5                                         # Float. Sigma at which to reject spectral outliers in time. Outliers are replaced with median of timeseries. Enter 'None' to skip this step.
+outlier_sigma   3.5                                         # Float. Sigma at which to reject spectral outliers in time. Outliers are replaced with median of timeseries. Enter False to skip this step.
 align           True                                        # Bool. If True, uses cross-correlation to align spectra to keep wavelength solution consistent.
 
 # ENDPARSE

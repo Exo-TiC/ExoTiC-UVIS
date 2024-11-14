@@ -175,9 +175,9 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                 output_dir=run_dir)
         
         # background subtraction with the Pagul et al. image scaled
-        if stage1_dict['do_Pagul23']:
+        if stage1_dict['do_Pagul']:
             obs = Pagul_bckg_subtraction(obs,
-                                         Pagul_path=stage1_dict['path_to_Pagul23'],
+                                         pagul_path=stage1_dict['path_to_Pagul'],
                                          masking_parameter=stage1_dict['mask_parameter'],
                                          smooth_fits=stage1_dict['smooth_fits'],
                                          median_on_columns=stage1_dict['median_columns'],
@@ -280,7 +280,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                                    order=order,
                                                                    source_pos=stage2_dict['location'],
                                                                    refine_calibration=stage2_dict['refine_fit'],
-                                                                   path_to_cal=stage2_dict['path_to_config'],
+                                                                   path_to_cal=stage2_dict['path_to_cal'],
                                                                    verbose=stage2_dict['verbose'],
                                                                    show_plots=stage2_dict['show_plots'], 
                                                                    save_plots=stage2_dict['save_plots'],
@@ -398,8 +398,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         # read data, one order at a time
         S3_data_path = os.path.join(stage3_dict['toplevel_dir'],os.path.join('outputs',stage3_dict['run_name']))
 
-        for order in stage3_dict['orders']:
+        #for order in stage3_dict['orders']:
             # load the spectrum for this order
-            spex = load_data_S3(S3_data_path, order=order, verbose = stage3_dict['verbose'])
+            #spex = load_data_S3(S3_data_path, order=order, verbose = stage3_dict['verbose'])
 
             

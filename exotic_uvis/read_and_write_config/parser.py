@@ -30,7 +30,7 @@ def parse_config(path_to_config_file):
         param = line[1]
         i = 2
         while "#" not in line[i]:
-            param = ''.join([param,line[i]])
+            param = ' '.join([param,line[i]])
             i += 1
         try:
             param = eval(param)

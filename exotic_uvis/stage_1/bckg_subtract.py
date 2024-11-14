@@ -325,13 +325,13 @@ def uniform_value_bkg_subtraction(obs, fit = None, bounds = None,
 
     return obs
 
-def column_by_column_subtraction(obs, rows=[i for i in range(10)], sigma=3, mask_trace=True, width=100,
+def column_by_column_subtraction(obs, rows=np.array([i for i in range(10)]), sigma=3, mask_trace=True, width=100,
                                  verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Perform 1/f column-by-column background subtraction on each frame.
 
     Args:
         obs (xarray): obs.images contains the data to be corrected.
-        rows (list, optional): indices of rows to treat as the background.
+        rows (array-like, optional): indices of rows to treat as the background.
         Ignored if mask_trace is True. Defaults to [i for i in range(10)].
         sigma (int, optional): used to clean outliers from the background.
         Defaults to 3.
@@ -363,6 +363,7 @@ def column_by_column_subtraction(obs, rows=[i for i in range(10)], sigma=3, mask
     for i, image in enumerate(tqdm(images, desc = 'Removing background... Progress:',
                                    disable=(verbose<1))):
         # define background region
+        rows = np.array(rows) # array-ify it to be valid input
         bckg_region = np.ma.masked_array(image[rows,:],mask=np.zeros_like(image[rows,:]))
 
         # or define background as image with data masked.
