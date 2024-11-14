@@ -235,7 +235,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                         stage1_dict['verbose'], 
                         stage1_dict['show_plots'], 
                         stage1_dict['save_plots'],
-                        stage1_dict['gif_dir'])
+                        os.path.join(stage1_dict['toplevel_dir'],stage1_dict['gif_dir']))
 
         # save results
         if stage1_dict['do_save']:
