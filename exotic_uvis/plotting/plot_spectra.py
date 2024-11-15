@@ -124,14 +124,8 @@ def plot_spec_gif(wav, spec, order=("+1",),
     if save_plot:
         stagedir = os.path.join(output_dir, f'stage{stage}/plots')
 
-<<<<<<< HEAD
         if not os.path.exists(stagedir):
             os.makedirs(stagedir)
-=======
-        # save animation
-        if save_plot:
-            stagedir = os.path.join(output_dir, 'stage2/plots')
->>>>>>> 354c56b6e505577328d9870af0a78a14d58aec48
 
         animation.save(os.path.join(stagedir, '{}_order{}.gif'.format(filename,order)), writer = 'ffmpeg', fps = 10)
 

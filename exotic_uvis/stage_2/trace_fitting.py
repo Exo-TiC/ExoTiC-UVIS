@@ -226,34 +226,8 @@ def fit_trace(obs, trace_x, trace_y,
     
             # Plot the j profile in the i image.
             if (int(plot_profile[0]) == i) and (int(plot_profile[1]) == j): 
-<<<<<<< HEAD
                 if save_plots > 0 or show_plots > 0:
                     profile_fit = Gauss1D(y_vals, parameters[0], parameters[1], parameters[2], parameters[3])
-=======
-                plt.figure(figsize = (10, 7))
-                plt.plot(y_vals, profile, color = 'indianred')
-                plt.plot(y_vals, Gauss1D(y_vals, parameters[0], parameters[1], parameters[2], parameters[3]), linestyle = '--', linewidth = 1.2, color = 'gray')
-                plt.axvline(parameters[2], linestyle = '--', color = 'gray', linewidth = 0.7)
-                plt.axvline(parameters[2] - 12, linestyle = '--', color = 'gray', linewidth = 0.7)
-                plt.axvline(parameters[2] + 12, linestyle = '--', color = 'gray', linewidth = 0.7)
-                plt.axvline(trace_y[j], color = 'black', linestyle = '-.', alpha = 0.8)
-                plt.ylabel('Counts')
-                plt.xlabel('Detector Pixel Position')
-                plt.title('Example of Profile fitted to Trace')
-                
-                if save_plots > 0:
-                    stagedir = os.path.join(output_dir, 'stage2/plots/')
-                    if not os.path.exists(stagedir):
-                        os.makedirs(stagedir) 
-                    filedir = os.path.join(stagedir, 'trace_profile{}_fm{}.png'.format(j,i))
-
-                    plt.savefig(filedir, dpi=300,bbox_inches = 'tight')
-                
-                if show_plots > 0:
-                    plt.show(block=True)
-
-                plt.close() # save memory
->>>>>>> 354c56b6e505577328d9870af0a78a14d58aec48
 
                     plot_profile_fit(y_vals, profile, profile_fit, trace_y[j], parameters[2],
                                     show_plot = False, save_plot = False, 
@@ -271,15 +245,10 @@ def fit_trace(obs, trace_x, trace_y,
             width = np.polyval(coeffs, trace_x)
 
         # If true, plot all the traces over the image for comparison/validation.
-<<<<<<< HEAD
-        if show_plots==2 or save_plots==2:
-            plot_exposure([image], line_data = [[trace_x, trace_y], [trace_x, trace]], min = 0)
-=======
         if (show_plots == 2 or save_plots == 2):
             plot_exposure([image], line_data = [[trace_x, trace_y], [trace_x, trace]], stage=2,
                           show_plot=(show_plots==2), save_plot=(save_plots==2),
                           filename=['trace_validation'],output_dir=output_dir)
->>>>>>> 354c56b6e505577328d9870af0a78a14d58aec48
 
         # Append this frame's y positions and dispersion profile widths to the entire set.
         traces.append(trace)
