@@ -124,7 +124,6 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         if not os.path.exists(run_dir):
             os.makedirs(run_dir)
 
-
         # temporal removal fixed iterations
         if stage1_dict['do_fixed_iter']:
             obs = fixed_iteration_rejection(obs,
@@ -346,8 +345,6 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                 spec, spec_err, shifts = align_spectra(obs,np.array(spec),np.array(spec_err),order,
                                                       trace_x=np.array(wav),
                                                       align=True,
-                                                      ind1=0,
-                                                      ind2=-1,
                                                       verbose=stage2_dict['verbose'],
                                                       show_plots=stage2_dict['show_plots'], 
                                                       save_plots=stage2_dict['save_plots'],
