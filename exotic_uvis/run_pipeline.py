@@ -41,13 +41,14 @@ from exotic_uvis.stage_2 import align_spectra
 
 
 def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
-    '''
-    Wrapper for all Stages of the ExoTiC-UVIS pipeline.
+    """Wrapper for all Stages of the ExoTiC-UVIS pipeline.
 
-    :param config_files_dir: str. The path to the folder where all of your ExoTiC-UVIS .hustle files are stored.
-    :param stages: tuple of ints from 0 to 5. Which stages you want to execute.
-    :return: output products of ExoTiC-UVIS. Locations and details depend on your .hustle files.
-    '''
+    Args:
+        config_files_dir (str): folder which contains the .hustle files needed
+        to run the stages you want to run.
+        stages (tuple, optional): the stages that you want to run.
+        Defaults to (0, 1, 2, 3, 4, 5).
+    """
     ######## Run Stage 0 ########
     if 0 in stages:
         # read out the stage 0 config
@@ -180,6 +181,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                          pagul_path=stage1_dict['path_to_Pagul'],
                                          masking_parameter=stage1_dict['mask_parameter'],
                                          smooth_fits=stage1_dict['smooth_fits'],
+                                         smooth_parameter=stage1_dict['smoothing_param'],
                                          median_on_columns=stage1_dict['median_columns'],
                                          verbose=stage1_dict['verbose'],
                                          show_plots=stage1_dict['show_plots'],
