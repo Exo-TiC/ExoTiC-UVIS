@@ -12,7 +12,8 @@ import matplotlib.pyplot as plt
 from exotic_uvis.plotting import plot_exposure, plot_corners, plot_bkgvals, plot_mode_v_params
 
 
-def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001, smooth_fits=True, median_on_columns=True,
+def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
+                           smooth_fits=True, smooth_parameter=3.0, median_on_columns=True,
                            verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Scales the supplied Pagul et al. G280 sky image to each frame and
     subtracts the scaled image as background.
@@ -28,6 +29,8 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001, smooth_fits
         smooth_fits (bool, optional): whether to smooth the scaling parameters
         in time. Helps prevent background "flickering" in event of minor bckg
         bimodality. Defaults to True.
+        smooth_parameter (float, optional): if smooth_fits is True, sigma
+        for smoothing. Defaults to 3.0.
         median_on_columns (bool, optional): if True, take the median value of
         the Pagul et al. sky image along columns. Approximately eliminates
         contamination from poorly-sampled parts of sky. Defaults to True.
@@ -44,6 +47,7 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001, smooth_fits
         xarray: obs with sky-corrected images and with bkg values saved to
         ['bkg_vals'] keyword.
     """
+
     # copy images
     images = obs.images.data.copy() 
 
@@ -78,6 +82,12 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001, smooth_fits
 
         # next, mask any sources in the frame using the frame mode and standard deviation
         masked_frame = np.ma.masked_where(np.abs(image - mode) > masking_parameter*sig, image)
+
+        # if true, plot the masked frame
+        if (save_plots > 0 or show_plots > 0) and k == 0:
+            plot_exposure([masked_frame,], max = 50, title = 'Pagul+ Background Removal Mask', 
+                          show_plot=(show_plots>0), save_plot=(save_plots>0), stage=1,
+                          output_dir=output_dir, filename = ['bkg_pagul_mask',])
     
         # then fit the standard bckg to the masked frame
         def residuals_(A,x,y):
@@ -93,7 +103,7 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001, smooth_fits
         # smooth these over
         med_A = np.median(scaling_parameters)
         sig_A = np.std(scaling_parameters)
-        scaling_parameters = np.where(np.abs(scaling_parameters - med_A) > 3*sig_A,
+        scaling_parameters = np.where(np.abs(scaling_parameters - med_A) > smooth_parameter*sig_A,
                                       med_A, scaling_parameters)
     
     # then remove the background
@@ -110,7 +120,7 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001, smooth_fits
                      output_dir=output_dir, show_plot = (show_plots>0), save_plot = (save_plots>0))
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
                       show_plot=(show_plots>0), save_plot=(save_plots>0), stage=1,
-                      output_dir=output_dir, filename = ['before_bkg_subs', 'after_bkg_subs'])
+                      output_dir=output_dir, filename = ['bkg_before_subtraction', 'bkg_after_subtraction'])
         
     # if true, also plot a comparison of the
     # scaling parameters against frame modes
@@ -319,7 +329,7 @@ def uniform_value_bkg_subtraction(obs, fit = None, bounds = None,
                      output_dir=output_dir, save_plot=save_plots, show_plot=show_plots)
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
                       show_plot = (show_plots>0), save_plot = (save_plots>0), stage=1,
-                      output_dir=output_dir, filename = ['before_bkg_subs', 'after_bkg_subs'])
+                      output_dir=output_dir, filename = ['bkg_before_subtraction', 'bkg_after_subtraction'])
         
     obs.images.data = images
 
@@ -417,7 +427,7 @@ def column_by_column_subtraction(obs, rows=np.array([i for i in range(10)]), sig
                      output_dir=output_dir, show_plot = (show_plots>0), save_plot = (save_plots>0))
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
                       show_plot = (show_plots>0), save_plot = (save_plots>0), stage=1,
-                      output_dir=output_dir, filename = ['before_bkg_subs', 'after_bkg_subs'])
+                      output_dir=output_dir, filename = ['bkg_before_subtraction', 'bkg_after_subtraction'])
 
     obs.images.data = images
 
