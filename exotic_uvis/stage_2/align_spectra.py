@@ -12,7 +12,7 @@ from scipy import signal
 
 
 
-def cross_corr(spec, temp_spec, order, i, trim = 1, fit_window = 5, subpix_width = 0.01,
+def cross_corr(spec, temp_spec, order='+1', i=0, trim = 1, fit_window = 5, subpix_width = 0.01,
                verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Function to perform cross-correlation of two arrays.
     Based on ExoTic-JEDI align_spectra.py code
@@ -199,8 +199,8 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False, ind1 = 0
 
 
 
-def align_profiles(obs, trace_x, traces_y, width = 25, plot_median = False):
-
+def align_profiles(obs, trace_x, traces_y, width = 25, 
+                   verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
 
     """
     
@@ -219,7 +219,7 @@ def align_profiles(obs, trace_x, traces_y, width = 25, plot_median = False):
         y_shift = []
     
         # get trace position
-        trace_y = traces_y[j]
+        trace_y = np.median(traces_y[:, j])
 
         # define lower and upper limits where the sum is performed
         low_val = int(trace_y - width)
@@ -233,19 +233,19 @@ def align_profiles(obs, trace_x, traces_y, width = 25, plot_median = False):
         temp_prof = np.median(profs, axis = 0)
 
         for i, prof in enumerate(profs):
-            shift = cross_corr(prof, temp_prof, plot = False, trim = 1)
+            shift = cross_corr(prof, temp_prof)
             y_shift.append(shift)
         
         y_shifts.append(y_shift)
   
     y_shifts = np.array(y_shifts).transpose()
 
-    if plot_median:
+    if show_plots>0 or save_plots>0:
         plt.figure(figsize = (10, 7))
         plt.scatter(exp_times, np.median(y_shifts, axis = 1))
         plt.xlabel('Exposure time')
         plt.ylabel('Y displacement')
-        plt.show()
+        plt.show(block=True)
         
     return y_shifts
 

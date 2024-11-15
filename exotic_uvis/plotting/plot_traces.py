@@ -18,9 +18,20 @@ plt.rc('legend',**{'fontsize':11})
 def plot_profile_fit(y_vals, profile, gaussian_fit, cal_center, fit_center,
                     show_plot = False, save_plot = False, 
                     stage = 0, filename = None, output_dir = None):
-    
+    """_summary_
 
-
+    Args:
+        y_vals (_type_): _description_
+        profile (_type_): _description_
+        gaussian_fit (_type_): _description_
+        cal_center (_type_): _description_
+        fit_center (_type_): _description_
+        show_plot (bool, optional): _description_. Defaults to False.
+        save_plot (bool, optional): _description_. Defaults to False.
+        stage (int, optional): _description_. Defaults to 0.
+        filename (_type_, optional): _description_. Defaults to None.
+        output_dir (_type_, optional): _description_. Defaults to None.
+    """
 
     plt.figure(figsize = (10, 7))
     plt.plot(y_vals, profile, color = 'indianred')

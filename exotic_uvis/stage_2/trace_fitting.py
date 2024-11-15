@@ -70,7 +70,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
     if refine_calibration:
         trace_y, widths = fit_trace(obs, trace_x, trace_y, profile_width = 70, pol_deg = 7, fit_type = 'Gaussian',
                                     fit_trace = True, plot_profile = [20, 300], 
-                                    verbose = 0, show_plots = 0, save_plots = 0, output_dir = None)
+                                    verbose = verbose, show_plots = show_plots, save_plots = save_plots, output_dir = output_dir)
         
         # Plot refined calibration.
         plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y[0]]],
@@ -84,7 +84,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
         for k in range(obs.images.shape[0]):
             refined_trace_y[k,:] = trace_y
         trace_y = refined_trace_y
-        widths = None
+        widths = False
     
     return trace_x, trace_y, wavs, widths, sens
 
@@ -159,7 +159,8 @@ def Gauss1D(x, H, A, x0, sigma):
 
 def fit_trace(obs, trace_x, trace_y, 
               profile_width = 40, pol_deg = 7, fit_type = 'Gaussian',
-              fit_trace = False, plot_profile = None, check_all = False, verbose = 0):
+              fit_trace = False, plot_profile = None,
+              verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Refines the trace vertical location by fitting profile curves to the
     cross-dispersion profiles.
 
@@ -216,23 +217,13 @@ def fit_trace(obs, trace_x, trace_y,
     
             # Plot the j profile in the i image.
             if (int(plot_profile[0]) == i) and (int(plot_profile[1]) == j): 
-                
-                '''
-                
-                plt.figure(figsize = (10, 7))
-                plt.plot(y_vals, profile, color = 'indianred')
-                plt.plot(y_vals, Gauss1D(y_vals, parameters[0], parameters[1], parameters[2], parameters[3]), linestyle = '--', linewidth = 1.2, color = 'gray')
-                plt.axvline(parameters[2], linestyle = '--', color = 'gray', linewidth = 0.7)
-                plt.axvline(parameters[2] - 12, linestyle = '--', color = 'gray', linewidth = 0.7)
-                plt.axvline(parameters[2] + 12, linestyle = '--', color = 'gray', linewidth = 0.7)
-                plt.axvline(trace_y[j], color = 'black', linestyle = '-.', alpha = 0.8)
-                plt.ylabel('Counts')
-                plt.xlabel('Detector Pixel Position')
-                plt.title('Example of Profile fitted to Trace')
-                #plt.savefig('PLOTS/profile.pdf', bbox_inches = 'tight')
-                plt.show(block=True)
-                '''
+                if save_plots > 0 or show_plots > 0:
+                    profile_fit = Gauss1D(y_vals, parameters[0], parameters[1], parameters[2], parameters[3])
 
+                    plot_profile_fit(y_vals, profile, profile_fit, trace_y[j], parameters[2],
+                                    show_plot = False, save_plot = False, 
+                                    stage = 0, filename = None, output_dir = None)
+            
         # If true, fit a polynomial to the extracted trace locations and widths.
         if fit_trace:
             
@@ -245,7 +236,7 @@ def fit_trace(obs, trace_x, trace_y,
             width = np.polyval(coeffs, trace_x)
 
         # If true, plot all the traces over the image for comparison/validation.
-        if check_all:
+        if show_plots==2 or save_plots==2:
             plot_exposure([image], line_data = [[trace_x, trace_y], [trace_x, trace]], min = 0)
 
         # Append this frame's y positions and dispersion profile widths to the entire set.

@@ -35,6 +35,7 @@ from exotic_uvis.stage_2 import standard_extraction
 from exotic_uvis.stage_2 import optimal_extraction
 from exotic_uvis.stage_2 import clean_spectra
 from exotic_uvis.stage_2 import align_spectra
+from exotic_uvis.stage_2 import align_profiles
 
 #from exotic_uvis.stage_3 import load_data_S3
 #from exotic_uvis.stage_3 import save_data_S3
@@ -325,6 +326,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                 # optimum extraction
                 spec, spec_err = optimal_extraction(obs)
 
+            # do sensitivity
             if stage2_dict['sens_correction']:
                 # apply sens correction function 'fs' to the data
                 ok = (wav>2000) & (wav<8000)
@@ -334,68 +336,73 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                 spec[~np.isfinite(spec)] = 0
                 spec_err[~np.isfinite(spec_err)] = 0
 
+            # do alignment
+            x_shifts = False
+            y_shifts = False
+            if stage2_dict['align']:
+                spec, spec_err, x_shifts = align_spectra(obs,
+                                                        spec,
+                                                        spec_err,
+                                                        order,
+                                                        trace_x=wav,
+                                                        align=True,
+                                                        ind1=0,
+                                                        ind2=-1,
+                                                        verbose=stage2_dict['verbose'],
+                                                        show_plots=stage2_dict['show_plots'], 
+                                                        save_plots=stage2_dict['save_plots'],
+                                                        output_dir=run_dir)
+                
+                y_shifts = align_profiles(obs, 
+                                          trace_x,
+                                          trace_y,
+                                          width = 25,
+                                          verbose=stage2_dict['verbose'],
+                                          show_plots=stage2_dict['show_plots'], 
+                                          save_plots=stage2_dict['save_plots'],
+                                          output_dir=run_dir)
+                
+            # do clean spectra
+            #if stage2_dict['outlier_sigma']:
+            #    specs = clean_spectra(specs,
+            #                        sigma=stage2_dict['outlier_sigma'])
 
-        '''
-            wavs.append(wav)
-            specs.append(spec)
-            specs_err.append(spec_err)
-            traces_x.append(trace_x)
-            traces_y.append(trace_y)
-        
-        
-        # align
-        spec_shifts = []
-        if stage2_dict['align']:
-            aligned_specs = []
-            aligned_specs_err = []
-            for spec, spec_err, wav, order in zip(specs, specs_err, wavs, stage2_dict['traces_to_conf']):
-                spec, spec_err, shifts = align_spectra(obs,np.array(spec),np.array(spec_err),order,
-                                                      trace_x=np.array(wav),
-                                                      align=True,
-                                                      ind1=0,
-                                                      ind2=-1,
-                                                      verbose=stage2_dict['verbose'],
-                                                      show_plots=stage2_dict['show_plots'], 
-                                                      save_plots=stage2_dict['save_plots'],
-                                                      output_dir=run_dir)
-                aligned_specs.append(spec)
-                aligned_specs_err.append(spec_err)
-                spec_shifts.append(shifts)
-            specs = aligned_specs
-            specs_err = aligned_specs_err
-            
-        # clean
-        if stage2_dict['outlier_sigma']:
-            specs = clean_spectra(specs,
-                                  sigma=stage2_dict['outlier_sigma'])
-        
-        # plot
-        if (stage2_dict['show_plots'] > 0 or stage2_dict['save_plots'] > 0):
-            for oneD_spec, wav, order in zip(specs,wavs,stage2_dict['traces_to_conf']):
-                plot_one_spectrum(wav,oneD_spec[0,:],order,
-                                  show_plot=(stage2_dict['show_plots'] > 0),
-                                  save_plot=(stage2_dict['save_plots'] > 0),
-                                  filename='s2_1Dspec_order{}'.format(order),
-                                  output_dir=run_dir,
-                                  )
-            plot_spec_gif(wavs,specs,
-                          orders=stage2_dict['traces_to_conf'],
-                          show_plot=(stage2_dict['show_plots'] > 0),
-                          save_plot=(stage2_dict['save_plots'] > 0),
-                          filename='s2_1Dspec',
-                          output_dir=run_dir)
-            
-            
-        # save 1D spectra
-        save_data_S2(obs, specs, specs_err, traces_x, traces_y, widths, wavs,
-                     spec_shifts, stage2_dict['traces_to_conf'], output_dir=run_dir)
-        
+            # do plotting
+            if (stage2_dict['show_plots'] > 0 or stage2_dict['save_plots'] > 0):
+                
+                plot_one_spectrum(wav, spec[0, :], order,
+                                show_plot=(stage2_dict['show_plots'] > 0),
+                                save_plot=(stage2_dict['save_plots'] > 0),
+                                filename='s2_1Dspec_order{}'.format(order),
+                                output_dir=run_dir,
+                                )
+                plot_spec_gif(wav,spec,
+                            order=order,
+                            show_plot=(stage2_dict['show_plots'] > 0),
+                            save_plot=(stage2_dict['save_plots'] > 0),
+                            filename='s2_1Dspec',
+                            output_dir=run_dir)
+           
+            # save order xarray
+            save_data_S2(obs, 
+                         spec, 
+                         spec_err, 
+                         trace_x, 
+                         trace_y, 
+                         widths, 
+                         wav,
+                         x_shifts, 
+                         y_shifts, 
+                         order, 
+                         output_dir=run_dir)
+
+
         # write config
         config_dir = os.path.join(run_dir,'stage2')
         if not os.path.exists(config_dir):
             os.makedirs(config_dir)
         write_config(stage2_dict, stage2_dict['run_name'], 2, config_dir)
-        '''
+        
 
     ####### Run Stage 3 #######
     if 3 in stages:

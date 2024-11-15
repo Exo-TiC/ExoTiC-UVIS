@@ -22,9 +22,9 @@ def load_data_S2(data_dir, filename = 'clean_obs', verbose = 0):
 
 
 
-def save_data_S2(obs, specs, specs_err, 
+def save_data_S2(obs, spec, spec_err, 
                  trace_x, trace_y, widths, wavelengths,
-                 spec_shifts, orders = ("+1", "-1"),
+                 spec_disp, prof_disp, order = '+1',
                  output_dir = None, filename = 'specs'):
     """Function to create and save xarray containing the information extracted
     from stage 2.
@@ -47,42 +47,36 @@ def save_data_S2(obs, specs, specs_err,
     """
 
     # Create and save xarray for each order
-    for o,order in enumerate(orders):
-        try:
-             w = widths[o]
-        except TypeError:
-             w = np.empty_like(specs[o])
-        spectra = xr.Dataset(
-            data_vars=dict(
-                spec = (['exp_time', 'x'], specs[o]),
-                spec_err = (['exp_time', 'x'], specs_err[o]),
-                fit_trace_y = (['exp_time', 'x'], trace_y[o]),
-                fit_widths = (['exp_time', 'x'], w),
-                #spec_disp = (['exp_time'], spec_disp),
-                #prof_disp = (['exp_time', 'x'], prof_disp),
-                cal_trace = (['exp_time', 'x'], trace_y[o]),
-                shifts=(['exp_time',],spec_shifts[o]),
-                ),
-            coords=dict(
-                wave=(['x'], wavelengths[o]),
-                trace_x=(['x'], trace_x[o]),
-                exp_time = obs.exp_time.data,
-                ),
-            )
+    spectra = xr.Dataset(
+        data_vars=dict(
+            spec = (['exp_time', 'x'], spec),
+            spec_err = (['exp_time', 'x'], spec_err),
+            trace = (['exp_time', 'x'], trace_y),
+            ),
+        coords=dict(
+            wave=(['x'], wavelengths),
+            trace_x=(['x'], trace_x),
+            exp_time = obs.exp_time.data,
+            ),
+        )
+    
+    if spec_disp is not False:
+        spectra['spec_disp'] = xr.DataArray(spec_disp, dims=['exp_time']) 
+    if prof_disp is not False:
+        spectra['prof_disp'] = xr.DataArray(prof_disp, dims=['exp_time', 'x']) 
+    if widths is not False:
+        spectra['fit_widths'] = xr.DataArray(widths, dims=['exp_time', 'x']) 
         
-        #for i in range(len(bkg_stars)):
-        #    Res['stars{}_disp'.format(i + 1)] = obs['star{}_disp'.format(i)]   
-        #Res['meanstar_disp'] = obs['meanstar_disp']
+    #for i in range(len(bkg_stars)):
+    #    spectra['stars{}_disp'.format(i + 1)] = obs['star{}_disp'.format(i)]   
+    spectra['meanstar_disp'] = obs['meanstar_disp']
 
-        # Save results in Stage 3 folder 
-        stage2dir = os.path.join(output_dir, 'stage2/')
+    # Save results in Stage 3 folder 
+    stage2dir = os.path.join(output_dir, 'stage2/')
 
-        if not os.path.exists(stage2dir):
-                os.makedirs(stage2dir)
+    if not os.path.exists(stage2dir):
+            os.makedirs(stage2dir)
 
-        spectra.to_netcdf(os.path.join(stage2dir, f'{filename}_{order}.nc'))
-        #orders_str = ''.join(orders)
-
-        #spectra.to_netcdf(os.path.join(stage2dir, f'{filename}_{orders_str}.nc'))
+    spectra.to_netcdf(os.path.join(stage2dir, f'{filename}_{order}.nc'))
 
     return 0
