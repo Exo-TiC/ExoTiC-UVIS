@@ -190,7 +190,7 @@ def Stage1_info():
                            "Step 3a":["# Bool. Whether to use Laplacian Edge Detection rejection to clean the frames.",
                                       "# Float. The threshold parameter at which to kick outliers in LED. The lower the number, the more values will be replaced.",
                                       "# Int. The subsampling factor. Minimum value 2. Higher values increase computation time but aren't expected to yield much improvement in rejection.",
-                                      "# Int. Number of times to do LED on each frame.",
+                                      "# Int. Number of times to do LED on each frame. Enter None to continue performing LED on each frame until no outliers are found.",
                                       "# Bool. Whether to build a fine structure model, which can protect narrow bright features like traces from LED.",
                                       "# Float. If fine_structure is True, acts as the led_threshold for the fine structure step.",],
                            "Step 3b":["# Bool. Whether to use spatial smoothing rejection to clean the frames.",],
