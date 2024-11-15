@@ -1,11 +1,8 @@
 import os
 from tqdm import tqdm
-import numpy as np
 
+import numpy as np
 import matplotlib.pyplot as plt
-from astropy.io import fits
-from scipy.stats import norm
-from scipy import optimize
 from scipy.interpolate import interp1d
 from scipy import signal
 
@@ -18,22 +15,23 @@ def cross_corr(spec, temp_spec, order='+1', i=0, trim = 1, fit_window = 5, subpi
     Based on ExoTic-JEDI align_spectra.py code
 
     Args:
-        spec (_type_): _description_
-        temp_spec (_type_): _description_
+        spec (np.array): spectra that need to be aligned over time.
+        temp_spec (np.array): template spectrum used to measure position shifts.
         order (str): for labelling plots correctly.
         i (float): for labelling plots correctly.
-        trim (int, optional): _description_. Defaults to 1.
-        fit_window (int, optional): _description_. Defaults to 5.
-        subpix_width (float, optional): _description_. Defaults to 0.01.
-        verbose (int, optional): How detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): How many plots you want to show. Defaults to 0.
-        save_plots (int, optional): How many plots you want to save. Defaults to 0.
-        output_dir (str, optional): Where to save the plots to, if save_plots
+        trim (int, optional): how many indices to take out from beginning and
+        end of each spectrum. Improves cross-correlation when 0s are at ends.
+        Defaults to 1.
+        fit_window (int, optional): used for measuring shifts. Defaults to 5.
+        subpix_width (float, optional): how finely to interpolate the spectra
+        when measuring the shifts. Defaults to 0.01.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots
         is greater than 0. Defaults to None.
 
     Returns:
-        _type_: _description_
+        np.array: cross-dispersion shifts
     """
 
     xvals = np.arange(0, spec.shape[0])
@@ -91,9 +89,7 @@ def cross_corr(spec, temp_spec, order='+1', i=0, trim = 1, fit_window = 5, subpi
     return parab_vtx + trim
 
 
-
-
-def align_spectra(obs, specs, specs_err, order, trace_x, align = False, ind1 = 0, ind2 = -1,
+def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
                   verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Aligns 1D spectra and uncertainties using cross-correlation.
 
@@ -105,8 +101,6 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False, ind1 = 0
         trace_x (np.array): x positions of the trace solution.
         align (bool, optional): whether to apply the alignment to the spectra.
         Defaults to False.
-        ind1 (int, optional): _description_. Defaults to 0.
-        ind2 (int, optional): _description_. Defaults to -1.
         verbose (int, optional): How detailed you want the printed statements
         to be. Defaults to 0.
         show_plots (int, optional): How many plots you want to show. Defaults to 0.
@@ -117,6 +111,7 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False, ind1 = 0
     Returns:
         xarray: aligned obs spectra.
     """
+
     # initialize variables and define median spectrum as template
     align_specs = []
     align_specs_err = []
@@ -132,10 +127,9 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False, ind1 = 0
                         disable=(verbose==0)):
 
         # calculate shift wrt template via cross-correlation
-        shift = cross_corr(spec[ok][ind1:ind2], temp_spec[ind1:ind2], order, i,
+        shift = cross_corr(spec[ok], temp_spec, order, i,
                            trim = 1, fit_window = 5, subpix_width=0.01,
-                           verbose = 0, show_plots = 0,
-                           save_plots = 0, output_dir = None)
+                           show_plots = 0, save_plots = 0, output_dir = None)
         x_shifts.append(shift)
         
         # if true, correct the spectrum with the computed shift
@@ -175,11 +169,11 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False, ind1 = 0
         colors = plt.cm.rainbow(np.linspace(0, 1, 25))
 
         plt.figure(figsize = (10, 7))
-        for i, spec in enumerate(specs[0:25, ind1:ind2]):
+        for i, spec in enumerate(specs[0:25]):
             plt.plot(spec, color = colors[i])
 
         plt.figure(figsize = (10, 7))
-        for i, spec in enumerate(align_specs[0:25, ind1:ind2]):
+        for i, spec in enumerate(align_specs[0:25]):
             plt.plot(spec, color = colors[i])
 
         if save_plots > 0:
@@ -248,4 +242,3 @@ def align_profiles(obs, trace_x, traces_y, width = 25,
         plt.show(block=True)
         
     return y_shifts
-

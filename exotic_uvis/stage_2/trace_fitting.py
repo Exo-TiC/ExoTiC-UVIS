@@ -1,10 +1,12 @@
+import os
+from tqdm import tqdm
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import optimize
-import grismconf
-from tqdm import tqdm
 
 from exotic_uvis.plotting import plot_profile_fit
+import grismconf
 from exotic_uvis.plotting import plot_exposure
 
 
@@ -141,8 +143,9 @@ def get_calibration_trace(order, x0, y0, path_to_cal):
 
     return xs, ys, wavs, sens
 
+
 def Gauss1D(x, H, A, x0, sigma):
-    """Plots a 1D Gaussian on the given x range.
+    """Creates a 1D Gaussian on the given x range.
 
     Args:
         x (np.array): independent variable in the Gaussian.
@@ -176,8 +179,14 @@ def fit_trace(obs, trace_x, trace_y,
         'Gaussian'.
         fit_trace (bool, optional): if True, fit a polynomial to the refined
         x, y positions of the trace in each frame. Defaults to False.
-        plot_profile (_type_, optional): _description_. Defaults to None.
-        check_all (bool, optional): _description_. Defaults to False.
+        plot_profile (list, optional): a specific profile we have requested to
+        plot. Defaults to None.
+        verbose (int, optional): How detailed you want the printed statements
+        to be. Defaults to 0.
+        show_plots (int, optional): How many plots you want to show. Defaults to 0.
+        save_plots (int, optional): How many plots you want to save. Defaults to 0.
+        output_dir (str, optional): Where to save the plots to, if save_plots
+        is greater than 0. Defaults to None.
 
     Returns:
         np.array,np.array: refined trace positions and widths.
@@ -217,8 +226,34 @@ def fit_trace(obs, trace_x, trace_y,
     
             # Plot the j profile in the i image.
             if (int(plot_profile[0]) == i) and (int(plot_profile[1]) == j): 
+<<<<<<< HEAD
                 if save_plots > 0 or show_plots > 0:
                     profile_fit = Gauss1D(y_vals, parameters[0], parameters[1], parameters[2], parameters[3])
+=======
+                plt.figure(figsize = (10, 7))
+                plt.plot(y_vals, profile, color = 'indianred')
+                plt.plot(y_vals, Gauss1D(y_vals, parameters[0], parameters[1], parameters[2], parameters[3]), linestyle = '--', linewidth = 1.2, color = 'gray')
+                plt.axvline(parameters[2], linestyle = '--', color = 'gray', linewidth = 0.7)
+                plt.axvline(parameters[2] - 12, linestyle = '--', color = 'gray', linewidth = 0.7)
+                plt.axvline(parameters[2] + 12, linestyle = '--', color = 'gray', linewidth = 0.7)
+                plt.axvline(trace_y[j], color = 'black', linestyle = '-.', alpha = 0.8)
+                plt.ylabel('Counts')
+                plt.xlabel('Detector Pixel Position')
+                plt.title('Example of Profile fitted to Trace')
+                
+                if save_plots > 0:
+                    stagedir = os.path.join(output_dir, 'stage2/plots/')
+                    if not os.path.exists(stagedir):
+                        os.makedirs(stagedir) 
+                    filedir = os.path.join(stagedir, 'trace_profile{}_fm{}.png'.format(j,i))
+
+                    plt.savefig(filedir, dpi=300,bbox_inches = 'tight')
+                
+                if show_plots > 0:
+                    plt.show(block=True)
+
+                plt.close() # save memory
+>>>>>>> 354c56b6e505577328d9870af0a78a14d58aec48
 
                     plot_profile_fit(y_vals, profile, profile_fit, trace_y[j], parameters[2],
                                     show_plot = False, save_plot = False, 
@@ -236,8 +271,15 @@ def fit_trace(obs, trace_x, trace_y,
             width = np.polyval(coeffs, trace_x)
 
         # If true, plot all the traces over the image for comparison/validation.
+<<<<<<< HEAD
         if show_plots==2 or save_plots==2:
             plot_exposure([image], line_data = [[trace_x, trace_y], [trace_x, trace]], min = 0)
+=======
+        if (show_plots == 2 or save_plots == 2):
+            plot_exposure([image], line_data = [[trace_x, trace_y], [trace_x, trace]], stage=2,
+                          show_plot=(show_plots==2), save_plot=(save_plots==2),
+                          filename=['trace_validation'],output_dir=output_dir)
+>>>>>>> 354c56b6e505577328d9870af0a78a14d58aec48
 
         # Append this frame's y positions and dispersion profile widths to the entire set.
         traces.append(trace)

@@ -1,6 +1,9 @@
-import numpy as np
 from tqdm import tqdm
-from exotic_uvis.plotting import plot_exposure, plot_corners, plot_flags_per_time
+
+import numpy as np
+
+from exotic_uvis.plotting import plot_exposure, plot_flags_per_time
+
 
 def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
                               verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
@@ -8,17 +11,17 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
     iteration to reject cosmic rays.
 
     Args:
-        obs (xarray): Its obs.images DataSet contains the images.
-        sigmas (list, optional): Sigma to use for each iteration. len(sigmas)
+        obs (xarray): obs.images DataSet contains the images.
+        sigmas (list, optional): sigma to use for each iteration. len(sigmas)
         is the number of iterations that will be run. Defaults to [10,10].
-        replacement (int, optional): If None, replace outlier pixels with
+        replacement (int, optional): if None, replace outlier pixels with
         median in time. If int, replace with median of int values either side
         in time. Defaults to None.
-        verbose (int, optional): How detailed you want the printed statements
+        verbose (int, optional): how detailed you want the printed statements
         to be. Defaults to 0.
-        show_plots (int, optional): How many plots you want to show. Defaults to 0.
-        save_plots (int, optional): How many plots you want to save. Defaults to 0.
-        output_dir (str, optional): Where to save the plots to, if save_plots
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots
         is greater than 0. Defaults to None.
 
     Returns:
@@ -85,7 +88,7 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
                       title = 'Temporal Bad Pixel removal Example', 
                       show_plot=(show_plots >= 1), save_plot=(save_plots >= 1),
                       stage=1, output_dir=output_dir,
-                      filename = ['Before_CR_correction', 'After_CR_correction'])
+                      filename = ['CR_before_correction', 'CR_after_correction'])
 
         plot_exposure([obs.images.data[0]], scatter_data=[yhits, xhits],
                       title = 'Location of corrected pixels', mark_size = 1,
@@ -100,7 +103,7 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
                             xmin = np.min(obs.exp_time.values), xmax = np.max(obs.exp_time.values),
                             ymin = 0.995*np.min(counts_per_frame), ymax = 1.005*np.max(counts_per_frame),
                             show_plot=(show_plots>=1),save_plot=(save_plots>=1),
-                            stage=1,filename=['Time_outliers_per_frame',],output_dir=output_dir)
+                            stage=1,filename=['CR_outliers_per_frame',],output_dir=output_dir)
 
     # if true, check each exposure separately
     if save_plots == 2 or show_plots == 2:
@@ -119,15 +122,17 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
 
 
 def array1D_clip(array, threshold = 3.5, mode = 'median'): 
-    """Function to detect and replace outliers in a 1D array above or below a certain sigma threshold imposed
+    """Function to detect and replace outliers in a 1D array above or below
+    a certain sigma threshold imposed.
 
     Args:
-        array (_type_): _description_
-        threshold (float, optional): _description_. Defaults to 3.5.
-        mode (str, optional): _description_. Defaults to 'median'.
+        array (np.array): pixel time series to be cleaned for outliers.
+        threshold (float, optional): threshold at which to call a value
+        an outlier. Defaults to 3.5.
+        mode (str, optional): unusued. Defaults to 'median'.
 
     Returns:
-        _type_: _description_
+        np.array: cleaned time series and mask marking where outliers were found.
     """
     
     # define outlier flag and mask
@@ -154,17 +159,17 @@ def array1D_clip(array, threshold = 3.5, mode = 'median'):
 
 def free_iteration_rejection(obs, threshold = 3.5,
                              verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
-    """Function to replace outliers in the temporal dimension
+    """Function to replace outliers in the temporal dimension.
 
     Args:
-        obs (xarray): Its obs.images DataSet contains the images.
-        threshold (float, optional): Sigma at which to reject outliers until
+        obs (xarray): obs.images DataSet contains the images.
+        threshold (float, optional): sigma at which to reject outliers until
         no more are found at this level. Defaults to 3.5.
-        verbose (int, optional): How detailed you want the printed statements
+        verbose (int, optional): how detailed you want the printed statements
         to be. Defaults to 0.
-        show_plots (int, optional): How many plots you want to show. Defaults to 0.
-        save_plots (int, optional): How many plots you want to save. Defaults to 0.
-        output_dir (str, optional): Where to save the plots to, if save_plots
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots
         is greater than 0. Defaults to None.
 
     Returns:
@@ -180,7 +185,6 @@ def free_iteration_rejection(obs, threshold = 3.5,
     for i in tqdm(range(obs.dims['x']), desc = 'Removing cosmic rays and bad pixels... Progress:'):
         #iterate over all columns
         for j in range(obs.dims['y']):
-            og = np.copy(images[:, i, j])
             # check that sum of pixel along temporal dimension is non-zero (i.e., that the pixel is inside the subarray)
             if np.sum(images[:, i, j]):
                 _, hit_map[:, i, j] = array1D_clip(images[:, i, j], threshold, mode = 'median')
@@ -192,7 +196,7 @@ def free_iteration_rejection(obs, threshold = 3.5,
                       title = 'Temporal Bad Pixel removal Example', 
                       show_plot=(show_plots > 1), save_plot=(save_plots > 1),
                       stage=1, output_dir=output_dir,
-                      filename = ['Before_CR_correction', 'After_CR_correction'])
+                      filename = ['CR_before_correction', 'CR_after_correction'])
 
         plot_exposure([obs.images.data[0]], scatter_data=[yhits, xhits], min = 1e0, 
                       title = 'Location of corrected pixels', mark_size = 1,
@@ -207,7 +211,7 @@ def free_iteration_rejection(obs, threshold = 3.5,
                             xmin = np.min(obs.exp_time.values), xmax = np.max(obs.exp_time.values),
                             ymin = 0.995*np.min(counts_per_frame), ymax = 1.005*np.max(counts_per_frame),
                             show_plot=(show_plots>=1),save_plot=(save_plots>=1),
-                            stage=1,filename=['Time_outliers_per_frame',],output_dir=output_dir)
+                            stage=1,filename=['CR_outliers_per_frame',],output_dir=output_dir)
 
     # if true, check each exposure separately
     if save_plots == 2 or show_plots == 2:

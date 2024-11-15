@@ -4,14 +4,18 @@ import glob
 
 from astropy.io import fits
 
+
 def collect_and_move_files(visit_number, fromdir, outdir, verbose=2):
-    """Collects, renames, and moves the spec, direct, visit-related, and misc files to the right directories.
+    """Collects, renames, and moves the spec, direct, visit-related,
+    and misc files to the right directories.
 
     Args:
         visit_number (str): The visit number that we want to look at.
-        fromdir (str): The directory where the orbitNframeN, orbitNdirectN, and misc files are kept.
+        fromdir (str): The directory where the orbitNframeN,
+        orbitNdirectN, and misc files are kept.
         outdir (str): Where the files will be moved to.
-        verbose (int, optional): From 0 to 2, how much detail you want the output logs to have. Defaults to 2.
+        verbose (int, optional): From 0 to 2, how much detail you want the
+        output logs to have. Defaults to 2.
     """
     # Create the output directory.
     if not os.path.exists(outdir):
@@ -41,7 +45,8 @@ def collect_and_move_files(visit_number, fromdir, outdir, verbose=2):
     # Finally, filter everything else.
     misc_files = [f for f in files if (f not in spec_files and f not in direct_files and f not in visit_files)]
 
-    for files, target in zip((spec_files, direct_files, visit_files, misc_files),("specimages","directimages","visitfiles","miscfiles")):
+    for files, target in zip((spec_files, direct_files, visit_files, misc_files),
+                             ("specimages","directimages","visitfiles","miscfiles")):
         targetdir = os.path.join(outdir,target)
         if not os.path.exists(targetdir):
             os.makedirs(targetdir)
@@ -56,16 +61,21 @@ def collect_and_move_files(visit_number, fromdir, outdir, verbose=2):
     if verbose >= 1:
         print("All spec, direct, and misc files moved.")
 
+
 def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files, verbose=2):
     """Opens each file and checks exposure time starts to find orbits.
 
     Args:
-        spec_flt (lst of str): The filepaths to the spectroscopic flt images. Used to find orbits.
-        spec_spt (lst of str): The filepaths to the spectroscopic spt images corresponding to the flt images.
+        spec_flt (lst of str): The filepaths to the spectroscopic flt images.
+        Used to find orbits.
+        spec_spt (lst of str): The filepaths to the spectroscopic spt images
+        corresponding to the flt images.
         direct_flt (lst of str): The filepaths to the direct flt images.
-        direct_spt (lst of str): The filepaths to the direct spt images corresponding to the flt images.
+        direct_spt (lst of str): The filepaths to the direct spt images
+        corresponding to the flt images.
         misc_files (lst of str): The filepaths to the miscellanous files.
-        verbose (int, optional): From 0 to 2, how much detail you want the output logs to have. Defaults to 2.
+        verbose (int, optional): From 0 to 2, how much detail you want
+        the output logs to have. Defaults to 2.
     """
     # First, sort all files by exposure time and get corresponding file prefix names.
     starts = []
@@ -160,6 +170,7 @@ def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files, verb
     
     if verbose >= 1:
         print("Renamed all files to follow or##fm### (for spec frames) or or##dr### (for direct frames) convention.")
+
 
 def collect_files(search_dir, visit_number, verbose=2):
     """Searches the search_dir for files of the right visit_number.

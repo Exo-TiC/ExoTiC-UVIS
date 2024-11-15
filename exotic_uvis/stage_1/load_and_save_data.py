@@ -1,21 +1,27 @@
+import os
+from tqdm import tqdm
+
 import numpy as np
 from astropy.io import fits
-from wfc3tools import sub2full
-import matplotlib.pyplot as plt
 import xarray as xr
-from tqdm import tqdm
-import os
+
+from wfc3tools import sub2full
 
 
 def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose = 2):
-    """Function to load the data into a numpy array
+    """Function to load the data into an xarray.
 
     Args:
-        data_dir (_type_): _description_
-        verbose (int, optional): _description_. Defaults to 2.
+        data_dir (str): folder where the spec and direct image subfolders are.
+        skip_first_fm (bool, optional): whether to remove all first frames from
+        each orbit. Defaults to False.
+        skip_first_or (bool, optional): whether to remove the first orbit from
+        the dataset. Defaults to False.
+        verbose (int, optional): How detailed the print statements should be
+        on a scale of 0-2. Defaults to 2.
 
     Returns:
-        _type_: _description_
+        xarray: images and all associated data needed for reduction.
     """
 
     # initialize data structures
@@ -77,7 +83,7 @@ def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose
                 target_posy = (direct_image.shape[0])/2 - hdul[0].header['POSTARG2']
 
 
-    # Create x-array
+    # create x-array
     obs = xr.Dataset(
         data_vars=dict(
             images=(["exp_time", "x", "y"], images),
@@ -102,14 +108,14 @@ def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose
     return obs
 
 
-
 def save_data_S1(obs, output_dir, filename = 'clean_obs'):
-    """Function to save the xarray in stage 1 folder
+    """Function to save the xarray in stage 1 folder.
 
     Args:
-        obs (_type_): _description_
-        output_dir (_type_): _description_
-        filename (str, optional): _description_. Defaults to 'clean_obs'.
+        obs (xarray): reduced observations as an xarray.
+        output_dir (str): folder where the outputs are saved to.
+        filename (str, optional): name to give to the cleaned files.
+        Defaults to 'clean_obs'.
     """
 
     stage1dir = os.path.join(output_dir, 'stage1/')

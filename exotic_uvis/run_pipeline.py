@@ -42,13 +42,14 @@ from exotic_uvis.stage_2 import align_profiles
 
 
 def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
-    '''
-    Wrapper for all Stages of the ExoTiC-UVIS pipeline.
+    """Wrapper for all Stages of the ExoTiC-UVIS pipeline.
 
-    :param config_files_dir: str. The path to the folder where all of your ExoTiC-UVIS .hustle files are stored.
-    :param stages: tuple of ints from 0 to 5. Which stages you want to execute.
-    :return: output products of ExoTiC-UVIS. Locations and details depend on your .hustle files.
-    '''
+    Args:
+        config_files_dir (str): folder which contains the .hustle files needed
+        to run the stages you want to run.
+        stages (tuple, optional): the stages that you want to run.
+        Defaults to (0, 1, 2, 3, 4, 5).
+    """
     ######## Run Stage 0 ########
     if 0 in stages:
         # read out the stage 0 config
@@ -129,7 +130,6 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         if not os.path.exists(run_dir):
             os.makedirs(run_dir)
 
-
         # temporal removal fixed iterations
         if stage1_dict['do_fixed_iter']:
             obs = fixed_iteration_rejection(obs,
@@ -181,11 +181,12 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                 output_dir=run_dir)
         
         # background subtraction with the Pagul et al. image scaled
-        if stage1_dict['do_Pagul23']:
+        if stage1_dict['do_Pagul']:
             obs = Pagul_bckg_subtraction(obs,
-                                         Pagul_path=stage1_dict['path_to_Pagul23'],
+                                         pagul_path=stage1_dict['path_to_Pagul'],
                                          masking_parameter=stage1_dict['mask_parameter'],
                                          smooth_fits=stage1_dict['smooth_fits'],
+                                         smooth_parameter=stage1_dict['smoothing_param'],
                                          median_on_columns=stage1_dict['median_columns'],
                                          verbose=stage1_dict['verbose'],
                                          show_plots=stage1_dict['show_plots'],
@@ -241,7 +242,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                         stage1_dict['verbose'], 
                         stage1_dict['show_plots'], 
                         stage1_dict['save_plots'],
-                        stage1_dict['gif_dir'])
+                        os.path.join(stage1_dict['toplevel_dir'],stage1_dict['gif_dir']))
 
         # save results
         if stage1_dict['do_save']:
@@ -267,7 +268,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
         # read data
         S2_data_path = os.path.join(stage2_dict['toplevel_dir'],os.path.join('outputs',stage2_dict['run_name']))
-        obs = load_data_S2(S2_data_path, verbose = stage2_dict['verbose'])
+        obs = load_data_S2(S2_data_path)
 
         # get the location from the obs.nc file
         stage2_dict['location'] = [obs.attrs['target_posx'],obs.attrs['target_posy']]
@@ -286,7 +287,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                                    order=order,
                                                                    source_pos=stage2_dict['location'],
                                                                    refine_calibration=stage2_dict['refine_fit'],
-                                                                   path_to_cal=stage2_dict['path_to_config'],
+                                                                   path_to_cal=stage2_dict['path_to_cal'],
                                                                    verbose=stage2_dict['verbose'],
                                                                    show_plots=stage2_dict['show_plots'], 
                                                                    save_plots=stage2_dict['save_plots'],
@@ -413,8 +414,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         # read data, one order at a time
         S3_data_path = os.path.join(stage3_dict['toplevel_dir'],os.path.join('outputs',stage3_dict['run_name']))
 
-        for order in stage3_dict['orders']:
+        #for order in stage3_dict['orders']:
             # load the spectrum for this order
-            spex = load_data_S3(S3_data_path, order=order, verbose = stage3_dict['verbose'])
+            #spex = load_data_S3(S3_data_path, order=order, verbose = stage3_dict['verbose'])
 
             

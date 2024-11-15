@@ -153,9 +153,7 @@ class TestStage2(unittest.TestCase):
                                                       trace_y=trace_y,
                                                       wavs=wavs,
                                                       indices=[[0,5],[15,19]],
-                                                      verbose=2,
-                                                      save_plots=2,
-                                                      output_dir='./')
+                                                      verbose=2)
         # With the fixed noise draw we had, it usually found hw 18.
         # I'll accept anywhere in the range 15 to 21 honestly.
         self.assertAlmostEqual(halfwidth,18,delta=3)
@@ -187,7 +185,7 @@ class TestStage2(unittest.TestCase):
                                                                        np.array(spec_err),
                                                                        order="+1",
                                                                        trace_x=np.array(wavs),
-                                                                       align=True,ind1=10,ind2=-10,
+                                                                       align=True,
                                                                        verbose=2)
         # I will tolerate a 1/10 pixel shift at most, given how small the
         # added noise component was.

@@ -1,15 +1,17 @@
 import os
 
 def write_config(config_dict, run_name, stage, outdir):
-    '''
-    Unpacks a dictionary and writes it out to a config file.
+    """Unpacks a dictionary and writes it out to a config file.
 
-    :param config_dict: dict. The dictionary used to guide the execution of a Stage of ExoTiC-UVIS.
-    :param run_name: Str. The name of this run.
-    :param stage: int from 0 to 5. Which Stage was executed, which sets the template of the config file.
-    :param outdir: str. The path to where the config file is to be stored.
-    :return: config .hustle file written to the outdir.
-    '''
+    Args:
+        config_dict (dict): dictionary used to guide the execution of a
+        Stage of ExoTiC-UVIS.
+        run_name (str): name of this run, used to give the config file
+        a unique and identifiable name.
+        stage (int): which Stage was executed, which sets the template
+        of the config file.
+        outdir (outdir): path to where the config file is to be stored.
+    """
     # Get correct print info.
     if stage == 0:
         header, subsection_headers, subsection_keys, subsection_comments = Stage0_info()
@@ -39,7 +41,7 @@ def write_config(config_dict, run_name, stage, outdir):
                 # Write the keyword, its stringed value, and the comment.
                 try:
                     value = str(config_dict[keyword])
-                    f.write("{0:<15} {1:<100} {2:}\n".format(keyword, value, subsection_comments[subsection][j]))
+                    f.write("{0:<15} {1:<60} {2:}\n".format(keyword, value, subsection_comments[subsection][j]))
                 except IndexError:
                     print(subsection, subsection_keys[subsection])
                     print("Index error here!")
@@ -51,9 +53,12 @@ def write_config(config_dict, run_name, stage, outdir):
             
 
 def Stage0_info():
-    '''
-    Specific keys and subsections for Stage 0.
-    '''
+    """Retrieves writer information for Stage 0.
+
+    Returns:
+        str, list, dict, dict: header and comments for writing the config.
+    """
+
     header = "# ExoTiC-UVIS config file for launching Stage 0: Data Handling"
 
     subsection_headers = ["# Setup for Stage 0",
@@ -84,8 +89,8 @@ def Stage0_info():
                                     "# Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.",
                                     "# Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.",],
                            "Step 1":["# Bool. Whether to perform this step.",
-                                     "# ID of the observing program you want to query data from On MAST, referred to as 'proposal_ID'.",
-                                     "# Name of the target object you want to query data from. On MAST, referred to as 'target_name'.",
+                                     '# ID of the observing program you want to query data from. On MAST, referred to as "proposal_ID".',
+                                     '# Name of the target object you want to query data from. On MAST, referred to as "target_name".',
                                      "# lst of str or None. File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified. _flt.fits, _spt.fits recommended as minimum working case.",],
                            "Step 2":["# Bool. Whether to perform this step.",
                                      "# The visit number you want to operate on.",
@@ -93,14 +98,17 @@ def Stage0_info():
                            "Step 3":["# Bool. Whether to perform this step.",
                                      "# None or tuple of float. Prior to running Stage 0, this will be None. After running Stage 0, a copy of this .hustle file will be made with this information included.",],
                            "Step 4":["# Bool. Whether to perform this step.",
-                                     "# str. Where to save the quicklook gif to.",],
+                                     "# str. Where to save the quicklook gif to, relative to the toplevel_dir.",],
                            }
     return header, subsection_headers, subsection_keys, subsection_comments
 
 def Stage1_info():
-    '''
-    Specific keys and subsections for Stage 1.
-    '''
+    """Retrieves writer information for Stage 1.
+
+    Returns:
+        str, list, dict, dict: header and comments for writing the config.
+    """
+    
     header = "# ExoTiC-UVIS config file for launching Stage 1: Reduction"
 
     subsection_headers = ["# Setup for Stage 1",
@@ -112,7 +120,7 @@ def Stage1_info():
                           "# Step 3b: Spatial smoothing parameters",
                           "# Step 4: Background subtraction\n# Step 4a: uniform value background subtraction",
                           "# Step 4b: Column-by-column background subtraction",
-                          "# Step 4c: Pagul+ 2023 background subtraction",
+                          "# Step 4c: Pagul et al. background subtraction",
                           "# Step 5: Displacement estimation\n# Step 5a: Refine target location",
                           "# Step 5b: Source center-of-mass tracking",
                           "# Step 5c: Background star tracking",
@@ -150,10 +158,11 @@ def Stage1_info():
                                   "mask_trace",
                                   "dist_from_trace",
                                   "col_sigma",],
-                       "Step 4c":["do_Pagul23",
-                                  "path_to_Pagul23",
+                       "Step 4c":["do_Pagul",
+                                  "path_to_Pagul",
                                   "mask_parameter",
                                   "smooth_fits",
+                                  "smoothing_param",
                                   "median_columns",],
                        "Step 5a":["do_location",],
                        "Step 5b":["do_0thtracking",
@@ -181,26 +190,27 @@ def Stage1_info():
                            "Step 3a":["# Bool. Whether to use Laplacian Edge Detection rejection to clean the frames.",
                                       "# Float. The threshold parameter at which to kick outliers in LED. The lower the number, the more values will be replaced.",
                                       "# Int. The subsampling factor. Minimum value 2. Higher values increase computation time but aren't expected to yield much improvement in rejection.",
-                                      "# Int. Number of times to do LED on each frame.",
+                                      "# Int. Number of times to do LED on each frame. Enter None to continue performing LED on each frame until no outliers are found.",
                                       "# Bool. Whether to build a fine structure model, which can protect narrow bright features like traces from LED.",
                                       "# Float. If fine_structure is True, acts as the led_threshold for the fine structure step.",],
                            "Step 3b":["# Bool. Whether to use spatial smoothing rejection to clean the frames.",],
                            "Step 4a":["# Bool. Whether to subtract the background using one uniform value as the value for the entire frame.",
                                       "# Str. The value to extract from the histogram. Options are None (to extract the mode), 'Gaussian' (to fit the mode with a Gaussian), or 'median' (to take the median within hist_min < v < hist_max).",
-                                      "# Lst of lst of float. The region from which the background values will be extracted. If None, simply uses the full frame.",
+                                      "# Lst of lst of float. The region from which the background values will be extracted. Each list consists of [x1,x2,y1,y2]. If None, simply uses the full frame.",
                                       "# Float. Minimum value to consider for the background. Leave as None to use min(data).",
                                       "# Float. Maximum value to consider for the background. Leave as None to use max(data).",
                                       "# Int. Number of histogram bins for background subtraction.",],
                            "Step 4b":["# Bool. Whether to subtract the background using a column-by-column method.",
-                                      "# lst of int. The indices defining the rows used as background.",
+                                      "# list of int. The indices defining the rows used as background.",
                                       "# Bool. If True, ignores rows parameter and instead masks the traces and 0th order to build a background region.",
                                       "# Int. If mask_trace is True, this is how many rows away a pixel must be from the trace to qualify as background.",
                                       "# float. How aggressively to mask outliers in the background region.",],
-                           "Step 4c":["# Bool. Whether to subtract the background using the scaled Pagul+ 2023 G280 sky image.",
-                                      "# Str. The absolute path to where the Pagul+ 2023 G280 sky image is stored.",
-                                      "# Float. How strong the trace masking should be. Values of 0.001 or less recommended.",
-                                      "# Bool. If True, smooths the values of the Pagul+ fit parameter in time. Helps prevent background 'flickering'.",
-                                      "# Bool. If True, takes the median value of each column in the Pagul+ 2023 sky image as the background. As the Pagul+ 2023 image is undersampled, this helps to suppress fluctuations in the image.",],
+                           "Step 4c":["# Bool. Whether to subtract the background using the scaled Pagul et al. G280 sky image.",
+                                      "# Str. The absolute path to where the Pagul et al. G280 sky image is stored.",
+                                      "# Float. How strong the trace masking should be. Smaller values mask more of the image.",
+                                      '# Bool. If True, smooths the values of the Pagul et al. fit parameter in time. Helps prevent background "flickering".',
+                                      '# Float. Sigma for smoothing the fit parameter. Smaller sigma means more smoothing.',
+                                      "# Bool. If True, takes the median value of each column in the Pagul et al. sky image as the background. As the Pagul et al. 2023 image is undersampled, this helps to suppress fluctuations in the image.",],
                            "Step 5a":["# Bool. Whether the location of the target in the direct image extracted from Stage 0 should be refined by fitting.",],
                            "Step 5b":["# Bool. Whether to track frame displacements by centroiding the 0th order.",
                                       "# lst of float. Initial guess for the location of the target star. You can use this to bypass location fitting in Stage 1.",],
@@ -213,9 +223,12 @@ def Stage1_info():
     return header, subsection_headers, subsection_keys, subsection_comments
 
 def Stage2_info():
-    '''
-    Specific keys and subsections for Stage 2.
-    '''
+    """Retrieves writer information for Stage 2.
+
+    Returns:
+        str, list, dict, dict: header and comments for writing the config.
+    """
+
     header = "# ExoTiC-UVIS config file for launching Stage 2: Extraction"
 
     subsection_headers = ["# Setup for Stage 2",
@@ -233,8 +246,7 @@ def Stage2_info():
                                 "show_plots",
                                 "save_plots"],
                        "Step 1":[],
-                       "Step 2":["config",
-                                 "path_to_config",
+                       "Step 2":["path_to_cal",
                                  "traces_to_conf",
                                  "refine_fit"],
                        "Step 3":["method",
@@ -256,10 +268,9 @@ def Stage2_info():
                                     "# Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.",
                                     "# Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.",],
                            "Step 1":[],
-                           "Step 2":["# Str. The type of configuration you are using. Options are 'aXe' or 'GRISMCONF'.",
-                                      "# Str. The absolute path to the .conf file used by aXe or GRISMCONF.",
-                                      "# Lst of str. The traces you want to configure and extraction from.",
-                                      "# Bool. If True, uses Gaussian fitting to refine the trace solution.",],
+                           "Step 2":["# Str. The absolute path to the .conf file used by GRISMCONF for the chip your data were taken on.",
+                                     "# Lst of str. The traces you want to configure and extraction from.",
+                                     "# Bool. If True, uses Gaussian fitting to refine the trace solution.",],
                            "Step 3":["# Str. Options are 'box' (draw a box around the trace and sum without weights) or 'optimum' (weight using Horne 1986 methods).",
                                      "# Bool. Whether to model the contaminating orders and subtract them from your trace during extraction. Sometimes works, sometimes just adds lots of scatter.",
                                      "# Bool. Whether to correct for the G280's changing sensitivity as a function of wavelength. Since absolute calibrated spectra aren't needed in exoplanetary sciences, you can skip this safely.",
@@ -269,15 +280,18 @@ def Stage2_info():
                                       "# Lst of ints. The half-width of extraction aperture to use for each order. Input here is ignored if 'determine_hw' is True.",],
                            "Step 3b":["# Str. Type of aperture to draw. Options are 'row_polyfit', 'column_polyfit', 'column_gaussfit', 'column_moffatfit', 'median', 'smooth'.",
                                       "# Lst of ints. The half-width of extraction aperture to use for each order. For optimum extraction, you should make this big (>12 pixels at least). There is no 'preferred' half-width in optimum extraction due to the weights.",],
-                           "Step 4":["# Float. Sigma at which to reject spectral outliers in time. Outliers are replaced with median of timeseries. Enter 'None' to skip this step.",
+                           "Step 4":["# Float. Sigma at which to reject spectral outliers in time. Outliers are replaced with median of timeseries. Enter False to skip this step.",
                                      "# Bool. If True, uses cross-correlation to align spectra to keep wavelength solution consistent.",],
                            }
     return header, subsection_headers, subsection_keys, subsection_comments
 
 def Stage3_info():
-    '''
-    Specific keys and subsections for Stage 3.
-    '''
+    """Retrieves writer information for Stage 3.
+
+    Returns:
+        str, list, dict, dict: header and comments for writing the config.
+    """
+
     header = "# ExoTiC-UVIS config file for launching Stage 3: Binning"
 
     subsection_headers = ["# Setup for Stage 3",

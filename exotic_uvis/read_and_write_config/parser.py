@@ -2,12 +2,14 @@ import shlex
 import numpy as np
 
 def parse_config(path_to_config_file):
-    '''
-    Parses config files to create a dictionary of inputs.
+    """Parses config files to create a dictionary of inputs.
 
-    :param path_to_config_file: str. Path to the .hustle file that is being read.
-    :return: dict of instructions for run_pipeline to follow.
-    '''
+    Args:
+        path_to_config_file (str): path to the .hustle file that is being read.
+
+    Returns:
+        dict: instructions for run_pipeline to follow.
+    """
     # Open the dictionary.
     config = {}
 
@@ -28,7 +30,7 @@ def parse_config(path_to_config_file):
         param = line[1]
         i = 2
         while "#" not in line[i]:
-            param = ''.join([param,line[i]])
+            param = ' '.join([param,line[i]])
             i += 1
         try:
             param = eval(param)

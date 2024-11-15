@@ -3,9 +3,6 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-import xarray as xr
-
-from exotic_uvis.plotting import plot_exposure
 
 
 #define plotting parameters
@@ -20,12 +17,18 @@ def plot_corners(image, corners,
                  min = 1e-3, max = 1e4,
                  show_plot = False, save_plot = False, 
                  output_dir = None):
-    """Function to plot exposure with rectangles to indicate the corners used for background subtraction
+    """Function to plot exposure with rectangles to indicate the corners used
+    for background subtraction.
 
     Args:
         image (np.array): 2D image from the obs xarray.
         corners (lst of lsts): x, y bounds of each rectangle used to define
         the corners from which the background is measured.
+        min (int, optional): darkest point for the colormap. Defaults to 1e-3.
+        max (int, optional): brightest point for the colormap. Defaults to 1e4.
+        show_plot (bool, optional): whether to interrupt execution to show
+        the user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot. Defaults to False.
         output_dir (str, optional): output directory where the plot will be
         saved. Defaults to None.
     """
@@ -54,7 +57,7 @@ def plot_corners(image, corners,
         stagedir = os.path.join(output_dir, f'stage1/plots/')
         if not os.path.exists(stagedir):
             os.makedirs(stagedir) 
-        filedir = os.path.join(stagedir, f'background_corner_location.png')
+        filedir = os.path.join(stagedir, f'bkg_corner_location.png')
         plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
         
     if show_plot:
@@ -81,6 +84,7 @@ def plot_bkgvals(exp_times, bkg_vals, method,
         show_plot (bool, optional): whether to interrupt execution to
         show the user the plot. Defaults to False.
     """
+
     # initialize figure
     plt.figure(figsize = (10, 7))
     if method != 'col-by-col':
@@ -120,7 +124,7 @@ def plot_bkgvals(exp_times, bkg_vals, method,
 
 def plot_mode_v_params(exp_times, modes, params,
                        output_dir = None, save_plot = False, show_plot = False):
-    """Function to create a diagnostic plot for Pagul+ bkg subtraction.
+    """Function to create a diagnostic plot for Pagul et al. bkg subtraction.
 
     Args:
         exp_times (np.array): BJD exposure times for each frame.
@@ -134,6 +138,7 @@ def plot_mode_v_params(exp_times, modes, params,
         show_plot (bool, optional): whether to interrupt execution to
         show the user the plot. Defaults to False.
     """
+
     # initialize figure
     plt.figure(figsize = (10, 7))
     # add the modes and params in different colors and markers
@@ -142,6 +147,7 @@ def plot_mode_v_params(exp_times, modes, params,
     plt.xlabel('Exposure')
     plt.ylabel('Counts')
     plt.title('Frame mode vs scaling parameter')
+    plt.legend()
     
     stagedir = os.path.join(output_dir, 'stage1/plots/') 
     filedir = os.path.join(stagedir, 'bkg_scaling_parameters.png')

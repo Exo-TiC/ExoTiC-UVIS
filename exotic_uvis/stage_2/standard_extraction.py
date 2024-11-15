@@ -7,6 +7,7 @@ from scipy.optimize import least_squares
 
 from exotic_uvis.plotting import plot_exposure
 
+
 def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = [],
                         verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Extracts a standard 1D spectrum from every image using no weighting.
@@ -43,7 +44,8 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
                       filename=['s2_aperture{}'.format(order)],output_dir=output_dir)
 
     # Iterate over frames.
-    for k in tqdm(range(obs.images.shape[0]),desc='Extracting standard spectra... Progress:',
+    for k in tqdm(range(obs.images.shape[0]),
+                  desc='Extracting standard spectra... Progress:',
                   disable=(verbose==0)):
         # Get array values and error values of the current frame.
         frame = obs.images[k].values
@@ -89,6 +91,7 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
     
     return np.array(oneD_spec), np.array(spec_err)
 
+
 def get_trace(frame, halfwidth, xs, ys):
     """Short function to pull a trace region from a frame using the given
     solution and halfwidth.
@@ -111,6 +114,7 @@ def get_trace(frame, halfwidth, xs, ys):
         dispersion_profiles.append(dispersion_profile)
     return np.array(dispersion_profiles)
 
+
 def box(trace):
     """The simplest extraction method, this routine sums the trace along
     columns without any weighting.
@@ -122,6 +126,7 @@ def box(trace):
         np.array: 1D array of the unweighted spectrum from that trace.
     """
     return np.nansum(trace,axis=1)
+
 
 def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10],[-10,-1]),
                               verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
@@ -146,11 +151,11 @@ def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10
     Returns:
         int: half-width integer that minimizes scatter.
     """
-    # Initialiaze hws and residuals lists.
+    # Initialize hws and residuals lists.
     tested_hws, reses = [i for i in range(5,26)], []
 
     # Test each half-width and measure its scatter.
-    wlcs,ts = [],[]
+    wlcs = []
     for hw in tqdm(tested_hws, desc='Testing half-widths to minimize scatter... Progress:',
                    disable=(verbose==0)):
         # Get the 1D spectra.
@@ -207,6 +212,7 @@ def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10
     ideal_halfwidth = tested_hws[reses.index(min(reses))]
     return ideal_halfwidth
 
+
 def est_errs(time, flx, kick_outliers=True):
     """Simple function for estimating the scatter in the
     out-of-transit/eclipse flux.
@@ -225,6 +231,7 @@ def est_errs(time, flx, kick_outliers=True):
                            args=(time,flx))
     res = residuals_(result.x,time,flx,kick_outliers)
     return res
+
 
 def residuals_(fit,x,flx,kick_outliers=False):
     """Residuals function for fitting a ramp-slope time-series to oot/ooe flux.
@@ -248,6 +255,7 @@ def residuals_(fit,x,flx,kick_outliers=False):
         outliers = np.where(np.abs(residuals-res_mean) > 3*res_sig)[0]
         residuals = np.delete(residuals, outliers)
     return residuals
+
 
 def rampslope(x,a,b,c,d):
     """A exp(b t) + c t + d trend.

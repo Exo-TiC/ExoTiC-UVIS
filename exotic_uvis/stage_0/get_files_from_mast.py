@@ -2,28 +2,41 @@ import os
 
 from astroquery.mast import Observations as Obs
 
+
 def get_files_from_mast(programID, target_name, visit_number, outdir, extensions=None, verbose=2):
-    """Queries MAST database and downloads specified files from specified program, target, and visit number.
+    """Queries MAST database and downloads specified files from specified
+    program, target, and visit number.
 
     Args:
-        programID (str): ID of the observing program you want to query data from On MAST, referred to as "proposal_ID".
-        target_name (str): Name of the target object you want to query data from. On MAST, referred to as "target_name".
+        programID (str): ID of the observing program you want to query data
+        from. On MAST, referred to as "proposal_ID".
+        target_name (str): Name of the target object you want to query data
+        from. On MAST, referred to as "target_name".
         visit_number (str): The visit number you want to download, e.g. "01", "02", etc.
         outdir (str): The directory you want the files downloaded to.
-        extensions (lst of str, optional): File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified. Defaults to None.
-        verbose (int, optional): From 0 to 2, how much detail you want the output logs to have. Defaults to 2.
+        extensions (lst of str, optional): File extensions you want to download.
+        If None, take all file extensions. Otherwise, take only the files specified.
+        Defaults to None.
+        verbose (int, optional): From 0 to 2, how much detail you want the
+        output logs to have. Defaults to 2.
     """
     data_products = query_MAST(programID, target_name, extensions, verbose)
     download_from_MAST(data_products, visit_number, outdir, verbose)
+
 
 def query_MAST(programID, target_name, extensions, verbose=2):
     """Queries MAST database to find list of data products related to your observations.
 
     Args:
-        programID (str): ID of the observing program you want to query data from On MAST, referred to as "proposal_ID".
-        target_name (str): Name of the target object you want to query data from. On MAST, referred to as "target_name".
-        extensions (lst of str, optional): File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified. Defaults to None.
-        verbose (int, optional): From 0 to 2, how much detail you want the output logs to have. Defaults to 2.
+        programID (str): ID of the observing program you want to query data
+        from. On MAST, referred to as "proposal_ID".
+        target_name (str): Name of the target object you want to query data
+        from. On MAST, referred to as "target_name".
+        extensions (lst of str, optional): File extensions you want to download.
+        If None, take all file extensions. Otherwise, take only the files specified.
+        Defaults to None.
+        verbose (int, optional): From 0 to 2, how much detail you want the
+        output logs to have. Defaults to 2.
 
     Returns:
         lst of str: Filenames to request to download from MAST.
@@ -43,14 +56,17 @@ def query_MAST(programID, target_name, extensions, verbose=2):
 
     return data_products
 
+
 def download_from_MAST(data_products, visit_number, outdir, verbose=2):
-    """From the provided list of data products, downloads only those that have the appropriate visit number.
+    """From the provided list of data products, downloads only those that have
+    the appropriate visit number.
 
     Args:
         data_products (_type_): output of queryMAST.py.
         visit_number (str): The visit number you want to download, e.g. "01", "02", etc.
         outdir (str): The directory you want the files downloaded to.
-        verbose (int, optional): From 0 to 2, how much detail you want the output logs to have. Defaults to 2.
+        verbose (int, optional): From 0 to 2, how much detail you want the
+        output logs to have. Defaults to 2.
     """
     # Creates the output directory if it does not already exist.
     if not os.path.exists(outdir):
@@ -76,3 +92,4 @@ def download_from_MAST(data_products, visit_number, outdir, verbose=2):
                 print("Skipping over file at {}...".format(data_product["dataURI"]))
     if verbose >= 1:
         print("Downloaded {} queried files that had visit number {}.".format(k, visit_number))
+        

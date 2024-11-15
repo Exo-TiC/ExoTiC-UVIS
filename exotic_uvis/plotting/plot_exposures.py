@@ -1,9 +1,6 @@
 import os
 
-import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import xarray as xr
 
 
 #define plotting parameters
@@ -19,7 +16,7 @@ def plot_exposure(images, line_data = None, scatter_data = None,
                   min = 1e-3, max = 1e4, mark_size = 30,
                   show_plot = False, save_plot = False, 
                   stage = 0, filename = None, output_dir = None):
-    """Function to plot an image given certain parameters .
+    """Function to plot an image given certain parameters.
 
     Args:
         images (np.array): images from the obs.images.

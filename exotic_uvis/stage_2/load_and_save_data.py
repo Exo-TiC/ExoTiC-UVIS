@@ -1,21 +1,22 @@
-import numpy as np
-from astropy.io import fits
-from wfc3tools import sub2full
-import matplotlib.pyplot as plt
-import xarray as xr
-from tqdm import tqdm
 import os
 
+import numpy as np
+import xarray as xr
 
-def load_data_S2(data_dir, filename = 'clean_obs', verbose = 0):
-     
+
+def load_data_S2(data_dir, filename = 'clean_obs'):
+    """Simple function to load the data.
+
+    Args:
+        data_dir (str): where the reduced .nc file from Stage 1 is kept.
+        filename (str, optional): name of the reduced .nc file.
+        Defaults to 'clean_obs'.
+
+    Returns:
+        xarray: reduced observations xarray to extract from.
     """
 
-    Function to read in the outputs from stage 1
-
-    """
-
-    obs = xr.open_dataset(os.path.join(data_dir, 'stage1/clean_obs.nc')) 
+    obs = xr.open_dataset(os.path.join(data_dir, f'stage1/{filename}.nc')) 
 
     return obs
 
@@ -30,20 +31,22 @@ def save_data_S2(obs, spec, spec_err,
     from stage 2.
 
     Args:
-        obs (_type_): _description_
-        specs (_type_): _description_
-        specs_err (_type_): _description_
-        trace_x (_type_): _description_
-        trace_y (_type_): _description_
-        widths (_type_): _description_
-        wavelengths (_type_): _description_
-        spec_shifts (_type_): _description_
-        orders (tuple, optional): _description_. Defaults to ("+1", "-1").
-        output_dir (_type_, optional): _description_. Defaults to None.
-        filename (str, optional): _description_. Defaults to 'specs'.
-
-    Returns:
-        _type_: _description_
+        obs (xarray): reduced observations xarray, only needed now for its
+        exp_time data.
+        specs (list): each extracted spectrum.
+        specs_err (list): each extracted spectrum's uncertainties.
+        trace_x (list): each extracted spectrum's dispersion solution.
+        trace_y (list): each extracted spectrum's spatial solutions.
+        widths (list): the width of each extracted trace.
+        wavelengths (list): each extracted spectrum's wavelength solution.
+        spec_shifts (list): each extracted spectrum's dispersion and
+        spatial shifts.
+        orders (tuple, optional): which orders are being saved.
+        Defaults to ("+1", "-1").
+        output_dir (str, optional): where to save the files to.
+        Defaults to None.
+        filename (str, optional): name to give each file, joined to its order
+        string. Defaults to 'specs'.
     """
 
     # Create and save xarray for each order
