@@ -1,14 +1,11 @@
 from tqdm import tqdm
 
 import numpy as np
-import matplotlib.pyplot as plt
-from astropy.io import fits
-from scipy.stats import norm
-from scipy import optimize
-from photutils.centroids import centroid_com, centroid_2dg, centroid_quadratic
+from photutils.centroids import centroid_com
 
 from exotic_uvis.plotting import plot_exposure
 from exotic_uvis.plotting import plot_bkg_stars, plot_0th_order
+
 
 def refine_location(obs, location=None, window=20,
                     verbose=0, show_plots=0, save_plots=0, output_dir=None):
@@ -29,6 +26,9 @@ def refine_location(obs, location=None, window=20,
         output_dir (str, optional): where to save the plots to, if save_plots
         is greater than 0. Defaults to None.
     """
+
+    if verbose >= 1:
+        print("Refining location of source in direct image with centroiding...")
     
     # copy direct image
     image = obs.direct_image.data.copy()
@@ -68,8 +68,8 @@ def refine_location(obs, location=None, window=20,
     return 
 
 
-def track_bkgstars(obs, bkg_stars, window = 15, verbose = 0, show_plots = 0, 
-                   save_plots = 0, check_all = False, output_dir = None):
+def track_bkgstars(obs, bkg_stars, window = 15,
+                   verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Function to compute the x & y displacement of a given background star
 
     Args:
