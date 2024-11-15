@@ -147,6 +147,7 @@ def plot_mode_v_params(exp_times, modes, params,
     plt.xlabel('Exposure')
     plt.ylabel('Counts')
     plt.title('Frame mode vs scaling parameter')
+    plt.legend()
     
     stagedir = os.path.join(output_dir, 'stage1/plots/') 
     filedir = os.path.join(stagedir, 'bkg_scaling_parameters.png')
