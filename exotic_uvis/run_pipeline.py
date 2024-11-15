@@ -262,7 +262,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
         # read data
         S2_data_path = os.path.join(stage2_dict['toplevel_dir'],os.path.join('outputs',stage2_dict['run_name']))
-        obs = load_data_S2(S2_data_path, verbose = stage2_dict['verbose'])
+        obs = load_data_S2(S2_data_path)
 
         # get the location from the obs.nc file
         stage2_dict['location'] = [obs.attrs['target_posx'],obs.attrs['target_posy']]
