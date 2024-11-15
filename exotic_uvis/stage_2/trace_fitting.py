@@ -1,10 +1,13 @@
+import os
+from tqdm import tqdm
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import optimize
-import grismconf
-from tqdm import tqdm
 
+import grismconf
 from exotic_uvis.plotting import plot_exposure
+
 
 def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
                        verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
@@ -66,8 +69,10 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
     
     # Use Gaussian fitting to refine the y positions if asked.
     if refine_calibration:
-        trace_y, widths = fit_trace(obs, trace_x, trace_y, profile_width = 70, pol_deg = 7, fit_type = 'Gaussian',
-                                    fit_trace = False, plot_profile = [20, 300], check_all = False, verbose = verbose)
+        trace_y, widths = fit_trace(obs, trace_x, trace_y, profile_width = 70,
+                                    pol_deg = 7, fit_type = 'Gaussian',
+                                    fit_trace = False, plot_profile = [20, 300],
+                                    verbose = 0, show_plots = 0, save_plots = 0, output_dir = None)
         
         # Plot refined calibration.
         plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y[0]]],
@@ -83,6 +88,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
         trace_y = refined_trace_y
         widths = None
     return trace_x, trace_y, wavs, widths, sens
+
 
 def get_calibration_trace(order, x0, y0, path_to_cal):
     """Uses the supplied calibration software and source position to locate the
@@ -137,8 +143,9 @@ def get_calibration_trace(order, x0, y0, path_to_cal):
 
     return xs, ys, wavs, sens
 
+
 def Gauss1D(x, H, A, x0, sigma):
-    """Plots a 1D Gaussian on the given x range.
+    """Creates a 1D Gaussian on the given x range.
 
     Args:
         x (np.array): independent variable in the Gaussian.
@@ -155,7 +162,8 @@ def Gauss1D(x, H, A, x0, sigma):
 
 def fit_trace(obs, trace_x, trace_y, 
               profile_width = 40, pol_deg = 7, fit_type = 'Gaussian',
-              fit_trace = False, plot_profile = None, check_all = False, verbose = 0):
+              fit_trace = False, plot_profile = None,
+              verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Refines the trace vertical location by fitting profile curves to the
     cross-dispersion profiles.
 
@@ -171,8 +179,14 @@ def fit_trace(obs, trace_x, trace_y,
         'Gaussian'.
         fit_trace (bool, optional): if True, fit a polynomial to the refined
         x, y positions of the trace in each frame. Defaults to False.
-        plot_profile (_type_, optional): _description_. Defaults to None.
-        check_all (bool, optional): _description_. Defaults to False.
+        plot_profile (list, optional): a specific profile we have requested to
+        plot. Defaults to None.
+        verbose (int, optional): How detailed you want the printed statements
+        to be. Defaults to 0.
+        show_plots (int, optional): How many plots you want to show. Defaults to 0.
+        save_plots (int, optional): How many plots you want to save. Defaults to 0.
+        output_dir (str, optional): Where to save the plots to, if save_plots
+        is greater than 0. Defaults to None.
 
     Returns:
         np.array,np.array: refined trace positions and widths.
@@ -222,8 +236,19 @@ def fit_trace(obs, trace_x, trace_y,
                 plt.ylabel('Counts')
                 plt.xlabel('Detector Pixel Position')
                 plt.title('Example of Profile fitted to Trace')
-                #plt.savefig('PLOTS/profile.pdf', bbox_inches = 'tight')
-                plt.show(block=True)
+                
+                if save_plots > 0:
+                    stagedir = os.path.join(output_dir, 'stage2/plots/')
+                    if not os.path.exists(stagedir):
+                        os.makedirs(stagedir) 
+                    filedir = os.path.join(stagedir, 'trace_profile{}_fm{}.png'.format(j,i))
+
+                    plt.savefig(filedir, dpi=300,bbox_inches = 'tight')
+                
+                if show_plots > 0:
+                    plt.show(block=True)
+
+                plt.close() # save memory
 
         # If true, fit a polynomial to the extracted trace locations and widths.
         if fit_trace:
@@ -237,8 +262,10 @@ def fit_trace(obs, trace_x, trace_y,
             width = np.polyval(coeffs, trace_x)
 
         # If true, plot all the traces over the image for comparison/validation.
-        if check_all:
-            plot_exposure([image], line_data = [[trace_x, trace_y], [trace_x, trace]], min = 0)
+        if (show_plots == 2 or save_plots == 2):
+            plot_exposure([image], line_data = [[trace_x, trace_y], [trace_x, trace]], stage=2,
+                          show_plot=(show_plots==2), save_plot=(save_plots==2),
+                          filename=['trace_validation'],output_dir=output_dir)
 
         # Append this frame's y positions and dispersion profile widths to the entire set.
         traces.append(trace)

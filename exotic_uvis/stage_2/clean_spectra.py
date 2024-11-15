@@ -1,14 +1,19 @@
 from tqdm import tqdm
+
 import numpy as np
 
+
 def clean_spectra(specs, sigma):
-    '''
-    Compares all 1D spectra to a median spectra and replaces outliers with the median of that spectral point in time.
-    
-    :param specs: lst of np.array. The 1D spectra for each order as a function of time, with indices time and wavelength.
-    :param sigma: float. Threshold of deviation from median spectral point, above which a pixel will be flagged as an outlier and masked.
-    :return: oneD_spec array but with outliers masked.
-    '''
+    """Replace spectral outliers in time with their temporal median.
+
+    Args:
+        specs (list): spectra to clean.
+        sigma (float): threshold at which to reject a value as an outlier.
+
+    Returns:
+        list: input spectra cleaned of final outliers.
+    """
+
     cleaned_specs = []
     # Iterate over spectra.
     for oneD_spec in tqdm(specs, desc='Cleaning spectral outliers... Progress:'):
