@@ -30,7 +30,7 @@ do_sigma_clip   True                                        # Bool. Whether to u
 do_led          True                                        # Bool. Whether to use Laplacian Edge Detection rejection to clean the frames.
 led_threshold   10                                          # Float. The threshold parameter at which to kick outliers in LED. The lower the number, the more values will be replaced.
 led_factor      2                                           # Int. The subsampling factor. Minimum value 2. Higher values increase computation time but aren't expected to yield much improvement in rejection.
-led_n           2                                           # Int. Number of times to do LED on each frame.
+led_n           2                                           # Int. Number of times to do LED on each frame. Enter None to continue performing LED on each frame until no outliers are found.
 fine_structure  True                                        # Bool. Whether to build a fine structure model, which can protect narrow bright features like traces from LED.
 contrast_factor 5                                           # Float. If fine_structure is True, acts as the led_threshold for the fine structure step.
 
@@ -42,7 +42,7 @@ do_smooth       True                                        # Bool. Whether to u
 # Step 4a: uniform value background subtraction
 do_uniform      True                                        # Bool. Whether to subtract the background using one uniform value as the value for the entire frame.
 fit             None                                        # Str. The value to extract from the histogram. Options are None (to extract the mode), 'Gaussian' (to fit the mode with a Gaussian), or 'median' (to take the median within hist_min < v < hist_max).
-bounds          [[0,150,0,400],[440,590,0,400]]             # Lst of lst of float. The region from which the background values will be extracted. If None, simply uses the full frame.
+bounds          [[0,150,0,400],[440,590,0,400]]             # Lst of lst of float. The region from which the background values will be extracted. Each list consists of [x1,x2,y1,y2]. If None, simply uses the full frame.
 hist_min        -20                                         # Float. Minimum value to consider for the background. Leave as None to use min(data).
 hist_max        50                                          # Float. Maximum value to consider for the background. Leave as None to use max(data).
 hist_bins       1000                                        # Int. Number of histogram bins for background subtraction.
@@ -57,8 +57,9 @@ col_sigma       3                                           # float. How aggress
 # Step 4c: Pagul et al. background subtraction
 do_Pagul        True                                        # Bool. Whether to subtract the background using the scaled Pagul et al. G280 sky image.
 path_to_Pagul   './'                                        # Str. The absolute path to where the Pagul et al. G280 sky image is stored.
-mask_parameter  0.001                                       # Float. How strong the trace masking should be. Values of 0.001 or less recommended.
+mask_parameter  0.001                                       # Float. How strong the trace masking should be. Smaller values mask more of the image.
 smooth_fits     True                                        # Bool. If True, smooths the values of the Pagul et al. fit parameter in time. Helps prevent background "flickering".
+smoothing_param 2.5                                         # Float. Sigma for smoothing the fit parameter. Smaller sigma means more smoothing.
 median_columns  True                                        # Bool. If True, takes the median value of each column in the Pagul et al. sky image as the background. As the Pagul et al. 2023 image is undersampled, this helps to suppress fluctuations in the image.
 
 # Step 5: Displacement estimation
