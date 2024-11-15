@@ -153,9 +153,7 @@ class TestStage2(unittest.TestCase):
                                                       trace_y=trace_y,
                                                       wavs=wavs,
                                                       indices=[[0,5],[15,19]],
-                                                      verbose=2,
-                                                      save_plots=2,
-                                                      output_dir='./')
+                                                      verbose=2)
         # With the fixed noise draw we had, it usually found hw 18.
         # I'll accept anywhere in the range 15 to 21 honestly.
         self.assertAlmostEqual(halfwidth,18,delta=3)
