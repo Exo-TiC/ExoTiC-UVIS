@@ -347,8 +347,6 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                         order,
                                                         trace_x=wav,
                                                         align=True,
-                                                        ind1=0,
-                                                        ind2=-1,
                                                         verbose=stage2_dict['verbose'],
                                                         show_plots=stage2_dict['show_plots'], 
                                                         save_plots=stage2_dict['save_plots'],

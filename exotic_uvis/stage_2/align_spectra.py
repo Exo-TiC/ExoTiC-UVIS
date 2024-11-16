@@ -151,7 +151,7 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
 
     if (save_plots > 0 or show_plots > 0):
         plt.figure(figsize = (10, 7))
-        plt.plot(obs.exp_time.data, x_shifts, '-o')
+        plt.plot(obs.exp_time.data, x_shifts, '-o', color='indianred')
         plt.xlabel('Exposure time')
         plt.ylabel('X shift')
         plt.title('Spectrum shift')
@@ -236,7 +236,7 @@ def align_profiles(obs, trace_x, traces_y, width = 25,
 
     if show_plots>0 or save_plots>0:
         plt.figure(figsize = (10, 7))
-        plt.scatter(exp_times, np.median(y_shifts, axis = 1))
+        plt.plot(exp_times, np.median(y_shifts, axis = 1), '-o', color='indianred')
         plt.xlabel('Exposure time')
         plt.ylabel('Y displacement')
         plt.show(block=True)
