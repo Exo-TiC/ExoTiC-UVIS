@@ -89,7 +89,7 @@ def plot_bkgvals(exp_times, bkg_vals, method,
     plt.figure(figsize = (10, 7))
     if method != 'col-by-col':
         # if it's not col-by-col, we take a single bkg value per frame, 1D
-        plt.plot(exp_times, bkg_vals, '-o')
+        plt.plot(exp_times, bkg_vals, '-o', color='indianred')
         plt.xlabel('Exposure')
         plt.ylabel('Background Counts')
         plt.title('Image background per exposure')
@@ -163,3 +163,38 @@ def plot_mode_v_params(exp_times, modes, params,
     plt.close() # save memory
 
     return 
+
+
+def plot_histogram(bin_cents, array, mode, median, hist_min, hist_max, hist_bins, fit, exp_num, 
+                   gaussian_center=False, gaussian_fit = None, show_plots=0, save_plots=0, output_dir=None):
+
+
+    plt.figure(figsize = (10, 7))
+    plt.hist(array, bins = bin_cents, color = 'indianred', alpha = 0.7, density=False)
+
+    if gaussian_center:
+        plt.axvline(gaussian_center, linestyle = '--', color = 'red', label='Gaussian center')
+        plt.plot(bin_cents, gaussian_fit, color = 'gray')
+
+    plt.axvline(median, linestyle = '--', color = 'dodgerblue', label='Mode')
+    plt.axvline(mode, linestyle = '--', color = 'gold', label='Median')
+    plt.xlabel('Pixel Value')
+    plt.ylabel('Counts')
+    plt.legend()
+    plt.title(f'Background Values histogram Exposure {exp_num}')
+
+    if save_plots:
+        stagedir = os.path.join(output_dir, f'stage1/plots/')
+        if not os.path.exists(stagedir):
+            os.makedirs(stagedir) 
+        filedir = os.path.join(stagedir, f'bkg_histogram_exposure{exp_num}.png')
+        plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
+    
+    if show_plots:
+        plt.show(block=True)
+
+    plt.close() # save memory
+
+
+
+    return

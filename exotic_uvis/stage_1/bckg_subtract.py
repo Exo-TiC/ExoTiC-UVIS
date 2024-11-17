@@ -9,7 +9,7 @@ from scipy.optimize import curve_fit
 from scipy.signal import medfilt, medfilt2d
 import matplotlib.pyplot as plt
 
-from exotic_uvis.plotting import plot_exposure, plot_corners, plot_bkgvals, plot_mode_v_params
+from exotic_uvis.plotting import plot_exposure, plot_corners, plot_bkgvals, plot_mode_v_params, plot_histogram
 
 
 def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
@@ -191,6 +191,13 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0,
     hist, bin_edges = np.histogram(array, bins = np.linspace(hist_min, hist_max, hist_bins))
     bin_cents = (bin_edges[:-1] + bin_edges[1:])/2
 
+    # calculate median
+    mask = (array > hist_min) & (array < hist_max)
+    hist_median = np.median(array[mask])
+
+    # calculate classic mode
+    hist_mode = (bin_edges[np.argmax(hist)] + bin_edges[np.argmax(hist) + 1])/2
+
     # if true, fit gaussian to histogram and find center
     if fit == 'Gaussian':
         # fit a Gaussian profile
@@ -199,45 +206,25 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0,
                                 hist, 
                                 p0 = [0, np.amax(hist), bin_cents[np.argmax(hist)], (hist_max - hist_min)/4],
                                 maxfev = 2000)
-        
+        gaussian_fit = Gauss1D(bin_cents, popt[0], popt[1], popt[2], popt[3])
         bkg_val = popt[2]
 
     elif fit == 'median':
-        # need to mask values outside of hist_min and hist_max, then take the median
-        mask = (array > hist_min) & (array < hist_max)
-        bkg_val = np.median(array[mask])
+        bkg_val = hist_median
 
     else:
-        # take the mode as-is
-        bkg_val = (bin_edges[np.argmax(hist)] + bin_edges[np.argmax(hist) + 1])/2
+        bkg_val = hist_mode
     
     # if true, plot histrogram and location of maximum
-    if save_plots == 2 or show_plots == 2:
-        plt.figure(figsize = (10, 7))
-        plt.hist(array, bins = np.linspace(hist_min, hist_max, hist_bins), color = 'indianred', alpha = 0.7, density=False)
-        plt.axvline(bkg_val, color = 'gray', linestyle = '--')
-
-        if fit ==  'Gaussian':
-            plt.plot(bin_cents, Gauss1D(bin_cents, popt[0], popt[1], popt[2], popt[3]))
-
-        plt.axvline(np.median(array), linestyle = '--', color = 'black')
-        plt.axvline((bin_edges[np.argmax(hist)] + bin_edges[np.argmax(hist) + 1])/2, linestyle = '--', color = 'blue')
-        plt.xlabel('Pixel Value')
-        plt.ylabel('Counts')
-        plt.title(f'Background Values histogram Exposure {exp_num}')
-    
-        if save_plots == 2:
-            stagedir = os.path.join(output_dir, f'stage1/plots/')
-            if not os.path.exists(stagedir):
-                os.makedirs(stagedir) 
-            filedir = os.path.join(stagedir, f'bkg_histogram_exposure{exp_num}.png')
-            plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
-        
-        if show_plots == 2:
-            plt.show(block=True)
-
-        plt.close() # save memory
-
+    if save_plots > 0 or show_plots > 0:
+        if exp_num == 0 or save_plots==2 or show_plots==2:
+            if fit == 'Gaussian':
+                plot_histogram(bin_cents, array, hist_mode, hist_median, hist_min, hist_max, hist_bins, fit, exp_num, 
+                        gaussian_center = bkg_val, gaussian_fit = gaussian_fit, show_plots=show_plots, save_plots=save_plots, output_dir=output_dir)
+            else:
+                plot_histogram(bin_cents, array, hist_mode, hist_median, hist_min, hist_max, hist_bins, fit, exp_num, 
+                            show_plots=show_plots, save_plots=save_plots, output_dir=output_dir)
+         
     return bkg_val
 
 
