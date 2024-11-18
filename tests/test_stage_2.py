@@ -198,11 +198,11 @@ class TestStage2(unittest.TestCase):
         # Let's add an outlier to clean in the mid-transit.
         spec[10,200] = 1e12
         original_spec = np.copy(spec)
-        specs = stage_2.clean_spectra([spec,],
-                                      sigma=4.0)
+        cleaned_spec = stage_2.clean_spectra(spec,
+                                             sigma=4.0)
         
         # Check how many outliers were found.
-        S = np.count_nonzero(np.where(specs[0]!=original_spec, 1, 0))
+        S = np.count_nonzero(np.where(cleaned_spec!=original_spec, 1, 0))
         self.assertEqual(S,1,
                          msg='Cleaning failed!\nNumber of outliers found: {}\n Number expected: 1'.format(S))
 
