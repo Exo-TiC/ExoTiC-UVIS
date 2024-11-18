@@ -191,15 +191,26 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
     return align_specs, align_specs_err, np.array(x_shifts)
 
 
-
-
-def align_profiles(obs, trace_x, traces_y, width = 25, 
+def align_profiles(obs, trace_x, traces_y, order, width = 25, 
                    verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
+    """Function to find the y displacement of the psf.
 
-    """
-    
-    Function to find the y displacement of the psf
+    Args:
+        obs (xarray): used to measure the profile shifts.
+        trace_x (np.array): dispersion solution of the profiles.
+        traces_y (np.array): cross-dispersion solution of the profiles.
+        order (str): which order we are aligning, for plot naming.
+        width (int, optional): how far from the trace center to measure.
+        Defaults to 25.
+        verbose (int, optional): How detailed you want the printed statements
+        to be. Defaults to 0.
+        show_plots (int, optional): How many plots you want to show. Defaults to 0.
+        save_plots (int, optional): How many plots you want to save. Defaults to 0.
+        output_dir (str, optional): Where to save the plots to, if save_plots
+        is greater than 0. Defaults to None.
 
+    Returns:
+        np.array: cross-dispersion shifts over time.
     """
 
     # copy images and errors
@@ -208,7 +219,8 @@ def align_profiles(obs, trace_x, traces_y, width = 25,
     y_shifts = []
     
     # iterate over all pixels in trace
-    for j, pix in enumerate(tqdm(trace_x, desc = 'Computing profile displacements... Progress:')):
+    for j, pix in enumerate(tqdm(trace_x, desc = 'Computing profile displacements... Progress:'),
+                            disable=(verbose<1)):
   
         y_shift = []
     
@@ -239,6 +251,17 @@ def align_profiles(obs, trace_x, traces_y, width = 25,
         plt.plot(exp_times, np.median(y_shifts, axis = 1), '-o', color='indianred')
         plt.xlabel('Exposure time')
         plt.ylabel('Y displacement')
-        plt.show(block=True)
+
+        if save_plots>0:
+            stagedir = os.path.join(output_dir, 'stage2/plots/')
+            if not os.path.exists(stagedir):
+                os.makedirs(stagedir) 
+            filedir = os.path.join(stagedir, 'trace_crossdisp_profiles_order{}.png'.format(order))
+            plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
+        
+        if show_plots>0:
+            plt.show(block=True)
+
+        plt.close() # save memory
         
     return y_shifts
