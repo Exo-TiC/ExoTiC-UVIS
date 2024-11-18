@@ -219,8 +219,8 @@ def align_profiles(obs, trace_x, traces_y, order, width = 25,
     y_shifts = []
     
     # iterate over all pixels in trace
-    for j, pix in enumerate(tqdm(trace_x, desc = 'Computing profile displacements... Progress:'),
-                            disable=(verbose<1)):
+    for j, pix in enumerate(tqdm(trace_x, desc = 'Computing profile displacements... Progress:',
+                                 disable=(verbose<1))):
   
         y_shift = []
     
