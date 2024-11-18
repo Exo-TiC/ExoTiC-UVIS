@@ -21,8 +21,6 @@ def load_data_S2(data_dir, filename = 'clean_obs'):
     return obs
 
 
-
-
 def save_data_S2(obs, spec, spec_err, 
                  trace_x, trace_y, widths, wavelengths,
                  spec_disp, prof_disp, order = '+1',
@@ -82,4 +80,4 @@ def save_data_S2(obs, spec, spec_err,
 
     spectra.to_netcdf(os.path.join(stage2dir, f'{filename}_{order}.nc'))
 
-    return 0
+    return 
