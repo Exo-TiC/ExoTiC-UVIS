@@ -35,7 +35,7 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos,
     # first just plot the example frame and where the stars we tracked are
     plot_exposure([image], scatter_data = mean_loc, title = 'Location of background stars',  
                   show_plot=show_plot, save_plot=save_plot,
-                  stage=1, output_dir=output_dir, filename = ['bkg_stars_location'])
+                  output_dir=output_dir, filename = ['bkg_stars_location'])
       
     # then we plot the displacements of each star in x and y over time
 
