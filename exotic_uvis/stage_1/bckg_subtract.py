@@ -198,6 +198,10 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0,
     # calculate classic mode
     hist_mode = (bin_edges[np.argmax(hist)] + bin_edges[np.argmax(hist) + 1])/2
 
+    # call these values False and None until told otherwise
+    gaussian_center = False
+    gaussian_fit = None
+
     # if true, fit gaussian to histogram and find center
     if fit == 'Gaussian':
         # fit a Gaussian profile
@@ -208,6 +212,7 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0,
                                 maxfev = 2000)
         gaussian_fit = Gauss1D(bin_cents, popt[0], popt[1], popt[2], popt[3])
         bkg_val = popt[2]
+        gaussian_center = bkg_val
 
     elif fit == 'median':
         bkg_val = hist_median
@@ -215,15 +220,16 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0,
     else:
         bkg_val = hist_mode
     
-    # if true, plot histrogram and location of maximum
+    # if true, plot histogram and location of maximum
     if save_plots > 0 or show_plots > 0:
-        if exp_num == 0 or save_plots==2 or show_plots==2:
-            if fit == 'Gaussian':
-                plot_histogram(bin_cents, array, hist_mode, hist_median, hist_min, hist_max, hist_bins, fit, exp_num, 
-                        gaussian_center = bkg_val, gaussian_fit = gaussian_fit, show_plots=show_plots, save_plots=save_plots, output_dir=output_dir)
-            else:
-                plot_histogram(bin_cents, array, hist_mode, hist_median, hist_min, hist_max, hist_bins, fit, exp_num, 
-                            show_plots=show_plots, save_plots=save_plots, output_dir=output_dir)
+        if exp_num == 0 and (save_plots>0 or show_plots>0):
+            plot_histogram(bin_cents, array, hist_mode, hist_median, hist_min, hist_max, hist_bins,
+                           fit, exp_num, gaussian_center, gaussian_fit,
+                           show_plots=(show_plots>0), save_plots=(save_plots>0), output_dir=output_dir)
+        elif save_plots == 2 or show_plots == 2:
+            plot_histogram(bin_cents, array, hist_mode, hist_median, hist_min, hist_max, hist_bins,
+                           fit, exp_num, gaussian_center, gaussian_fit,
+                           show_plots=(show_plots==2), save_plots=(save_plots==2), output_dir=output_dir)
          
     return bkg_val
 
@@ -323,6 +329,7 @@ def uniform_value_bkg_subtraction(obs, fit = None, bounds = None,
     obs.images.data = images
 
     return obs
+
 
 def column_by_column_subtraction(obs, rows=np.array([i for i in range(10)]), sigma=3, mask_trace=True, width=100,
                                  verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
