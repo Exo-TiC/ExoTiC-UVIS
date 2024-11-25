@@ -1,4 +1,5 @@
 import os
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -13,10 +14,8 @@ plt.rc('axes', labelsize=14)
 plt.rc('legend',**{'fontsize':11})
 
 
-
-
 def plot_profile_fit(y_vals, profile, gaussian_fit, cal_center, fit_center,
-                    show_plot = False, save_plot = False, 
+                    order="+1", show_plot = False, save_plot = False, 
                     stage = 0, filename = None, output_dir = None):
     """_summary_
 
@@ -44,14 +43,19 @@ def plot_profile_fit(y_vals, profile, gaussian_fit, cal_center, fit_center,
     plt.xlabel('Detector Pixel Position')
     plt.title('Example of Profile fitted to Trace')
 
+    if save_plot:
+        stagedir = os.path.join(output_dir, f'stage{stage}/plots/')
+        if not os.path.exists(stagedir):
+            os.makedirs(stagedir) 
+        filedir = os.path.join(stagedir, 'trace_profile_order{}.png'.format(order))
+        plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
 
-    plt.show(block=True)
+    if show_plot:
+        plt.show(block=True)
 
-
-
+    plt.close() # save memory
+    
     return
-
-
 
 
 def plot_fitted_positions():

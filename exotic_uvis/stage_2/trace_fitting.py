@@ -5,8 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import optimize
 
-from exotic_uvis.plotting import plot_profile_fit
 import grismconf
+from exotic_uvis.plotting import plot_profile_fit
 from exotic_uvis.plotting import plot_exposure
 
 
@@ -89,6 +89,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
         widths = False
     
     return trace_x, trace_y, wavs, widths, sens
+
 
 def get_calibration_trace(order, x0, y0, path_to_cal):
     """Uses the supplied calibration software and source position to locate the

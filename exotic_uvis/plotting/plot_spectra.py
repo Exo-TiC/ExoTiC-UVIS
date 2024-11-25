@@ -58,7 +58,7 @@ def plot_one_spectrum(wavelengths, spectrum, order="+1",
     return 
 
 
-def plot_spec_gif(wav, spec, order=("+1",),
+def plot_spec_gif(wav, spec, order="+1",
                   stage = 2, show_plot = False, save_plot = False,
                   filename = None, output_dir = None):
     """Plots gifs of the extracted spectra over time.
@@ -66,8 +66,8 @@ def plot_spec_gif(wav, spec, order=("+1",),
     Args:
         wavelengths (np.array): wavelength solution for given orders.
         spectra (np.array): 1D extracted spectra.
-        order (str, optional): which orders we have, for plot naming.
-        Defaults to ("+1",).
+        order (str, optional): which order we are plotting, for plot naming.
+        Defaults to "+1".
         show_plot (bool, optional): whether to interrupt execution to
         show the user the plot. Defaults to False.
         save_plot (bool, optional): whether to save this plot to a file.

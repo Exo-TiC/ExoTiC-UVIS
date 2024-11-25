@@ -285,7 +285,6 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         #            verbose = stage2_dict['verbose'], show_plots = stage2_dict['show_plots'], save_plots = stage2_dict['save_plots'], output_dir = None)
 
         # iterate over orders
-        wavs, specs, specs_err, traces_x, traces_y = [], [], [], [], []
         for i, order in enumerate(stage2_dict['traces_to_conf']):
             # configure trace
             trace_x, trace_y, wav, widths, fs = get_trace_solution(obs,
@@ -364,6 +363,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                 y_shifts = align_profiles(obs, 
                                           trace_x,
                                           trace_y,
+                                          order,
                                           width = 25,
                                           verbose=stage2_dict['verbose'],
                                           show_plots=stage2_dict['show_plots'], 
@@ -371,9 +371,9 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                           output_dir=run_dir)
                 
             # do clean spectra
-            #if stage2_dict['outlier_sigma']:
-            #    specs = clean_spectra(specs,
-            #                        sigma=stage2_dict['outlier_sigma'])
+            if stage2_dict['outlier_sigma']:
+                spec = clean_spectra(spec,
+                                     sigma=stage2_dict['outlier_sigma'])
 
             # do plotting
             if (stage2_dict['show_plots'] > 0 or stage2_dict['save_plots'] > 0):
