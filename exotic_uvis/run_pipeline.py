@@ -36,6 +36,7 @@ from exotic_uvis.stage_2 import optimal_extraction
 from exotic_uvis.stage_2 import clean_spectra
 from exotic_uvis.stage_2 import align_spectra
 from exotic_uvis.stage_2 import align_profiles
+from exotic_uvis.stage_2 import remove_zeroth_order
 
 #from exotic_uvis.stage_3 import load_data_S3
 #from exotic_uvis.stage_3 import save_data_S3
@@ -279,6 +280,10 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         if not os.path.exists(run_dir):
             os.makedirs(run_dir)
 
+        # test 0th order removal
+        #remove_zeroth_order(obs, zero_pos = [1158, 300], rmin = 100, rmax = 300, rwidth = 3, fit_profile = True, 
+        #            verbose = stage2_dict['verbose'], show_plots = stage2_dict['show_plots'], save_plots = stage2_dict['save_plots'], output_dir = None)
+
         # iterate over orders
         for i, order in enumerate(stage2_dict['traces_to_conf']):
             # configure trace
@@ -322,9 +327,13 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                      save_plots=stage2_dict['save_plots'],
                                                      output_dir=run_dir)
                 
-            elif stage2_dict['method'] == 'optimum':
+            elif stage2_dict['method'] == 'optimal':
                 # optimum extraction
-                spec, spec_err = optimal_extraction(obs)
+                spec, spec_err = optimal_extraction(obs, 
+                                                    trace_x, 
+                                                    trace_y,
+                                                    show_plots=stage2_dict['show_plots'],
+                                                    save_plots=stage2_dict['save_plots'])
 
             # do sensitivity
             if stage2_dict['sens_correction']:
