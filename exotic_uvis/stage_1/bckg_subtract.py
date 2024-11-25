@@ -127,7 +127,7 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
     if save_plots == 2 or show_plots == 2:
         plot_mode_v_params(obs.exp_time.data, modes, scaling_parameters,
                            output_dir=output_dir,
-                           show_plot=(show_plots>0), save_plot=(save_plots>0))
+                           show_plot=(show_plots==2), save_plot=(save_plots==2))
 
     # update the images to be corrected    
     obs.images.data = images
