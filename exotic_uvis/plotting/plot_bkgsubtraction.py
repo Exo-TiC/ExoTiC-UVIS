@@ -54,10 +54,10 @@ def plot_corners(image, corners,
     plt.colorbar()
 
     if save_plot:
-        stagedir = os.path.join(output_dir, f'stage1/plots/')
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
-        filedir = os.path.join(stagedir, f'bkg_corner_location.png')
+        plot_dir = os.path.join(output_dir, 'plots') 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
+        filedir = os.path.join(plot_dir, f'bkg_corner_location.png')
         plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
         
     if show_plot:
@@ -106,12 +106,12 @@ def plot_bkgvals(exp_times, bkg_vals, method,
         plt.ylabel('Exposure index')
         plt.title("Image background columns by exposure")
 
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
-    filedir = os.path.join(stagedir, 'bkg_values_{}.png'.format(method))
+    plot_dir = os.path.join(output_dir, 'plots') 
+    filedir = os.path.join(plot_dir, 'bkg_values_{}.png'.format(method))
     
     if save_plot:
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
 
     if show_plot:
@@ -149,12 +149,13 @@ def plot_mode_v_params(exp_times, modes, params,
     plt.title('Frame mode vs scaling parameter')
     plt.legend()
     
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
-    filedir = os.path.join(stagedir, 'bkg_scaling_parameters.png')
+    plot_dir = os.path.join(output_dir, 'plots') 
+    filedir = os.path.join(plot_dir, 'bkg_scaling_parameters.png')
+    
     
     if save_plot:
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
 
     if show_plot:
@@ -212,10 +213,10 @@ def plot_histogram(bin_cents, array, mode, median, hist_min, hist_max, hist_bins
     plt.title(f'Background Values histogram Exposure {exp_num}')
 
     if save_plots:
-        stagedir = os.path.join(output_dir, f'stage1/plots/')
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
-        filedir = os.path.join(stagedir, f'bkg_histogram_exposure{exp_num}.png')
+        plot_dir = os.path.join(output_dir, 'plots') 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
+        filedir = os.path.join(plot_dir, f'bkg_histogram_exposure{exp_num}.png')
         plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
     
     if show_plots:

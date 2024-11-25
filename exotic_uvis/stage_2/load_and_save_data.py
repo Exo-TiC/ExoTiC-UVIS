@@ -16,7 +16,7 @@ def load_data_S2(data_dir, filename = 'clean_obs'):
         xarray: reduced observations xarray to extract from.
     """
 
-    obs = xr.open_dataset(os.path.join(data_dir, f'stage1/{filename}.nc')) 
+    obs = xr.open_dataset(os.path.join(data_dir, f'{filename}.nc')) 
 
     return obs
 
@@ -72,12 +72,7 @@ def save_data_S2(obs, spec, spec_err,
     #    spectra['stars{}_disp'.format(i + 1)] = obs['star{}_disp'.format(i)]   
     spectra['meanstar_disp'] = obs['meanstar_disp']
 
-    # Save results in Stage 3 folder 
-    stage2dir = os.path.join(output_dir, 'stage2/')
-
-    if not os.path.exists(stage2dir):
-            os.makedirs(stage2dir)
-
-    spectra.to_netcdf(os.path.join(stage2dir, f'{filename}_{order}.nc'))
+    # Save results in Stage 2 folder 
+    spectra.to_netcdf(os.path.join(output_dir, f'{filename}_{order}.nc'))
 
     return 

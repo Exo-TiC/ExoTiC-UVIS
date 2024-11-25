@@ -65,10 +65,10 @@ def plot_exposure(images, line_data = None, scatter_data = None,
             plt.title(title)
         
         if save_plot:
-            stagedir = os.path.join(output_dir, f'stage{stage}/plots/')
-            if not os.path.exists(stagedir):
-                os.makedirs(stagedir) 
-            filedir = os.path.join(stagedir, f'{filename[i]}.png')
+            plot_dir = os.path.join(output_dir, 'plots')
+            if not os.path.exists(plot_dir):
+                os.makedirs(plot_dir) 
+            filedir = os.path.join(plot_dir, f'{filename[i]}.png')
             plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
         
         if show_plot:

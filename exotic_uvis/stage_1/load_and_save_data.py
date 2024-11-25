@@ -117,10 +117,5 @@ def save_data_S1(obs, output_dir, filename = 'clean_obs'):
         filename (str, optional): name to give to the cleaned files.
         Defaults to 'clean_obs'.
     """
-
-    stage1dir = os.path.join(output_dir, 'stage1/')
-
-    if not os.path.exists(stage1dir):
-            os.makedirs(stage1dir)
-
-    obs.to_netcdf(os.path.join(stage1dir, f'{filename}.nc'))
+    
+    obs.to_netcdf(os.path.join(output_dir, f'{filename}.nc'))

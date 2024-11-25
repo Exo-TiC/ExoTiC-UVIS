@@ -201,12 +201,12 @@ def create_gif(exp_times, images, total_flux, partial_flux, section,
 
     # save animation
     if save_fig:
-        stagedir = os.path.join(output_dir, '{}/'.format(stage))
+        gif_dir = os.path.join(output_dir, 'quicklooks')
 
-        if not os.path.exists(stagedir):
-                os.makedirs(stagedir)
+        if not os.path.exists(gif_dir):
+                os.makedirs(gif_dir)
 
-        animation.save(os.path.join(stagedir, 'quicklookup.gif'), writer = 'ffmpeg', fps = 10)
+        animation.save(os.path.join(gif_dir, 'quicklookup.gif'), writer = 'ffmpeg', fps = 10)
 
     plt.close() # save memory
 
@@ -296,12 +296,12 @@ def create_dq_gif(exp_times, images, dq, section,
 
     # save animation
     if save_fig:
-        stagedir = os.path.join(output_dir, '{}/'.format(stage))
+        gif_dir = os.path.join(output_dir, 'quicklooks')
 
-        if not os.path.exists(stagedir):
-                os.makedirs(stagedir)
+        if not os.path.exists(gif_dir):
+                os.makedirs(gif_dir)
 
-        animation.save(os.path.join(stagedir, 'quicklookupDQ.gif'), writer = 'ffmpeg', fps = 10)
+        animation.save(os.path.join(gif_dir, 'quicklookupDQ.gif'), writer = 'ffmpeg', fps = 10)
 
     plt.close() # save memory
 

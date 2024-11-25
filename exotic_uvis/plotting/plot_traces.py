@@ -47,10 +47,10 @@ def plot_profile_fit(y_vals, profile, gaussian_fit, cal_center, fit_center,
     plt.title('Example of Profile fitted to Trace')
 
     if save_plot:
-        stagedir = os.path.join(output_dir, f'stage{stage}/plots/')
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
-        filedir = os.path.join(stagedir, 'trace_profile_order{}.png'.format(order))
+        plot_dir = os.path.join(output_dir, 'plots') 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
+        filedir = os.path.join(plot_dir, 'trace_profile_order{}.png'.format(order))
         plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
 
     if show_plot:

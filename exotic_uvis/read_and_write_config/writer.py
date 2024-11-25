@@ -80,8 +80,7 @@ def Stage0_info():
                                  "filesfrom_dir"],
                        "Step 3":["do_locate",
                                  "location"],
-                       "Step 4":["do_quicklook",
-                                 "gif_dir"],
+                       "Step 4":["do_quicklook",],
                        }
     
     subsection_comments = {"Setup":["# Directory where you want your files to be stored after Stage 0 has run. This is where /specimages, /directimages, /visitfiles, and /miscfiles will be stored.",
@@ -97,8 +96,7 @@ def Stage0_info():
                                      "# None or str. If you downloaded data in Step 1, leave this as None. If you have pre-downloaded data, please place all of it in filesfrom_dir. Don't sort it into sub-folders; ExoTiC-UVIS won't be able to find them if they are inside sub-folders!",],
                            "Step 3":["# Bool. Whether to perform this step.",
                                      "# None or tuple of float. Prior to running Stage 0, this will be None. After running Stage 0, a copy of this .hustle file will be made with this information included.",],
-                           "Step 4":["# Bool. Whether to perform this step.",
-                                     "# str. Where to save the quicklook gif to, relative to the toplevel_dir.",],
+                           "Step 4":["# Bool. Whether to perform this step.",],
                            }
     return header, subsection_headers, subsection_keys, subsection_comments
 
@@ -128,7 +126,7 @@ def Stage1_info():
                           "# Step 7: Save outputs",]
     
     subsection_keys = {"Setup":["toplevel_dir",
-                                "run_name",
+                                "output_run",
                                 "verbose",
                                 "show_plots",
                                 "save_plots"],
@@ -169,13 +167,12 @@ def Stage1_info():
                                   "location",],
                        "Step 5c":["do_bkg_stars",
                                   "bkg_stars_loc",],
-                       "Step 6":["do_quicklook",
-                                 "gif_dir",],
+                       "Step 6":["do_quicklook",],
                        "Step 7":["do_save",],
                        }
     
     subsection_comments = {"Setup":["# Directory where your Stage 0 files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data.",
-                                    "# Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).",
+                                    "# Str. This is the name to save the current run to. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).",
                                     "# Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.",
                                     "# Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.",
                                     "# Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.",],
@@ -216,8 +213,7 @@ def Stage1_info():
                                       "# lst of float. Initial guess for the location of the target star. You can use this to bypass location fitting in Stage 1.",],
                            "Step 5c":["# Bool. Whether to track frame displacements by centroiding background stars.",
                                       "# Lst of lst of float. Every list should indicate the estimated location of every background star",],
-                           "Step 6":["# Bool. Whether to perform this step.",
-                                     "# str. Where to save the quicklook gif to."],
+                           "Step 6":["# Bool. Whether to perform this step.",],
                            "Step 7":["# Bool. If True, saves the output xarray to be used in Stage 2.",],
                            }
     return header, subsection_headers, subsection_keys, subsection_comments
@@ -241,7 +237,8 @@ def Stage2_info():
                           ]
     
     subsection_keys = {"Setup":["toplevel_dir",
-                                "run_name",
+                                "input_run",
+                                "output_run",
                                 "verbose",
                                 "show_plots",
                                 "save_plots"],
@@ -263,7 +260,8 @@ def Stage2_info():
                        }
     
     subsection_comments = {"Setup":["# Directory where your current project files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data as well as the outputs folder.",
-                                    "# Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).",
+                                    "# Str. This is the name of the Stage 1 run you want to load.",
+                                    "# Str. This is the name to save the current run to. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).",
                                     "# Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.",
                                     "# Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.",
                                     "# Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.",],
@@ -271,7 +269,7 @@ def Stage2_info():
                            "Step 2":["# Str. The absolute path to the .conf file used by GRISMCONF for the chip your data were taken on.",
                                      "# Lst of str. The traces you want to configure and extraction from.",
                                      "# Bool. If True, uses Gaussian fitting to refine the trace solution.",],
-                           "Step 3":["# Str. Options are 'box' (draw a box around the trace and sum without weights) or 'optimum' (weight using Horne 1986 methods).",
+                           "Step 3":["# Str. Options are 'box' (draw a box around the trace and sum without weights) or 'optimal' (weight using Horne 1986 methods).",
                                      "# Bool. Whether to model the contaminating orders and subtract them from your trace during extraction. Sometimes works, sometimes just adds lots of scatter.",
                                      "# Bool. Whether to correct for the G280's changing sensitivity as a function of wavelength. Since absolute calibrated spectra aren't needed in exoplanetary sciences, you can skip this safely.",
                                      "# List of lists. If there are background objects in your planned aperture, mask them here. Each entry is (x,y,radius).",],

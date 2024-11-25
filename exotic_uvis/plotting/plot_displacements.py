@@ -46,10 +46,12 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos,
     plt.xlabel('Exposure times')
     plt.ylabel('X pixel displacement')
 
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
-    filedir = os.path.join(stagedir, 'bkg_stars_x_displacement.png')
+    plot_dir = os.path.join(output_dir, 'plots') 
+    filedir = os.path.join(plot_dir, 'bkg_stars_x_displacement.png')
 
     if save_plot:
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir)
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
 
     if show_plot:
@@ -64,12 +66,12 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos,
     plt.xlabel('Exposure times')
     plt.ylabel('Y pixel displacement')
     
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
-    filedir = os.path.join(stagedir, 'bkg_stars_y_displacement.png')
+    plot_dir = os.path.join(output_dir, 'plots') 
+    filedir = os.path.join(plot_dir, 'bkg_stars_y_displacement.png')
 
     if save_plot:
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
 
     if show_plot:
@@ -102,12 +104,12 @@ def plot_0th_order(exp_time, xs, ys,
     plt.xlabel('Exposure times')
     plt.ylabel('X pixel displacement')
 
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
-    filedir = os.path.join(stagedir, '0th_order_x_displacement.png')
+    plot_dir = os.path.join(output_dir, 'plots') 
+    filedir = os.path.join(plot_dir, '0th_order_x_displacement.png')
 
     if save_plot:
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
 
     if show_plot:
@@ -121,12 +123,12 @@ def plot_0th_order(exp_time, xs, ys,
     plt.xlabel('Exposure times')
     plt.ylabel('Y pixel displacement')
 
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
-    filedir = os.path.join(stagedir, '0th_order_y_displacement.png')
+    plot_dir = os.path.join(output_dir, 'plots') 
+    filedir = os.path.join(plot_dir, '0th_order_y_displacement.png')
 
     if save_plot:
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
 
     if show_plot:
