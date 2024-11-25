@@ -167,6 +167,24 @@ def plot_mode_v_params(exp_times, modes, params,
 
 def plot_histogram(bin_cents, array, mode, median, hist_min, hist_max, hist_bins, fit, exp_num, 
                    gaussian_center=False, gaussian_fit = None, show_plots=0, save_plots=0, output_dir=None):
+    """_summary_
+
+    Args:
+        bin_cents (_type_): _description_
+        array (_type_): _description_
+        mode (_type_): _description_
+        median (_type_): _description_
+        hist_min (_type_): _description_
+        hist_max (_type_): _description_
+        hist_bins (_type_): _description_
+        fit (_type_): _description_
+        exp_num (_type_): _description_
+        gaussian_center (bool, optional): _description_. Defaults to False.
+        gaussian_fit (_type_, optional): _description_. Defaults to None.
+        show_plots (int, optional): _description_. Defaults to 0.
+        save_plots (int, optional): _description_. Defaults to 0.
+        output_dir (_type_, optional): _description_. Defaults to None.
+    """
 
 
     plt.figure(figsize = (10, 7))
