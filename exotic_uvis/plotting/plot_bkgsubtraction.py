@@ -166,26 +166,36 @@ def plot_mode_v_params(exp_times, modes, params,
 
 
 def plot_histogram(bin_cents, array, mode, median, hist_min, hist_max, hist_bins, fit, exp_num, 
-                   gaussian_center=False, gaussian_fit = None, show_plots=0, save_plots=0, output_dir=None):
-    """_summary_
+                   gaussian_center=False, gaussian_fit = None, show_plots=False, save_plots=False, output_dir=None):
+    """Plots a histogram of the background values for the given exposure.
 
     Args:
-        bin_cents (_type_): _description_
-        array (_type_): _description_
-        mode (_type_): _description_
-        median (_type_): _description_
-        hist_min (_type_): _description_
-        hist_max (_type_): _description_
-        hist_bins (_type_): _description_
-        fit (_type_): _description_
-        exp_num (_type_): _description_
-        gaussian_center (bool, optional): _description_. Defaults to False.
-        gaussian_fit (_type_, optional): _description_. Defaults to None.
-        show_plots (int, optional): _description_. Defaults to 0.
-        save_plots (int, optional): _description_. Defaults to 0.
-        output_dir (_type_, optional): _description_. Defaults to None.
+        bin_cents (array-like): centers of each bin.
+        array (array-like): flattened image data for which the histogram
+        was computed.
+        mode (float): mode of the array without any fit or trim.
+        median (float): median of the array without any fit or trim.
+        hist_min (float): lower bound of values to consider when building
+        the histogram.
+        hist_max (float): upper bound of values to consider when building
+        the histogram.
+        hist_bins (int): number of bins to use for the calculation.
+        fit (str or None, optional): type of fit to apply to the histogram.
+        Options are 'Gaussian' (fits a 1D Gaussian to the histogram),
+        'median' (takes the median of the histogram), or can be left as
+        None to use just the histogram's mode. Defaults to None.
+        exp_num (float): exposure number.
+        gaussian_center (float, optional): if not False, center of the Gaussian
+        fit to plot. Defaults to False.
+        gaussian_fit (array-like, optional): if not None, the Gaussian fit
+        to plot. Defaults to None.
+        show_plots (bool, optional): whether to show this plot.
+        Defaults to False.
+        save_plots (bool, optional): whether to save this plot.
+        Defaults to False.
+        output_dir (str, optional): where to save the plot to, if save_plot
+        is True. Defaults to None.
     """
-
 
     plt.figure(figsize = (10, 7))
     plt.hist(array, bins = bin_cents, color = 'indianred', alpha = 0.7, density=False)
@@ -212,7 +222,5 @@ def plot_histogram(bin_cents, array, mode, median, hist_min, hist_max, hist_bins
         plt.show(block=True)
 
     plt.close() # save memory
-
-
 
     return
