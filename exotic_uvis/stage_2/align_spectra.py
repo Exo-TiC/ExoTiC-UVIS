@@ -7,8 +7,6 @@ from scipy.interpolate import interp1d
 from scipy import signal
 
 
-
-
 def cross_corr(spec, temp_spec, order='+1', i=0, trim = 1, fit_window = 5, subpix_width = 0.01,
                verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Function to perform cross-correlation of two arrays.

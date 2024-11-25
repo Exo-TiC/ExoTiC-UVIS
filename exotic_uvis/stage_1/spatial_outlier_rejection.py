@@ -68,12 +68,12 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
         if (show_plots == 1 or save_plots == 1) and k == 0:
             plot_exposure([obs.images.data[0]],
                           show_plot=(show_plots>=1), save_plot=(save_plots>=1), 
-                          stage=1, output_dir=output_dir, filename = ['LED_before_correction_0'])
+                          output_dir=output_dir, filename = ['LED_before_correction_0'])
         
         elif show_plots == 2 or save_plots == 2:
             plot_exposure([obs.images.data[k]],
                           show_plot=(show_plots==2), save_plot=(save_plots==2), 
-                          stage=1, output_dir=output_dir, filename = ['LED_before_correction_{}'.format(k)])
+                          output_dir=output_dir, filename = ['LED_before_correction_{}'.format(k)])
 
         # Then start iterating over this frame and keep going until the iteration stop condition is met.
         stop_iterating = False
@@ -155,31 +155,31 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
         if (show_plots == 1 or save_plots == 1) and k == 0:
             plot_exposure([S], min = 1e-3, max = 1, 
                           show_plot=(show_plots>=1), save_plot=(save_plots>=1), 
-                          stage=1, output_dir=output_dir, filename = ['LED_location_of_corrected_pixels_0'])
+                          output_dir=output_dir, filename = ['LED_location_of_corrected_pixels_0'])
             
             plot_exposure([obs.images.data[0]],
                           show_plot=(show_plots>=1), save_plot=(save_plots>=1), 
-                          stage=1, output_dir=output_dir, filename = ['LED_after_correction_0'])
+                          output_dir=output_dir, filename = ['LED_after_correction_0'])
         
         elif show_plots == 2 or save_plots == 2:
             plot_exposure([S], min = 1e-3, max = 1, 
                           show_plot=(show_plots==2), save_plot=(save_plots==2), 
-                          stage=1, output_dir=output_dir, filename = ['LED_location_of_corrected_pixels_{}'.format(k)])
+                          output_dir=output_dir, filename = ['LED_location_of_corrected_pixels_{}'.format(k)])
             
             plot_exposure([obs.images.data[k]],
                           show_plot=(show_plots==2), save_plot=(save_plots==2), 
-                          stage=1, output_dir=output_dir, filename = ['LED_after_correction_{}'.format(k)])
+                          output_dir=output_dir, filename = ['LED_after_correction_{}'.format(k)])
             
             if k == 0:
                 # Additionally plot the noise model and fine structure model, if applicable.
                 plot_exposure([noise_model], min = 1e-3, max = 1, 
                               show_plot=(show_plots==2), save_plot=(save_plots==2), 
-                              stage=1, output_dir=output_dir, filename = ['LED_Noise_Model'])
+                              output_dir=output_dir, filename = ['LED_Noise_Model'])
                 
                 if build_fine_structure:
                     plot_exposure([F], min = 1e-3, max = 1, 
                                   show_plot=(show_plots==2), save_plot=(save_plots==2), 
-                                  stage=1, output_dir=output_dir, filename = ['LED_Fine_Structure_Model'])
+                                  output_dir=output_dir, filename = ['LED_Fine_Structure_Model'])
     
     if verbose >= 1:
         print("All frames cleaned of spatial outliers by LED.")

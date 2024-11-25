@@ -64,7 +64,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
     # Plot the calibration over the image.
     if (show_plots > 0 or save_plots > 0):
         plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y]],
-                      filename = ['s2_calibration_{}'.format(order)], stage=2,
+                      filename = ['s2_calibration_{}'.format(order)],
                       save_plot=(save_plots>0), show_plot=(show_plots>0),
                       output_dir=output_dir)
     
@@ -76,7 +76,7 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
         
         # Plot refined calibration.
         plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y[0]]],
-                      filename = ['s2_refined-calibration_{}'.format(order)], stage=2,
+                      filename = ['s2_refined-calibration_{}'.format(order)],
                       save_plot=(save_plots>0), show_plot=(show_plots>0),
                       output_dir=output_dir)
     
@@ -232,7 +232,7 @@ def fit_trace(obs, trace_x, trace_y,
 
                     plot_profile_fit(y_vals, profile, profile_fit, trace_y[j], parameters[2],
                                     show_plot = False, save_plot = False, 
-                                    stage = 0, filename = None, output_dir = None)
+                                    filename = None, output_dir = None)
             
         # If true, fit a polynomial to the extracted trace locations and widths.
         if fit_trace:
@@ -247,7 +247,7 @@ def fit_trace(obs, trace_x, trace_y,
 
         # If true, plot all the traces over the image for comparison/validation.
         if (show_plots == 2 or save_plots == 2):
-            plot_exposure([image], line_data = [[trace_x, trace_y], [trace_x, trace]], stage=2,
+            plot_exposure([image], line_data = [[trace_x, trace_y], [trace_x, trace]],
                           show_plot=(show_plots==2), save_plot=(save_plots==2),
                           filename=['trace_validation'],output_dir=output_dir)
 
