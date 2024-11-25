@@ -122,7 +122,7 @@ def parse_xarr(obs,
 
 
 def create_gif(exp_times, images, total_flux, partial_flux, section,
-               output_dir, stage, show_fig = False, save_fig = False):
+               output_dir, show_fig = False, save_fig = False):
     """Function to create an animation showing all the exposures.
 
     Args:
@@ -132,7 +132,6 @@ def create_gif(exp_times, images, total_flux, partial_flux, section,
         partial_flux (np.array): flux summed from the section of each 2D image.
         section (lst of int): the subsection of image you measured flux in.
         output_dir (str): where to save the gif to.
-        stage (str): which stage this quicklook is for, for naming files.
         show_fig (bool, optional): whether to show the figure or not.
         Defaults to False.
         save_fig (bool, optional): wether to save the figure or not.
@@ -214,7 +213,7 @@ def create_gif(exp_times, images, total_flux, partial_flux, section,
 
 
 def create_dq_gif(exp_times, images, dq, section,
-                  output_dir, stage, show_fig = False, save_fig = False):
+                  output_dir, show_fig = False, save_fig = False):
     """Function to create an animation showing all the data quality flags.
 
     Args:
@@ -223,7 +222,6 @@ def create_dq_gif(exp_times, images, dq, section,
         dq (np.array): Array of 2D images showing pixels flagged for DQ.
         section (lst of int): the subsection of image you measured flux in.
         output_dir (str): where to save the gif to.
-        stage (str): which stage this quicklook is for, for naming files.
         show_fig (bool, optional): whether to show the figure or not.
         Defaults to False.
         save_fig (bool, optional): wether to save the figure or not.
@@ -327,11 +325,9 @@ def quicklookup(data_dir,
 
     # get images and exposure times
     if isinstance(data_dir, str):
-        stage = "stage0"
         images, exp_times, total_flux, partial_flux, section = get_images(data_dir, verbose)
         have_dq = False
     else:
-        stage = "stage1"
         images, dq, exp_times, total_flux, partial_flux, section = parse_xarr(data_dir, verbose)
         have_dq = True
     
@@ -343,9 +339,9 @@ def quicklookup(data_dir,
     if show_plots >= 1:
         show_fig = True
     create_gif(exp_times, images, total_flux, partial_flux, section, output_dir,
-               stage=stage, show_fig=show_fig, save_fig=save_fig)
+               show_fig=show_fig, save_fig=save_fig)
     if have_dq:
-        create_dq_gif(exp_times, images, dq, section, output_dir, stage=stage,
+        create_dq_gif(exp_times, images, dq, section, output_dir,
                       show_fig=show_fig, save_fig=save_fig)
     
     return 
