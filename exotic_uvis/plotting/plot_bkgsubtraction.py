@@ -57,13 +57,13 @@ def plot_corners(image, corners,
         plot_dir = os.path.join(output_dir, 'plots') 
         if not os.path.exists(plot_dir):
             os.makedirs(plot_dir) 
-        filedir = os.path.join(plot_dir, f'bkg_corner_location.png')
+        filedir = os.path.join(plot_dir, 'bkg_corner_location.png')
         plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
         
     if show_plot:
         plt.show(block=True)
-    else:
-        plt.close() # save memory
+    
+    plt.close() # save memory
     
     return 
 
@@ -105,11 +105,10 @@ def plot_bkgvals(exp_times, bkg_vals, method,
         plt.xlabel('Column #')
         plt.ylabel('Exposure index')
         plt.title("Image background columns by exposure")
-
-    plot_dir = os.path.join(output_dir, 'plots') 
-    filedir = os.path.join(plot_dir, 'bkg_values_{}.png'.format(method))
     
     if save_plot:
+        plot_dir = os.path.join(output_dir, 'plots') 
+        filedir = os.path.join(plot_dir, 'bkg_values_{}.png'.format(method))
         if not os.path.exists(plot_dir):
             os.makedirs(plot_dir) 
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
@@ -149,11 +148,9 @@ def plot_mode_v_params(exp_times, modes, params,
     plt.title('Frame mode vs scaling parameter')
     plt.legend()
     
-    plot_dir = os.path.join(output_dir, 'plots') 
-    filedir = os.path.join(plot_dir, 'bkg_scaling_parameters.png')
-    
-    
     if save_plot:
+        plot_dir = os.path.join(output_dir, 'plots') 
+        filedir = os.path.join(plot_dir, 'bkg_scaling_parameters.png')
         if not os.path.exists(plot_dir):
             os.makedirs(plot_dir) 
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
