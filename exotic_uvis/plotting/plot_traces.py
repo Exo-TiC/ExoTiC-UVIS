@@ -16,7 +16,7 @@ plt.rc('legend',**{'fontsize':11})
 
 def plot_profile_fit(y_vals, profile, gaussian_fit, cal_center, fit_center,
                     order="+1", show_plot = False, save_plot = False, 
-                    stage = 0, output_dir = None):
+                    output_dir = None):
     """Plot the fitted trace profiles.
 
     Args:
@@ -29,8 +29,6 @@ def plot_profile_fit(y_vals, profile, gaussian_fit, cal_center, fit_center,
         Defaults to False.
         save_plot (bool, optional): whether to save this plot.
         Defaults to False.
-        stage (int, optional): stage this is being run in, for
-        plot saving. Defaults to 0.
         output_dir (str, optional): where this plot is being saved to,
         if save_plot is True. Defaults to None.
     """
