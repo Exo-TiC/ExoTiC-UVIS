@@ -81,8 +81,6 @@ def window_profile(image, init_pix, fin_pix, pol_degree = 6,
     return P_win, xhit, yhit, stds
 
 
-
-
 def spatial_profile(image_org, window = 40, threshold = 4., normalize = False, show_plots=0, save_plots=0):
 
     """"
