@@ -79,7 +79,7 @@ def remove_zeroth_order(obs, mode = 'radial_profile', zero_pos = [1158, 300], rm
         hist_area[mask_angle & (rr < rmax) & (rr > rmin)] = 'nan'
   
         plot_exposure([hist_area], title = 'Area to build the histogram', 
-                      show_plot=(show_plots>0), save_plot=(save_plots>0), stage=1,
+                      show_plot=(show_plots>0), save_plot=(save_plots>0),
                       output_dir=output_dir, filename = ['0th_order_histogram'])
         
         # test plots:
@@ -114,7 +114,7 @@ def remove_zeroth_order(obs, mode = 'radial_profile', zero_pos = [1158, 300], rm
                         hist_area[mask_angle & (rr < r_vect[i + 1]) & (rr > r_vect[i])] = 'nan'
   
                         plot_exposure([hist_area], title = 'Area to build the histogram', 
-                                    show_plot=(show_plots>0), save_plot=(save_plots>0), stage=1,
+                                    show_plot=(show_plots>0), save_plot=(save_plots>0),
                                     output_dir=output_dir, filename = ['0th_order_histogram'])
                         
                         plt.figure(figsize = (10, 7))
@@ -163,11 +163,11 @@ def remove_zeroth_order(obs, mode = 'radial_profile', zero_pos = [1158, 300], rm
                     #utils.plot_image([zero_bkg[j]], min = 0.95, max = 1.8)
 
                     plot_exposure([obs.images.data[j, :], image], title = '0th order removal example', 
-                                    show_plot=(show_plots>0), save_plot=(save_plots>0), stage=1,
+                                    show_plot=(show_plots>0), save_plot=(save_plots>0),
                                     output_dir=output_dir, filename = ['0th_order_histogram'])
                     
                     plot_exposure([zero_bkg[j]], title = '0th order model', min=np.min(fitted_profile), max=np.max(fitted_profile),
-                                    show_plot=(show_plots>0), save_plot=(save_plots>0), stage=1,
+                                    show_plot=(show_plots>0), save_plot=(save_plots>0),
                                     output_dir=output_dir, filename = ['0th_order_histogram'])
         
 

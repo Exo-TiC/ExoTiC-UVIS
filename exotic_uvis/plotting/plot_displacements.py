@@ -23,7 +23,7 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos,
         exp_times (np.array): BJD exposure times for each frame.
         mean_loc (np.array): mean absolute location of each star.
         mean_pos (np.array): mean relative position of each star.
-        stars_pos (_type_): relative position of each star over time.
+        stars_pos (np.array): relative position of each star over time.
         show_plot (bool, optional): whether to interrupt execution to
         show the user the plot. Defaults to False.
         save_plot (bool, optional): whether to save the plot to a file.
@@ -35,7 +35,7 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos,
     # first just plot the example frame and where the stars we tracked are
     plot_exposure([image], scatter_data = mean_loc, title = 'Location of background stars',  
                   show_plot=show_plot, save_plot=save_plot,
-                  stage=1, output_dir=output_dir, filename = ['bkg_stars_location'])
+                  output_dir=output_dir, filename = ['bkg_stars_location'])
       
     # then we plot the displacements of each star in x and y over time
 
@@ -46,10 +46,11 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos,
     plt.xlabel('Exposure times')
     plt.ylabel('X pixel displacement')
 
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
-    filedir = os.path.join(stagedir, 'bkg_stars_x_displacement.png')
-
     if save_plot:
+        plot_dir = os.path.join(output_dir, 'plots') 
+        filedir = os.path.join(plot_dir, 'bkg_stars_x_displacement.png')
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir)
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
 
     if show_plot:
@@ -63,13 +64,12 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos,
     plt.plot(exp_time, np.transpose(stars_pos[:, :, 1]), '-o', alpha = 0.5)
     plt.xlabel('Exposure times')
     plt.ylabel('Y pixel displacement')
-    
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
-    filedir = os.path.join(stagedir, 'bkg_stars_y_displacement.png')
 
     if save_plot:
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
+        plot_dir = os.path.join(output_dir, 'plots') 
+        filedir = os.path.join(plot_dir, 'bkg_stars_y_displacement.png')
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
 
     if show_plot:
@@ -102,12 +102,11 @@ def plot_0th_order(exp_time, xs, ys,
     plt.xlabel('Exposure times')
     plt.ylabel('X pixel displacement')
 
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
-    filedir = os.path.join(stagedir, '0th_order_x_displacement.png')
-
     if save_plot:
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
+        plot_dir = os.path.join(output_dir, 'plots') 
+        filedir = os.path.join(plot_dir, '0th_order_x_displacement.png')
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
 
     if show_plot:
@@ -121,12 +120,11 @@ def plot_0th_order(exp_time, xs, ys,
     plt.xlabel('Exposure times')
     plt.ylabel('Y pixel displacement')
 
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
-    filedir = os.path.join(stagedir, '0th_order_y_displacement.png')
-
     if save_plot:
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
+        plot_dir = os.path.join(output_dir, 'plots') 
+        filedir = os.path.join(plot_dir, '0th_order_y_displacement.png')
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
 
     if show_plot:

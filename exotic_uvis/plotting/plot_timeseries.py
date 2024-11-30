@@ -17,7 +17,7 @@ def plot_flags_per_time(series_x, series_y, style='line',
                         xmin = 0, xmax = 1, ymin = 0, ymax = 1e4,
                         mark_size = 30, line_style='-',
                         show_plot = False, save_plot = False, 
-                        stage = 0, filename = None, output_dir = None):
+                        filename = None, output_dir = None):
     """Function to plot number of flagged pixels vs time.
 
     Args:
@@ -41,8 +41,6 @@ def plot_flags_per_time(series_x, series_y, style='line',
         user the plot. Defaults to False.
         save_plot (bool, optional): whether to save this plot to a file.
         Defaults to False.
-        stage (int, optional): which stage this is being executed in, for
-        file naming purposes. Defaults to 0.
         filename (list of str, optional): names to give each output file,
         if saving. Defaults to None.
         output_dir (str, optional): where to save the files to. Defaults to None.
@@ -78,10 +76,10 @@ def plot_flags_per_time(series_x, series_y, style='line',
             plt.title(title)
         
         if save_plot:
-            stagedir = os.path.join(output_dir, f'stage{stage}/plots/')
-            if not os.path.exists(stagedir):
-                os.makedirs(stagedir) 
-            filedir = os.path.join(stagedir, f'{filename[i]}.png')
+            plot_dir = os.path.join(output_dir, 'plots') 
+            if not os.path.exists(plot_dir):
+                os.makedirs(plot_dir) 
+            filedir = os.path.join(plot_dir, f'{filename[i]}.png')
             plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
         
         if show_plot:

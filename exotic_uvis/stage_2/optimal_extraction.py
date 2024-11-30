@@ -123,11 +123,11 @@ def spatial_profile(image_org, window = 40, threshold = 4., normalize = False, s
     if (show_plots>1) or (save_plots>1):
 
         plot_exposure([P_prof], title = 'Spatial_profile', min=1e-4, max=1e0,
-                      show_plot=1, save_plot=0, stage=1,
+                      show_plot=1, save_plot=0,
                       output_dir=None, filename = ['spatial_profile'])
         
         plot_exposure([image, image_org], scatter_data=[xhits, yhits], title = 'Spatial_profile', 
-                      show_plot=1, save_plot=0, stage=1,
+                      show_plot=1, save_plot=0,
                       output_dir=None, filename = ['spatial_profile'])
         
     return P_prof, image, xhits, yhits
@@ -236,7 +236,7 @@ def spatial_profile_curved_poly(sub_image_org, image, tx_main, ty_main, low_val,
             #utils.plot_image([sub_image, spatial_prof], scatter_data = [yhits, xhits], min = 1., max = 4., show = False)
 
             plot_exposure([sub_image, spatial_prof], title = 'Spatial_profile', min=1e1, max=1e4,
-                      show_plot=1, save_plot=0, stage=1,
+                      show_plot=1, save_plot=0,
                       output_dir=None, filename = ['spatial_profile'])
 
         # compute difference image

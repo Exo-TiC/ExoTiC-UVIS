@@ -39,7 +39,6 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
         plot_exposure([obs.images[0].values,], line_data=[[trace_x,trace_y[0]],
                                                           [trace_x,[i+halfwidth for i in trace_y[0]]],
                                                           [trace_x,[i-halfwidth for i in trace_y[0]]]],
-                      stage=2,
                       title='Extraction Aperture', save_plot=(save_plots>0), show_plot=(show_plots>0),
                       filename=['s2_aperture{}'.format(order)],output_dir=output_dir)
 
@@ -61,9 +60,8 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
                 err[obj_mask] = 0
             if ((save_plots > 0 or show_plots > 0) and k == 0):
                 plot_exposure([frame,], line_data=[[trace_x,trace_y[0]],
-                                                                [trace_x,[i+halfwidth for i in trace_y[0]]],
-                                                                [trace_x,[i-halfwidth for i in trace_y[0]]]],
-                              stage=2,
+                                                   [trace_x,[i+halfwidth for i in trace_y[0]]],
+                                                   [trace_x,[i-halfwidth for i in trace_y[0]]]],
                               title='Extraction Aperture', save_plot=(save_plots>0), show_plot=(show_plots>0),
                               filename=['s2_aperture-masked{}'.format(order)],output_dir=output_dir)
 
@@ -185,10 +183,10 @@ def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10
         plt.legend(loc='upper left',ncols=2)
         
         if save_plots == 2:
-            stagedir = os.path.join(output_dir,"stage2/plots")
-            if not os.path.exists(stagedir):
-                os.makedirs(stagedir)
-            plt.savefig(os.path.join(stagedir,"s2_WLC{}_tested-hws-wlcs.png".format(order)),
+            plot_dir = os.path.join(output_dir,'plots')
+            if not os.path.exists(plot_dir):
+                os.makedirs(plot_dir)
+            plt.savefig(os.path.join(plot_dir,"s2_WLC{}_tested-hws-wlcs.png".format(order)),
                         dpi=300,bbox_inches='tight')
         if show_plots == 2:
             plt.show(block=True)
@@ -199,10 +197,10 @@ def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10
         plt.xlabel('half-width [pixels]')
         plt.ylabel('residuals [ppm]')
         if save_plots > 0:
-            stagedir = os.path.join(output_dir,"stage2/plots")
-            if not os.path.exists(stagedir):
-                os.makedirs(stagedir)
-            plt.savefig(os.path.join(stagedir,"s2_{}_tested-hws.png".format(order)),
+            plot_dir = os.path.join(output_dir,'plots')
+            if not os.path.exists(plot_dir):
+                os.makedirs(plot_dir)
+            plt.savefig(os.path.join(plot_dir,"s2_{}_tested-hws.png".format(order)),
                         dpi=300,bbox_inches='tight')
         if show_plots > 0:
             plt.show(block=True)

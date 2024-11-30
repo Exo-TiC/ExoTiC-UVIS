@@ -15,7 +15,7 @@ def plot_exposure(images, line_data = None, scatter_data = None,
                   extent = None, title = None, 
                   min = 1e-3, max = 1e4, mark_size = 30,
                   show_plot = False, save_plot = False, 
-                  stage = 0, filename = None, output_dir = None):
+                  filename = None, output_dir = None):
     """Function to plot an image given certain parameters.
 
     Args:
@@ -34,8 +34,6 @@ def plot_exposure(images, line_data = None, scatter_data = None,
         show_plot (bool, optional): whether to interrupt execution to show
         the user the plot. Defaults to False.
         save_plot (bool, optional): whether to save this plot. Defaults to False.
-        stage (int, optional): which stage this is being executed in, used for
-        giving files proper names. Defaults to 0.
         filename (list of str, optional): name for each plot file. Defaults to None.
         output_dir (str, optional): where to save the plots to, if save_plots is
         True. Defaults to None.
@@ -65,10 +63,10 @@ def plot_exposure(images, line_data = None, scatter_data = None,
             plt.title(title)
         
         if save_plot:
-            stagedir = os.path.join(output_dir, f'stage{stage}/plots/')
-            if not os.path.exists(stagedir):
-                os.makedirs(stagedir) 
-            filedir = os.path.join(stagedir, f'{filename[i]}.png')
+            plot_dir = os.path.join(output_dir, 'plots')
+            if not os.path.exists(plot_dir):
+                os.makedirs(plot_dir) 
+            filedir = os.path.join(plot_dir, f'{filename[i]}.png')
             plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
         
         if show_plot:

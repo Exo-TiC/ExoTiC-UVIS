@@ -63,7 +63,7 @@ def refine_location(obs, location=None, window=20,
                       scatter_data = [[obs.attrs['target_posx']], [obs.attrs['target_posy']]],
                       title = 'Computed direct image target location',
                       show_plot=show_plots, save_plot=save_plots, 
-                      stage=1, output_dir=output_dir, filename = [f'Target location in Direct image']) 
+                      output_dir=output_dir, filename = [f'Target location in Direct image']) 
     
     return 
 
@@ -125,7 +125,7 @@ def track_bkgstars(obs, bkg_stars, window = 15,
             plot_exposure([images[0]], scatter_data = [x0 + x1, y0 + y1],
                           title = 'Position of star #{}'.format(i),
                           show_plot = (show_plots==2), save_plot = (save_plots==2), 
-                          stage = 1, filename = ['bkg_star_no{}'.format(i)],
+                          filename = ['bkg_star_no{}'.format(i)],
                           output_dir = output_dir)
 
         # save background star location as a function of time

@@ -13,7 +13,7 @@ __all__ = [
     "plot_fitted_positions",
     "plot_fitted_amplitudes",
     "plot_fitted_widths",
-    "plot_histrogram"
+    "plot_histogram",
 ]
 
 

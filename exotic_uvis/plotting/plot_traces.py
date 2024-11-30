@@ -16,20 +16,21 @@ plt.rc('legend',**{'fontsize':11})
 
 def plot_profile_fit(y_vals, profile, gaussian_fit, cal_center, fit_center,
                     order="+1", show_plot = False, save_plot = False, 
-                    stage = 0, filename = None, output_dir = None):
-    """_summary_
+                    output_dir = None):
+    """Plot the fitted trace profiles.
 
     Args:
-        y_vals (_type_): _description_
-        profile (_type_): _description_
-        gaussian_fit (_type_): _description_
-        cal_center (_type_): _description_
-        fit_center (_type_): _description_
-        show_plot (bool, optional): _description_. Defaults to False.
-        save_plot (bool, optional): _description_. Defaults to False.
-        stage (int, optional): _description_. Defaults to 0.
-        filename (_type_, optional): _description_. Defaults to None.
-        output_dir (_type_, optional): _description_. Defaults to None.
+        y_vals (array-like): y positions of the fits.
+        profile (array-like): pulled profiles as a function of y.
+        gaussian_fit (array-like): fitted profiles as a function of y.
+        cal_center (float): calculated center of the pulled profiles.
+        fit_center (float): fitted center of the fitted profiles.
+        show_plot (bool, optional): whether to show this plot.
+        Defaults to False.
+        save_plot (bool, optional): whether to save this plot.
+        Defaults to False.
+        output_dir (str, optional): where this plot is being saved to,
+        if save_plot is True. Defaults to None.
     """
 
     plt.figure(figsize = (10, 7))
@@ -44,10 +45,10 @@ def plot_profile_fit(y_vals, profile, gaussian_fit, cal_center, fit_center,
     plt.title('Example of Profile fitted to Trace')
 
     if save_plot:
-        stagedir = os.path.join(output_dir, f'stage{stage}/plots/')
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
-        filedir = os.path.join(stagedir, 'trace_profile_order{}.png'.format(order))
+        plot_dir = os.path.join(output_dir, 'plots') 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
+        filedir = os.path.join(plot_dir, 'trace_profile_order{}.png'.format(order))
         plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
 
     if show_plot:

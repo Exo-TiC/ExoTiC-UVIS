@@ -84,19 +84,19 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             # modify config keyword
             stage0_dict['location'] = [source_x,source_y]
 
+        # write config
+        config_dir = os.path.join(output_dir,'stage0')
+        if not os.path.exists(config_dir):
+            os.makedirs(config_dir)
+        write_config(stage0_dict, '', 0, config_dir)
+
         # create quicklook gif
         if stage0_dict['do_quicklook']:
             quicklookup(stage0_dict['toplevel_dir'],
                         stage0_dict['verbose'], 
                         stage0_dict['show_plots'], 
                         stage0_dict['save_plots'],
-                        os.path.join(stage0_dict['toplevel_dir'],stage0_dict['gif_dir']))
-
-        # write config
-        config_dir = os.path.join(output_dir,'stage0')
-        if not os.path.exists(config_dir):
-            os.makedirs(config_dir)
-        write_config(stage0_dict, '', 0, config_dir)
+                        config_dir)
 
 
     ####### Run Stage 1 #######
@@ -107,7 +107,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
         # read the 'location' keyword from the Stage 0 config
         try:
-            stage0_output_config = os.path.join(stage1_dict['toplevel_dir'],'stage0/stage_0_.hustle')
+            stage0_output_config = os.path.join(stage1_dict['toplevel_dir'],'outputs/stage0/stage_0_.hustle')
             stage0_output_dict = parse_config(stage0_output_config)
 
             # and grab the location of the source
@@ -127,7 +127,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
         # create output directory
         output_dir = os.path.join(stage1_dict['toplevel_dir'],'outputs')
-        run_dir = os.path.join(output_dir,stage1_dict['run_name'])
+        stage_dir = os.path.join(output_dir,'stage1')
+        run_dir = os.path.join(stage_dir,stage1_dict['output_run'])
         if not os.path.exists(run_dir):
             os.makedirs(run_dir)
 
@@ -230,6 +231,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                            output_dir=run_dir)
 
         # displacements by background stars
+        obs["meanstar_disp"] = (("exp_time", "xy"), np.zeros((obs.exp_time.data.shape[0],2))) # placeholder in case you don't do this step
         if stage1_dict['do_bkg_stars']:
             track_bkgstars(obs, bkg_stars=stage1_dict['bkg_stars_loc'], 
                            verbose=stage1_dict['verbose'],
@@ -243,17 +245,14 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                         stage1_dict['verbose'], 
                         stage1_dict['show_plots'], 
                         stage1_dict['save_plots'],
-                        os.path.join(stage1_dict['toplevel_dir'],stage1_dict['gif_dir']))
+                        run_dir)
 
         # save results
         if stage1_dict['do_save']:
             save_data_S1(obs, run_dir)
 
         # write config
-        config_dir = os.path.join(run_dir,'stage1')
-        if not os.path.exists(config_dir):
-            os.makedirs(config_dir)
-        write_config(stage1_dict, stage1_dict['run_name'], 1, config_dir)
+        write_config(stage1_dict, stage1_dict['output_run'], 1, run_dir)
         
 
     ####### Run Stage 2 #######
@@ -264,19 +263,23 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         stage2_dict = parse_config(stage2_config)
 
         # read the 'location' keyword from the Stage 0 config
-        stage0_output_config = os.path.join(stage2_dict['toplevel_dir'],'stage0/stage_0_.hustle')
+        stage0_output_config = os.path.join(stage2_dict['toplevel_dir'],
+                                            'outputs/stage0/stage_0_.hustle')
         stage0_output_dict = parse_config(stage0_output_config)
 
         # read data
-        S2_data_path = os.path.join(stage2_dict['toplevel_dir'],os.path.join('outputs',stage2_dict['run_name']))
+        S2_data_path = os.path.join(stage2_dict['toplevel_dir'],
+                                    os.path.join('outputs/stage1',stage2_dict['input_run']))
         obs = load_data_S2(S2_data_path)
 
         # get the location from the obs.nc file
         stage2_dict['location'] = [obs.attrs['target_posx'],obs.attrs['target_posy']]
 
         # create output directory
+        # create output directory
         output_dir = os.path.join(stage2_dict['toplevel_dir'],'outputs')
-        run_dir = os.path.join(output_dir,stage2_dict['run_name'])
+        stage_dir = os.path.join(output_dir,'stage2')
+        run_dir = os.path.join(stage_dir,stage2_dict['output_run'])
         if not os.path.exists(run_dir):
             os.makedirs(run_dir)
 
@@ -400,16 +403,13 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                          widths, 
                          wav,
                          x_shifts, 
-                         y_shifts, 
+                         y_shifts,
                          order, 
                          output_dir=run_dir)
 
 
         # write config
-        config_dir = os.path.join(run_dir,'stage2')
-        if not os.path.exists(config_dir):
-            os.makedirs(config_dir)
-        write_config(stage2_dict, stage2_dict['run_name'], 2, config_dir)
+        write_config(stage2_dict, stage2_dict['output_run'], 2, run_dir)
         
 
     ####### Run Stage 3 #######
@@ -419,7 +419,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         stage3_dict = parse_config(stage3_config)
 
         # read data, one order at a time
-        S3_data_path = os.path.join(stage3_dict['toplevel_dir'],os.path.join('outputs',stage3_dict['run_name']))
+        S3_data_path = os.path.join(stage3_dict['toplevel_dir'],
+                                    os.path.join('outputs',stage3_dict['input_run']))
 
         #for order in stage3_dict['orders']:
             # load the spectrum for this order

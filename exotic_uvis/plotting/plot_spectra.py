@@ -44,10 +44,10 @@ def plot_one_spectrum(wavelengths, spectrum, order="+1",
     plt.title('Example of extracted order {} spectrum'.format(order))
     
     if save_plot:
-        stagedir = os.path.join(output_dir, 'stage2/plots/')
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
-        filedir = os.path.join(stagedir, f'{filename}.png')
+        plot_dir = os.path.join(output_dir, 'plots') 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
+        filedir = os.path.join(plot_dir, f'{filename}.png')
         plt.savefig(filedir,dpi=300,bbox_inches='tight')
 
     if show_plot:
@@ -59,13 +59,13 @@ def plot_one_spectrum(wavelengths, spectrum, order="+1",
 
 
 def plot_spec_gif(wav, spec, order="+1",
-                  stage = 2, show_plot = False, save_plot = False,
+                  show_plot = False, save_plot = False,
                   filename = None, output_dir = None):
     """Plots gifs of the extracted spectra over time.
 
     Args:
-        wavelengths (np.array): wavelength solution for given orders.
-        spectra (np.array): 1D extracted spectra.
+        wav (np.array): wavelength solution for given orders.
+        spec (np.array): 1D extracted spectra.
         order (str, optional): which order we are plotting, for plot naming.
         Defaults to "+1".
         show_plot (bool, optional): whether to interrupt execution to
@@ -122,12 +122,12 @@ def plot_spec_gif(wav, spec, order="+1",
 
     # save animation
     if save_plot:
-        stagedir = os.path.join(output_dir, f'stage{stage}/plots')
+        plot_dir = os.path.join(output_dir, 'plots') 
 
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir)
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir)
 
-        animation.save(os.path.join(stagedir, '{}_order{}.gif'.format(filename,order)), writer = 'ffmpeg', fps = 10)
+        animation.save(os.path.join(plot_dir, '{}_order{}.gif'.format(filename,order)), writer = 'ffmpeg', fps = 10)
 
     if show_plot:
         plt.show(block = True)

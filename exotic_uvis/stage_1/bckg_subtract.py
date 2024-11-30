@@ -1,4 +1,3 @@
-import os
 from tqdm import tqdm
 
 import xarray as xr
@@ -7,7 +6,6 @@ import numpy as np
 from scipy.optimize import least_squares
 from scipy.optimize import curve_fit
 from scipy.signal import medfilt, medfilt2d
-import matplotlib.pyplot as plt
 
 from exotic_uvis.plotting import plot_exposure, plot_corners, plot_bkgvals, plot_mode_v_params, plot_histogram
 
@@ -86,7 +84,7 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
         # if true, plot the masked frame
         if (save_plots > 0 or show_plots > 0) and k == 0:
             plot_exposure([masked_frame,], max = 50, title = 'Pagul+ Background Removal Mask', 
-                          show_plot=(show_plots>0), save_plot=(save_plots>0), stage=1,
+                          show_plot=(show_plots>0), save_plot=(save_plots>0),
                           output_dir=output_dir, filename = ['bkg_pagul_mask',])
     
         # then fit the standard bckg to the masked frame
@@ -119,7 +117,7 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
         plot_bkgvals(obs.exp_time.data, scaling_parameters, method='pagul',
                      output_dir=output_dir, show_plot = (show_plots>0), save_plot = (save_plots>0))
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
-                      show_plot=(show_plots>0), save_plot=(save_plots>0), stage=1,
+                      show_plot=(show_plots>0), save_plot=(save_plots>0),
                       output_dir=output_dir, filename = ['bkg_before_subtraction', 'bkg_after_subtraction'])
         
     # if true, also plot a comparison of the
@@ -127,7 +125,7 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
     if save_plots == 2 or show_plots == 2:
         plot_mode_v_params(obs.exp_time.data, modes, scaling_parameters,
                            output_dir=output_dir,
-                           show_plot=(show_plots>0), save_plot=(save_plots>0))
+                           show_plot=(show_plots==2), save_plot=(save_plots==2))
 
     # update the images to be corrected    
     obs.images.data = images
@@ -198,6 +196,10 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0,
     # calculate classic mode
     hist_mode = (bin_edges[np.argmax(hist)] + bin_edges[np.argmax(hist) + 1])/2
 
+    # call these values False and None until told otherwise
+    gaussian_center = False
+    gaussian_fit = None
+
     # if true, fit gaussian to histogram and find center
     if fit == 'Gaussian':
         # fit a Gaussian profile
@@ -208,6 +210,7 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0,
                                 maxfev = 2000)
         gaussian_fit = Gauss1D(bin_cents, popt[0], popt[1], popt[2], popt[3])
         bkg_val = popt[2]
+        gaussian_center = bkg_val
 
     elif fit == 'median':
         bkg_val = hist_median
@@ -215,15 +218,16 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0,
     else:
         bkg_val = hist_mode
     
-    # if true, plot histrogram and location of maximum
+    # if true, plot histogram and location of maximum
     if save_plots > 0 or show_plots > 0:
-        if exp_num == 0 or save_plots==2 or show_plots==2:
-            if fit == 'Gaussian':
-                plot_histogram(bin_cents, array, hist_mode, hist_median, hist_min, hist_max, hist_bins, fit, exp_num, 
-                        gaussian_center = bkg_val, gaussian_fit = gaussian_fit, show_plots=show_plots, save_plots=save_plots, output_dir=output_dir)
-            else:
-                plot_histogram(bin_cents, array, hist_mode, hist_median, hist_min, hist_max, hist_bins, fit, exp_num, 
-                            show_plots=show_plots, save_plots=save_plots, output_dir=output_dir)
+        if exp_num == 0 and (save_plots>0 or show_plots>0):
+            plot_histogram(bin_cents, array, hist_mode, hist_median, hist_min, hist_max, hist_bins,
+                           fit, exp_num, gaussian_center, gaussian_fit,
+                           show_plots=(show_plots>0), save_plots=(save_plots>0), output_dir=output_dir)
+        elif save_plots == 2 or show_plots == 2:
+            plot_histogram(bin_cents, array, hist_mode, hist_median, hist_min, hist_max, hist_bins,
+                           fit, exp_num, gaussian_center, gaussian_fit,
+                           show_plots=(show_plots==2), save_plots=(save_plots==2), output_dir=output_dir)
          
     return bkg_val
 
@@ -317,12 +321,13 @@ def uniform_value_bkg_subtraction(obs, fit = None, bounds = None,
         plot_bkgvals(obs.exp_time.data, bkg_vals, method=method,
                      output_dir=output_dir, save_plot=save_plots, show_plot=show_plots)
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
-                      show_plot = (show_plots>0), save_plot = (save_plots>0), stage=1,
+                      show_plot = (show_plots>0), save_plot = (save_plots>0),
                       output_dir=output_dir, filename = ['bkg_before_subtraction', 'bkg_after_subtraction'])
         
     obs.images.data = images
 
     return obs
+
 
 def column_by_column_subtraction(obs, rows=np.array([i for i in range(10)]), sigma=3, mask_trace=True, width=100,
                                  verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
@@ -387,7 +392,7 @@ def column_by_column_subtraction(obs, rows=np.array([i for i in range(10)]), sig
             # if true, plot calculated background region
             if (save_plots > 0 or show_plots > 0) and i == 0:
                 plot_exposure([bckg_region,], title = 'Col-by-col Background Region Example', 
-                              show_plot = (show_plots>0), save_plot = (save_plots>0), stage=1,
+                              show_plot = (show_plots>0), save_plot = (save_plots>0),
                               output_dir=output_dir, filename = ['bkg_region_col-by-col',])
 
         # smooth outliers
@@ -415,7 +420,7 @@ def column_by_column_subtraction(obs, rows=np.array([i for i in range(10)]), sig
         plot_bkgvals(obs.exp_time.data, bckgs, method='col-by-col',
                      output_dir=output_dir, show_plot = (show_plots>0), save_plot = (save_plots>0))
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
-                      show_plot = (show_plots>0), save_plot = (save_plots>0), stage=1,
+                      show_plot = (show_plots>0), save_plot = (save_plots>0),
                       output_dir=output_dir, filename = ['bkg_before_subtraction', 'bkg_after_subtraction'])
 
     obs.images.data = images

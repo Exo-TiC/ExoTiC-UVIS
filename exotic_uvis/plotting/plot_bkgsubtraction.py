@@ -54,16 +54,16 @@ def plot_corners(image, corners,
     plt.colorbar()
 
     if save_plot:
-        stagedir = os.path.join(output_dir, f'stage1/plots/')
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
-        filedir = os.path.join(stagedir, f'bkg_corner_location.png')
+        plot_dir = os.path.join(output_dir, 'plots') 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
+        filedir = os.path.join(plot_dir, 'bkg_corner_location.png')
         plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
         
     if show_plot:
         plt.show(block=True)
-    else:
-        plt.close() # save memory
+    
+    plt.close() # save memory
     
     return 
 
@@ -105,13 +105,12 @@ def plot_bkgvals(exp_times, bkg_vals, method,
         plt.xlabel('Column #')
         plt.ylabel('Exposure index')
         plt.title("Image background columns by exposure")
-
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
-    filedir = os.path.join(stagedir, 'bkg_values_{}.png'.format(method))
     
     if save_plot:
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
+        plot_dir = os.path.join(output_dir, 'plots') 
+        filedir = os.path.join(plot_dir, 'bkg_values_{}.png'.format(method))
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
 
     if show_plot:
@@ -149,12 +148,11 @@ def plot_mode_v_params(exp_times, modes, params,
     plt.title('Frame mode vs scaling parameter')
     plt.legend()
     
-    stagedir = os.path.join(output_dir, 'stage1/plots/') 
-    filedir = os.path.join(stagedir, 'bkg_scaling_parameters.png')
-    
     if save_plot:
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
+        plot_dir = os.path.join(output_dir, 'plots') 
+        filedir = os.path.join(plot_dir, 'bkg_scaling_parameters.png')
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
         plt.savefig(filedir, bbox_inches='tight', dpi=300)
 
     if show_plot:
@@ -166,26 +164,36 @@ def plot_mode_v_params(exp_times, modes, params,
 
 
 def plot_histogram(bin_cents, array, mode, median, hist_min, hist_max, hist_bins, fit, exp_num, 
-                   gaussian_center=False, gaussian_fit = None, show_plots=0, save_plots=0, output_dir=None):
-    """_summary_
+                   gaussian_center=False, gaussian_fit = None, show_plots=False, save_plots=False, output_dir=None):
+    """Plots a histogram of the background values for the given exposure.
 
     Args:
-        bin_cents (_type_): _description_
-        array (_type_): _description_
-        mode (_type_): _description_
-        median (_type_): _description_
-        hist_min (_type_): _description_
-        hist_max (_type_): _description_
-        hist_bins (_type_): _description_
-        fit (_type_): _description_
-        exp_num (_type_): _description_
-        gaussian_center (bool, optional): _description_. Defaults to False.
-        gaussian_fit (_type_, optional): _description_. Defaults to None.
-        show_plots (int, optional): _description_. Defaults to 0.
-        save_plots (int, optional): _description_. Defaults to 0.
-        output_dir (_type_, optional): _description_. Defaults to None.
+        bin_cents (array-like): centers of each bin.
+        array (array-like): flattened image data for which the histogram
+        was computed.
+        mode (float): mode of the array without any fit or trim.
+        median (float): median of the array without any fit or trim.
+        hist_min (float): lower bound of values to consider when building
+        the histogram.
+        hist_max (float): upper bound of values to consider when building
+        the histogram.
+        hist_bins (int): number of bins to use for the calculation.
+        fit (str or None, optional): type of fit to apply to the histogram.
+        Options are 'Gaussian' (fits a 1D Gaussian to the histogram),
+        'median' (takes the median of the histogram), or can be left as
+        None to use just the histogram's mode. Defaults to None.
+        exp_num (float): exposure number.
+        gaussian_center (float, optional): if not False, center of the Gaussian
+        fit to plot. Defaults to False.
+        gaussian_fit (array-like, optional): if not None, the Gaussian fit
+        to plot. Defaults to None.
+        show_plots (bool, optional): whether to show this plot.
+        Defaults to False.
+        save_plots (bool, optional): whether to save this plot.
+        Defaults to False.
+        output_dir (str, optional): where to save the plot to, if save_plot
+        is True. Defaults to None.
     """
-
 
     plt.figure(figsize = (10, 7))
     plt.hist(array, bins = bin_cents, color = 'indianred', alpha = 0.7, density=False)
@@ -202,17 +210,15 @@ def plot_histogram(bin_cents, array, mode, median, hist_min, hist_max, hist_bins
     plt.title(f'Background Values histogram Exposure {exp_num}')
 
     if save_plots:
-        stagedir = os.path.join(output_dir, f'stage1/plots/')
-        if not os.path.exists(stagedir):
-            os.makedirs(stagedir) 
-        filedir = os.path.join(stagedir, f'bkg_histogram_exposure{exp_num}.png')
+        plot_dir = os.path.join(output_dir, 'plots') 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
+        filedir = os.path.join(plot_dir, f'bkg_histogram_exposure{exp_num}.png')
         plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
     
     if show_plots:
         plt.show(block=True)
 
     plt.close() # save memory
-
-
 
     return

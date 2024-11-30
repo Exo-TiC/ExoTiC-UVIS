@@ -2,7 +2,8 @@
 
 # Setup for Stage 2
 toplevel_dir    './files'                                   # Directory where your current project files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data as well as the outputs folder.
-run_name        'exotic_uvis_run_1'                         # Str. This is the name of the current run. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).
+input_run       'exotic_uvis_run_1'                         # Str. This is the name of the Stage 1 run you want to load.
+output_run      'exotic_uvis_run_1'                         # Str. This is the name to save the current run to. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).
 verbose         2                                           # Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.
 show_plots      2                                           # Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.
 save_plots      2                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
@@ -15,7 +16,7 @@ traces_to_conf  ('+1','-1')                                 # Lst of str. The tr
 refine_fit      True                                        # Bool. If True, uses Gaussian fitting to refine the trace solution.
 
 # Step 3: 1D spectral extraction
-method          'box'                                       # Str. Options are 'box' (draw a box around the trace and sum without weights) or 'optimum' (weight using Horne 1986 methods).
+method          'box'                                       # Str. Options are 'box' (draw a box around the trace and sum without weights) or 'optimal' (weight using Horne 1986 methods).
 subtract_contam False                                       # Bool. Whether to model the contaminating orders and subtract them from your trace during extraction. Sometimes works, sometimes just adds lots of scatter.
 sens_correction False                                       # Bool. Whether to correct for the G280's changing sensitivity as a function of wavelength. Since absolute calibrated spectra aren't needed in exoplanetary sciences, you can skip this safely.
 mask_objs       [[0,0,0],]                                  # List of lists. If there are background objects in your planned aperture, mask them here. Each entry is (x,y,radius).
