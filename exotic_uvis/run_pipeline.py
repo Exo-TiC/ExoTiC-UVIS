@@ -63,6 +63,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                 stage0_dict['target_name'], 
                                 stage0_dict['visit_number'],
                                 stage0_dict['toplevel_dir'],
+                                token=stage0_dict['token'],
                                 extensions=stage0_dict['extensions'])
     
         # collect and move files
