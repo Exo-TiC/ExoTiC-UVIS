@@ -1,5 +1,5 @@
 import os
-
+import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -90,6 +90,59 @@ def plot_flags_per_time(series_x, series_y, style='line',
     return
 
 
-def plot_light_curve():
-    # Placeholder
-    return "yo"
+def plot_raw_whitelightcurve(times, spec, order="+1",
+                    show_plot = False, save_plot = False,
+                    filename = None, output_dir = None):
+    
+    raw_wlc = np.sum(spec, axis=1)
+
+    plt.figure(figsize = (10, 7))
+    plt.plot(times, raw_wlc, 'o', color='indianred', markeredgecolor='black')
+    plt.xlabel('Time of exposure')
+    plt.ylabel('Counts')
+
+      
+    if save_plot:
+        plot_dir = os.path.join(output_dir, 'plots') 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
+        filedir = os.path.join(plot_dir, f'{filename}.png')
+        plt.savefig(filedir,dpi=300,bbox_inches='tight')
+
+    if show_plot:
+        plt.show(block=True)
+
+    plt.close() # save memory
+
+
+    return 0
+
+
+def plot_raw_spectrallightcurves(times, spec, order="+1",
+                    show_plot = False, save_plot = False,
+                    filename = None, output_dir = None):
+    
+
+    for i, lc in enumerate(np.transpose(spec)):
+        raw_lc = lc/np.median(lc[:30])
+
+        plt.figure(figsize = (10, 7))
+        plt.plot(times, raw_lc, 'o', color='indianred', markeredgecolor='black')
+        plt.xlabel('Time of exposure')
+        plt.ylabel('Counts')
+
+      
+        if save_plot:
+            plot_dir = os.path.join(output_dir, 'plots') 
+            if not os.path.exists(plot_dir):
+                os.makedirs(plot_dir) 
+            filedir = os.path.join(plot_dir, f'{filename}.png')
+            plt.savefig(filedir,dpi=300,bbox_inches='tight')
+
+        if show_plot:
+            plt.show(block=True)
+
+        plt.close() # save memory
+
+
+    return 0

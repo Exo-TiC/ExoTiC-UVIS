@@ -135,3 +135,37 @@ def plot_spec_gif(wav, spec, order="+1",
     plt.close() # save memory
 
     return 
+
+
+def plot_2d_spectra(wav, spec, order="+1",
+                    show_plot = False, save_plot = False,
+                    filename = None, output_dir = None):
+    
+    # normalize spectra
+    #print(np.shape(np.nanmedian(spec[:20], axis=0)))
+    spec = spec / np.nanmedian(spec[:20], axis=0)
+
+    
+    plt.figure(figsize = (10, 7))
+    plt.imshow(spec, aspect='auto', origin='lower',
+                vmin = 0.99, vmax = 1.01, cmap='copper',
+                extent = [wav[0], wav[-1], 0, spec.shape[0]])
+    plt.colorbar()
+    plt.ylabel('Integration number')
+    plt.xlabel('Wavelength (microns)')
+
+      
+    if save_plot:
+        plot_dir = os.path.join(output_dir, 'plots') 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
+        filedir = os.path.join(plot_dir, f'{filename}.png')
+        plt.savefig(filedir,dpi=300,bbox_inches='tight')
+
+    if show_plot:
+        plt.show(block=True)
+
+    plt.close() # save memory
+
+
+    return 0

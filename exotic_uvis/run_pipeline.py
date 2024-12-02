@@ -8,6 +8,9 @@ from exotic_uvis.read_and_write_config import write_config
 
 from exotic_uvis.plotting import plot_one_spectrum
 from exotic_uvis.plotting import plot_spec_gif
+from exotic_uvis.plotting import plot_2d_spectra
+from exotic_uvis.plotting import plot_raw_whitelightcurve
+from exotic_uvis.plotting import plot_raw_spectrallightcurves
 from exotic_uvis.plotting import quicklookup
 
 from exotic_uvis.stage_0 import collect_and_move_files
@@ -283,10 +286,6 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         if not os.path.exists(run_dir):
             os.makedirs(run_dir)
 
-        # test 0th order removal
-        #remove_zeroth_order(obs, zero_pos = [1158, 300], rmin = 100, rmax = 300, rwidth = 3, fit_profile = True, 
-        #            verbose = stage2_dict['verbose'], show_plots = stage2_dict['show_plots'], save_plots = stage2_dict['save_plots'], output_dir = None)
-
         # iterate over orders
         for i, order in enumerate(stage2_dict['traces_to_conf']):
             # configure trace
@@ -299,6 +298,10 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                                    show_plots=stage2_dict['show_plots'], 
                                                                    save_plots=stage2_dict['save_plots'],
                                                                    output_dir=run_dir)
+            
+            # test 0th order removal
+            #remove_zeroth_order(obs, zero_pos = [1158, 300], rmin = 100, rmax = 300, rwidth = 3, fit_profile = True, 
+            #            verbose = stage2_dict['verbose'], show_plots = stage2_dict['show_plots'], save_plots = stage2_dict['save_plots'], output_dir = None)
             
             # extract
             if stage2_dict['method'] == 'box':
@@ -335,8 +338,11 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                 spec, spec_err = optimal_extraction(obs, 
                                                     trace_x, 
                                                     trace_y,
+                                                    width = stage2_dict['halfwidths_opt'][i],
+                                                    prof_type = stage2_dict['aperture_type'],
                                                     show_plots=stage2_dict['show_plots'],
-                                                    save_plots=stage2_dict['save_plots'])
+                                                    save_plots=stage2_dict['save_plots'],
+                                                    output_dir=run_dir)
 
             # do sensitivity
             if stage2_dict['sens_correction']:
@@ -387,6 +393,25 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                 filename='s2_1Dspec_order{}'.format(order),
                                 output_dir=run_dir,
                                 )
+                                
+                plot_2d_spectra(wav, spec, order="+1",
+                                show_plot = (stage2_dict['show_plots'] > 0), 
+                                save_plot = (stage2_dict['save_plots'] > 0),
+                                filename = 's2_2Dspec_order{}'.format(order),
+                                output_dir = run_dir)
+                
+                #plot_raw_spectrallightcurves(obs.exp_time.data, spec, order="+1",
+                #                show_plot = (stage2_dict['show_plots'] > 0), 
+                #                save_plot = (stage2_dict['save_plots'] > 0),
+                #                filename = 's2_2Dspec_order{}'.format(order),
+                #                output_dir = run_dir)
+                
+                plot_raw_whitelightcurve(obs.exp_time.data, spec, order="+1",
+                                show_plot = (stage2_dict['show_plots'] > 0), 
+                                save_plot = (stage2_dict['save_plots'] > 0),
+                                filename = 's2_rawwlc_order{}'.format(order),
+                                output_dir = run_dir)
+
                 plot_spec_gif(wav,spec,
                             order=order,
                             show_plot=(stage2_dict['show_plots'] > 0),

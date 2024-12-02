@@ -19,6 +19,29 @@ def spatial_profile_curved():
 def spatial_profile_curved_poly():
     return 0
 
+
+def spatial_profile_median(images, show_plots=0, save_plots=0, output_dir=None):
+
+    # calculate median image
+    P_prof = np.median(images, axis = 0)
+
+    # set negative values to 0
+    P_prof[P_prof < 0] = 0
+
+    # normalize profile along the cross_dispersion direction
+    P_prof = P_prof / np.sum(P_prof, axis = 0)
+
+    # if true, plot the computed spatial profile
+    if (show_plots>1) or (save_plots>1):
+        plot_exposure([P_prof], title = 'Example of Spatial profile', min=1e-4, max=1e0,
+                      show_plot=show_plots, save_plot=save_plots,
+                      output_dir=output_dir, filename = [f'spatial_profile'])
+        
+    return P_prof
+
+
+
+
 def window_profile(image, init_pix, fin_pix, pol_degree = 6, 
                    threshold = 6.):
 
@@ -81,7 +104,8 @@ def window_profile(image, init_pix, fin_pix, pol_degree = 6,
     return P_win, xhit, yhit, stds
 
 
-def spatial_profile(image_org, window = 40, threshold = 4., normalize = False, show_plots=0, save_plots=0):
+def spatial_profile(exp_ind, image_org, window = 40, threshold = 4., normalize = False,
+                    show_plots=0, save_plots=0, output_dir=0):
 
     """"
     
@@ -122,18 +146,24 @@ def spatial_profile(image_org, window = 40, threshold = 4., normalize = False, s
     # if true, plot spatial profile
     if (show_plots>1) or (save_plots>1):
 
-        plot_exposure([P_prof], title = 'Spatial_profile', min=1e-4, max=1e0,
-                      show_plot=1, save_plot=0,
-                      output_dir=None, filename = ['spatial_profile'])
+        #plot_exposure([image_org], title = 'Spatial_profile', min=1e1, max=1e4,
+        #              show_plot=1, save_plot=0,
+        #              output_dir=None, filename = ['spatial_profile'])
+
+        plot_exposure([P_prof], title = f'Example of Spatial profile Exposure {exp_ind}', min=1e-4, max=1e0,
+                      show_plot=show_plots, save_plot=save_plots,
+                      output_dir=output_dir, filename = [f'spatial_profile_exp{exp_ind}'])
         
-        plot_exposure([image, image_org], scatter_data=[xhits, yhits], title = 'Spatial_profile', 
-                      show_plot=1, save_plot=0,
-                      output_dir=None, filename = ['spatial_profile'])
+        #plot_exposure([image, image_org], scatter_data=[xhits, yhits], title = 'Spatial_profile', 
+        #              show_plot=1, save_plot=0,
+        #              output_dir=None, filename = ['spatial_profile'])
         
     return P_prof, image, xhits, yhits
 
 
-def spatial_profile_curved_poly(sub_image_org, image, tx_main, ty_main, low_val, up_val, init_spec = None, fit_thresh = 4., fit_degree = 5, window = 50, correct_thresh = None, plot = False):
+def spatial_profile_curved_poly(exp_ind, sub_image_org, image, tx_main, ty_main, low_val, up_val, init_spec = None, 
+                                fit_thresh = 4., fit_degree = 5, window = 50, correct_thresh = None,
+                                show_plots=0, save_plots=0, output_dir=0):
 
 
     """
@@ -221,44 +251,46 @@ def spatial_profile_curved_poly(sub_image_org, image, tx_main, ty_main, low_val,
     stds_image = interpolate.griddata(np.transpose(grid_points), np.ravel(stds), (np.ravel(grid_x), np.ravel(grid_y)), method = 'linear')
     stds_image = np.reshape(stds_image, (len(y_vals), len(tx_main)))
     
-    if correct_thresh:
+    #if correct_thresh:
+    # mask and replace values
+    mask_cr = stds_image > correct_thresh
+    sub_image_org[mask_cr] = spatial_prof[mask_cr]
+    xhits, yhits = np.where(mask_cr == 1)
 
-        # mask and replace values
-        mask_cr = stds_image > correct_thresh
-        sub_image_org[mask_cr] = spatial_prof[mask_cr]
-        xhits, yhits = np.where(mask_cr == 1)
+    # normalize profile along the cross_dispersion direction
+    spatial_prof = spatial_prof/np.sum(spatial_prof, axis = 0)
         
-    if plot:
+    if show_plots>1 or save_plots>1:
 
-        if correct_thresh:
-            # plot difference image
-            #utils.plot_image([sub_image_org, sub_image], min = 1., max = 4., show = False)
-            #utils.plot_image([sub_image, spatial_prof], scatter_data = [yhits, xhits], min = 1., max = 4., show = False)
+        #if correct_thresh:
+        # plot difference image
+        #utils.plot_image([sub_image_org, sub_image], min = 1., max = 4., show = False)
+        #utils.plot_image([sub_image, spatial_prof], scatter_data = [yhits, xhits], min = 1., max = 4., show = False)
 
-            plot_exposure([sub_image, spatial_prof], title = 'Spatial_profile', min=1e1, max=1e4,
-                      show_plot=1, save_plot=0,
-                      output_dir=None, filename = ['spatial_profile'])
+        plot_exposure([spatial_prof], scatter_data = [yhits, xhits], #[sub_image, spatial_prof]
+                        title = f'Example of Spatial profile Exposure {exp_ind}', min=1e-4, max=1e0,
+                        show_plot=show_plots, save_plot=save_plots,
+                        output_dir=output_dir, filename = [f'spatial_profile_exp{exp_ind}'])
 
         # compute difference image
-        diff_im = (sub_image - spatial_prof)/np.sqrt(spatial_prof) 
+        #diff_im = (sub_image - spatial_prof)/np.sqrt(spatial_prof) 
 
-        plt.figure(figsize = (10, 7))
-        plt.imshow(diff_im, origin = 'lower', vmin = 0, vmax = 10)
-        plt.colorbar()
+        #plt.figure(figsize = (10, 7))
+        #plt.imshow(diff_im, origin = 'lower', vmin = 0, vmax = 10)
+        #plt.colorbar()
    
-        plt.figure(figsize = (10, 7))
-        plt.imshow(stds_image, origin = 'lower', vmin = 0, vmax = 10)
-        plt.colorbar()
-        plt.show()
-    
-
+        #plt.figure(figsize = (10, 7))
+        #plt.imshow(stds_image, origin = 'lower', vmin = 0, vmax = 10)
+        #plt.colorbar()
+        #plt.show()
 
     return spatial_prof
 
 
 
 
-def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_type = 'polyfit', iterate = False, plot = True, zero_bkg = None,
+def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_type = 'polyfit', 
+                       iterate = False, plot = True, zero_bkg = None,
                        verbose=0, show_plots=0, save_plots=0, output_dir=None):
 
 
@@ -290,11 +322,15 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
                                         trace_y=traces_y)
 
     # calculate median profile
-    #if prof_type == 'median':
-    #    prof = optimal_clean.spatial_profile_median(sub_images, plot = True) 
+    if prof_type == 'median':
+        prof = spatial_profile_median(sub_images, show_plots=show_plots, 
+                                      save_plots=save_plots, output_dir=output_dir) 
+        
+    # generate random number for plotting
+    plot_ind = np.random.randint(0, np.shape(sub_images)[0])
 
     # extract optimal spectrum
-    for i, sub_image in enumerate(tqdm(sub_images, desc = 'Extracting Optimal Spectrum... Progress:')):
+    for i, sub_image in enumerate(tqdm(sub_images, desc = 'Extracting Optimal Spectrum... Progress')):
 
         # initialize variables and get exposure data
         opt_spec, opt_err, diff_image = [], [], []
@@ -317,18 +353,28 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
 
         # calculate profile in region of interest:
         if prof_type == 'polyfit':
-            prof, _, _, _ = spatial_profile(sub_image, window = 40, show_plots=show_plots, save_plots=save_plots)
+            prof, _, _, _ = spatial_profile(i, sub_image, window = 40, show_plots = show_plots,
+                                           save_plots=save_plots, output_dir=output_dir)
 
         elif prof_type == 'smooth':
-            prof, _, _, _ = spatial_profile_smooth(sub_image, window_len = 13, threshold = 5, plot = False)
+            prof, _, _, _ = spatial_profile_smooth(i, sub_image, window_len = 13, threshold = 5,
+                                                   show_plots=show_plots, save_plots=save_plots, output_dir=output_dir)
         
         elif prof_type == 'curved_poly':
             image = images[i]
-            prof = spatial_profile_curved_poly(sub_image, image, trace_x, trace_y, low_val, up_val, init_spec = None, correct_thresh=7., window = 40, plot = True)
+            prof = spatial_profile_curved_poly(i, sub_image, image, trace_x, trace_y, low_val, up_val, init_spec = None, correct_thresh=7., window = 40,
+                                               show_plots = show_plots, save_plots=save_plots, output_dir=output_dir)
         
         elif prof_type == 'curved_smooth':
             image = images[i]
-            prof = spatial_profile_curved(sub_image, image, trace_x, trace_y, low_val, up_val, init_spec = spectrum, correct_thresh = 6., smooth_window = 7, median_window = 7, plot = True)
+            prof = spatial_profile_curved(i, sub_image, image, trace_x, trace_y, low_val, up_val, init_spec = spectrum, correct_thresh = 6., smooth_window = 7, median_window = 7,
+                                          show_plots = show_plots, save_plots=save_plots, output_dir=output_dir)
+        
+        if (show_plots==1 or save_plots==1) and (i == plot_ind):
+            plot_exposure([prof], title = f'Example of Spatial profile Exposure {i}', min=1e-4, max=1e0,
+                    show_plot=(show_plots > 0), save_plot=(save_plots > 0),
+                    output_dir=output_dir, filename = [f'spatial_profile_exp{i}'])
+
            
         # iterate over each column
         for j, pix in enumerate(trace_x):
@@ -367,24 +413,7 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
 
             # compute spectrum
             spec_col = np.sum(prof_col*image_col/var_col) / np.sum(prof_col*prof_col / var_col)
-
             diff_image.append(np.abs(image_col - exp_col)/np.sqrt(exp_col))
-
-            if j == 450:
-                print(j)
-                plt.figure(figsize = (10, 7))
-                plt.plot(exp_col, label='Smoothed Profile')
-                plt.plot(image_col, label='Cross-dispersion profile')
-                #plt.plot(spec_col*prof_col)
-                plt.legend()
-                plt.xlabel('Detector Pixel')
-                plt.ylabel('Counts')
-                plt.show(block=True)
-
-                plt.figure()
-                plt.plot(prof_col/var_col)
-                plt.show(block=True)
-        
 
             # define column mask
             badpixels = False
@@ -428,24 +457,6 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
         # plot masked pixels
         if iterate:
             xhits, yhits = np.where(hit_image == 1)
-            utils.plot_image([sub_image], scatter_data=[yhits, xhits])
-
-        plot_profile = False
-        if plot_profile:
-            diff_image = np.array(diff_image).transpose()
-            #diff_image = np.array(opt_spec) * prof - sub_image
-            plt.figure(figsize = (10, 7))
-            plt.imshow(diff_image, origin = 'lower', vmin = 0, vmax = 5)
-            plt.colorbar()
-            plt.show()
-
-    if show_plots>0:
-        plt.figure(figsize = (10, 7))
-        plt.plot(trace_x, opt_spec)
-        plt.xlabel('Pixel Detector Position')
-        plt.ylabel('Extracted Counts')
-        plt.title('Example of extracted spectrum')
-        plt.show()
-
+            #utils.plot_image([sub_image], scatter_data=[yhits, xhits])
 
     return np.array(opt_specs), np.array(opt_specs_err)
