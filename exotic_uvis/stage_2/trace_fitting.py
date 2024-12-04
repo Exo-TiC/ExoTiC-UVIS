@@ -107,7 +107,7 @@ def get_calibration_trace(order, x0, y0, path_to_cal):
         trace, the assigned wavelength solution, and the sensitivity correction function.
     """
     # Initialize the GRISMCONF configuration.
-    C = grismconf.Config(path_to_cal) # this line produces 'nan'
+    C = grismconf.Config(path_to_cal) 
     
     # Get dx limits using 0<t<1.
     dxs = C.DISPX(order,x0,y0,np.array([0,1]))
@@ -231,8 +231,8 @@ def fit_trace(obs, trace_x, trace_y,
                     profile_fit = Gauss1D(y_vals, parameters[0], parameters[1], parameters[2], parameters[3])
 
                     plot_profile_fit(y_vals, profile, profile_fit, trace_y[j], parameters[2],
-                                    show_plot = False, save_plot = False, 
-                                    filename = None, output_dir = None)
+                                    show_plot = (show_plots>0), save_plot = (save_plots>0), 
+                                    output_dir = output_dir)
             
         # If true, fit a polynomial to the extracted trace locations and widths.
         if fit_trace:

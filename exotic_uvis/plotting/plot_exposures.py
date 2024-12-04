@@ -54,7 +54,7 @@ def plot_exposure(images, line_data = None, scatter_data = None,
 
         if line_data:
             for line in line_data:
-                plt.plot(line[0], line[1])
+                plt.plot(line[0], line[1], color='indianred')
 
         if scatter_data: 
             plt.scatter(scatter_data[0], scatter_data[1], s = mark_size, color = 'r', marker = '+')

@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
 
 #define plotting parameters
@@ -143,6 +144,43 @@ def plot_raw_spectrallightcurves(times, spec, order="+1",
             plt.show(block=True)
 
         plt.close() # save memory
+
+
+    return 0
+
+
+
+def plot_aperture_lightcurves(obs, tested_hws, wlcs,  
+                               show_plot = False, save_plot = False,
+                                filename = None, output_dir = None):
+
+  
+    # colormap
+    cmap = cm.get_cmap('viridis')
+    cs = cmap(np.linspace(0,1,len(tested_hws)))
+
+    # offsets
+    #offsets = np.arange(0, len(tested_hws))*0.001
+
+    plt.figure(figsize=(10, 7))
+    for wlc, hw, c in zip(wlcs, tested_hws, cs):
+        if (hw == tested_hws[0] or hw == tested_hws[-1]):
+            plt.scatter(obs.exp_time, wlc, color=c, label=hw, alpha=0.75)
+        else:
+            plt.scatter(obs.exp_time, wlc, color=c, alpha=0.75)
+    plt.legend(loc='upper left', ncols=2)
+    plt.xlabel('Time of exposure')
+    plt.ylabel('Counts')
+    
+    if save_plot:
+        plot_dir = os.path.join(output_dir,'plots')
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir)
+        plt.savefig(os.path.join(plot_dir, filename),
+                    dpi=300,bbox_inches='tight')
+    if show_plot:
+        plt.show(block=True)
+    plt.close()
 
 
     return 0

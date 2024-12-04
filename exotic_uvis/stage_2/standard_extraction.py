@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import least_squares
 
 from exotic_uvis.plotting import plot_exposure
+from exotic_uvis.plotting import plot_aperture_lightcurves
 
 
 def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = [],
@@ -174,26 +175,14 @@ def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10
         wlcs.append(WLC)
 
     if (show_plots == 2 or save_plots == 2):
-        cs = [[0.75,0.75,x] for x in np.linspace(0,1,len(tested_hws))]
-        for wlc,hw,c in zip(wlcs,tested_hws,cs):
-            if (hw == tested_hws[0] or hw == tested_hws[-1]):
-                plt.scatter(obs.exp_time, wlc, color=c, label=hw, alpha=0.75)
-            else:
-                plt.scatter(obs.exp_time, wlc, color=c, alpha=0.75)
-        plt.legend(loc='upper left',ncols=2)
-        
-        if save_plots == 2:
-            plot_dir = os.path.join(output_dir,'plots')
-            if not os.path.exists(plot_dir):
-                os.makedirs(plot_dir)
-            plt.savefig(os.path.join(plot_dir,"s2_WLC{}_tested-hws-wlcs.png".format(order)),
-                        dpi=300,bbox_inches='tight')
-        if show_plots == 2:
-            plt.show(block=True)
-        plt.close()
-
+        plot_aperture_lightcurves(obs, tested_hws, wlcs, 
+                                show_plot = (show_plots > 0), save_plot = (save_plots > 0),
+                                    filename = "s2_WLC{}_tested-hws-wlcs.png".format(order), output_dir = output_dir)
+   
     if (show_plots > 0 or save_plots > 0):
-        plt.scatter(tested_hws, [1e6*i for i in reses])
+        plt.figure(figsize=(10, 7))
+        plt.scatter(tested_hws, [1e6*i for i in reses], color='indianred')
+        plt.axvline(tested_hws[np.argmin(reses)], color='gray', linestyle='--')
         plt.xlabel('half-width [pixels]')
         plt.ylabel('residuals [ppm]')
         if save_plots > 0:

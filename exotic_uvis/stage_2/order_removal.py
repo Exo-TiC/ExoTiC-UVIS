@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from scipy import optimize
 from tqdm import tqdm
 from matplotlib.pyplot import rc
+import grismconf
 
 rc('font', family='serif')
 plt.rc('xtick', labelsize=14)
@@ -43,7 +44,7 @@ def exponential(x, x0, y0, a, b):
 
 
 
-def remove_zeroth_order(obs, mode = 'radial_profile', zero_pos = [1158, 300], rmin = 100, rmax = 300, rwidth = 3, fit_profile = False, 
+def remove_zeroth_order(path_to_cal, source_pos, obs, mode = 'radial_profile', zero_pos = [1158, 300], rmin = 100, rmax = 300, rwidth = 3, fit_profile = False, 
                verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
 
 

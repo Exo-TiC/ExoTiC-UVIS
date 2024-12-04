@@ -276,9 +276,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         obs = load_data_S2(S2_data_path)
 
         # get the location from the obs.nc file
-        stage2_dict['location'] = [obs.attrs['target_posx'],obs.attrs['target_posy']]
+        stage2_dict['location'] = [obs.attrs['target_posx'], obs.attrs['target_posy']]
 
-        # create output directory
         # create output directory
         output_dir = os.path.join(stage2_dict['toplevel_dir'],'outputs')
         stage_dir = os.path.join(output_dir,'stage2')
@@ -300,8 +299,16 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                                    output_dir=run_dir)
             
             # test 0th order removal
-            #remove_zeroth_order(obs, zero_pos = [1158, 300], rmin = 100, rmax = 300, rwidth = 3, fit_profile = True, 
-            #            verbose = stage2_dict['verbose'], show_plots = stage2_dict['show_plots'], save_plots = stage2_dict['save_plots'], output_dir = None)
+            #remove_zeroth_order(stage2_dict['path_to_cal'],
+            #                    stage2_dict['location'],
+            #                    obs, 
+            #                    zero_pos = [1158, 300], 
+            #                    rmin = 100, rmax = 300, rwidth = 3, 
+            #                    fit_profile = True,
+            #                    verbose = stage2_dict['verbose'],
+            #                    show_plots = stage2_dict['show_plots'],
+            #                    save_plots = stage2_dict['save_plots'],
+            #                    output_dir = None)
             
             # extract
             if stage2_dict['method'] == 'box':
@@ -355,8 +362,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                 spec_err[~np.isfinite(spec_err)] = 0
 
             # do alignment
-            x_shifts = False
-            y_shifts = False
+            x_shifts, y_shifts = False, False
             if stage2_dict['align']:
                 spec, spec_err, x_shifts = align_spectra(obs,
                                                         spec,
