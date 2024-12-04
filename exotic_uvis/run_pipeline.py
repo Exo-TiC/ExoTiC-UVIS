@@ -29,6 +29,7 @@ from exotic_uvis.stage_1 import refine_location
 
 from exotic_uvis.stage_2 import load_data_S2
 from exotic_uvis.stage_2 import save_data_S2
+from exotic_uvis.stage_2 import get_calibration_0th
 from exotic_uvis.stage_2 import get_trace_solution
 from exotic_uvis.stage_2 import determine_ideal_halfwidth
 from exotic_uvis.stage_2 import standard_extraction
@@ -284,6 +285,15 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         run_dir = os.path.join(stage_dir,stage2_dict['output_run'])
         if not os.path.exists(run_dir):
             os.makedirs(run_dir)
+
+        # calibrate 0th order
+        x0th, y0th = get_calibration_0th(obs,
+                                         source_pos=stage2_dict['location'],
+                                         path_to_cal=stage2_dict['path_to_cal'],
+                                         verbose=stage2_dict['verbose'],
+                                         show_plots=stage2_dict['show_plots'], 
+                                         save_plots=stage2_dict['save_plots'],
+                                         output_dir=run_dir)
 
         # test 0th order removal
         #remove_zeroth_order(obs, zero_pos = [1158, 300], rmin = 100, rmax = 300, rwidth = 3, fit_profile = True, 

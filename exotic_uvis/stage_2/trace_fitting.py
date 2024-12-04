@@ -11,6 +11,93 @@ from exotic_uvis.plotting import plot_profile_fit
 from exotic_uvis.plotting import plot_exposure
 
 
+def get_calibration_0th(obs, source_pos, path_to_cal,
+                       verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
+    """Uses a custom method based on GRISMCONF and the source position to
+    locate the 0th order for removal purposes.
+
+    Args:
+        x0 (float): Embedded x position of the source.
+        y0 (float): Embedded y position of the source.
+        path_to_cal (str): Path to the calibration file used to locate the trace.
+
+    Returns:
+        float, float: the x and y position of the 0th order.
+    """
+
+    if verbose>0:
+        print("Calibrating 0th order...")
+
+    # Get the mean subarr_coords offsets.
+    offset_x0 = obs.subarr_coords.values[0]
+    offset_y0 = obs.subarr_coords.values[2]
+    x0 = source_pos[0] + offset_x0
+    y0 = source_pos[1] + offset_y0
+
+    # There is no 0th order fitter, so we will make one.
+    # Initialize the GRISMCONF configuration.
+    C = grismconf.Config(path_to_cal) # this line produces 'nan'
+    order = "+1"
+    
+    # Get dx limits using 0<t<1.
+    dxs = C.DISPX(order,x0,y0,np.array([0,1]))
+    dxs = np.sort(dxs)
+
+    # Turn the dxs limits into a full span of column positions.
+    dxs = np.arange(dxs[0],dxs[1],1)
+
+    # Compute the t values corresponding to the exact offsets
+    ts = C.INVDISPX(order,x0,y0,dxs)
+
+    # Compute the dys values for the same pixels
+    dys = C.DISPY(order,x0,y0,ts)
+    
+    # Compute wavelength of each of the pixels
+    wavs = C.DISPL(order,x0,y0,ts)
+
+    # Restrict attention to just where 700 nm < wavs < 800 nm.
+    dxs = dxs[np.logical_and(wavs>=7000, wavs<=8000)]
+    dys = dys[np.logical_and(wavs>=7000, wavs<=8000)]
+
+    # Extrapolate linearly.
+    result = linregress(dxs,dys)
+    m,b = result.slope, result.intercept
+    dxs = np.arange(-5000,5000,1)
+    dys = m*dxs + b
+    
+    # Combine the displacements with the source position to get the trace location.
+    xs = np.array([i+x0 for i in dxs])
+    ys = np.array([i+y0 for i in dys])
+
+    # Truncate on reasonableness.
+    ok = (xs>0) & (xs<4096)
+    trace_x = xs[ok]
+    trace_y = ys[ok]
+    
+    # Undo the offsets from the subarray coordinates.
+    x0th = [i - offset_x0 for i in trace_x]
+    y0th = [i - offset_y0 for i in trace_y]
+
+    # Find the saturated spike.
+    collapse_cols = np.sum(obs.images.data[0],axis=0)
+    correct_column = np.argmax(collapse_cols)
+
+    # Find x0th, y0th index where these are closest.
+    solution_index = np.argmin(np.abs(x0th-correct_column))
+    x0th, y0th = x0th[solution_index], y0th[solution_index]
+    
+    # Plot the calibration over the image.
+    if (show_plots > 0 or save_plots > 0):
+        window = obs.images.data[0,int(y0th-70):int(y0th+70),int(x0th-70):int(x0th+70)]
+        shiftx, shifty = int(x0th-70), int(y0th-70)
+        plot_exposure([window], scatter_data=[[x0th-shiftx,],[y0th-shifty,]],
+                      filename = ['calibration_0th'],
+                      save_plot=(save_plots>0), show_plot=(show_plots>0),
+                      output_dir=output_dir)
+
+    return x0th, y0th
+
+
 def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
                        verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Pulls the region of each image that has the trace in it, with wavelength
@@ -45,32 +132,6 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
     offset_y0 = obs.subarr_coords.values[2]
     adjusted_x0 = source_pos[0] + offset_x0
     adjusted_y0 = source_pos[1] + offset_y0
-
-    # Get the 0th order position.
-    trace_x, trace_y = get_calibration_0th(adjusted_x0,
-                                           adjusted_y0,
-                                           path_to_cal)
-    
-    # Undo the offsets from the subarray coordinates.
-    x0th = [i - offset_x0 for i in trace_x]
-    y0th = [i - offset_y0 for i in trace_y]
-
-    # Find the saturated spike.
-    collapse_cols = np.sum(obs.images.data[0],axis=0)
-    correct_column = np.argmax(collapse_cols)
-
-    # Find x0th, y0th index where these are closest.
-    solution_index = np.argmin(np.abs(x0th-correct_column))
-    x0th, y0th = x0th[solution_index], y0th[solution_index]
-    
-    # Plot the calibration over the image.
-    if (show_plots > 0 or save_plots > 0):
-        window = obs.images.data[0,int(y0th-70):int(y0th+70),int(x0th-70):int(x0th+70)]
-        shiftx, shifty = int(x0th-70), int(y0th-70)
-        plot_exposure([window], scatter_data=[[x0th-shiftx,],[y0th-shifty,]],
-                      filename = ['calibration_0th'],
-                      save_plot=(save_plots>0), show_plot=(show_plots>0),
-                      output_dir=output_dir)
     
     # Get the x, y positions of the trace as well as wavelength solution and sensitivity correction.
     trace_x, trace_y, wavs, sens = get_calibration_trace(order,
@@ -116,61 +177,6 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
         widths = False
     
     return trace_x, trace_y, wavs, widths, sens
-
-
-def get_calibration_0th(x0, y0, path_to_cal):
-    """Uses a custom method based on GRISMCONF and the source position to
-    locate the 0th order for removal purposes.
-
-    Args:
-        x0 (float): Embedded x position of the source.
-        y0 (float): Embedded y position of the source.
-        path_to_cal (str): Path to the calibration file used to locate the trace.
-
-    Returns:
-        float, float: the x and y position of the 0th order.
-    """
-    # There is no 0th order fitter, so we will make one.
-    # Initialize the GRISMCONF configuration.
-    C = grismconf.Config(path_to_cal) # this line produces 'nan'
-    order = "+1"
-    
-    # Get dx limits using 0<t<1.
-    dxs = C.DISPX(order,x0,y0,np.array([0,1]))
-    dxs = np.sort(dxs)
-
-    # Turn the dxs limits into a full span of column positions.
-    dxs = np.arange(dxs[0],dxs[1],1)
-
-    # Compute the t values corresponding to the exact offsets
-    ts = C.INVDISPX(order,x0,y0,dxs)
-
-    # Compute the dys values for the same pixels
-    dys = C.DISPY(order,x0,y0,ts)
-    
-    # Compute wavelength of each of the pixels
-    wavs = C.DISPL(order,x0,y0,ts)
-
-    # Restrict attention to just where 700 nm < wavs < 800 nm.
-    dxs = dxs[np.logical_and(wavs>=7000, wavs<=8000)]
-    dys = dys[np.logical_and(wavs>=7000, wavs<=8000)]
-
-    # Extrapolate linearly.
-    result = linregress(dxs,dys)
-    m,b = result.slope, result.intercept
-    dxs = np.arange(-5000,5000,1)
-    dys = m*dxs + b
-    
-    # Combine the displacements with the source position to get the trace location.
-    xs = np.array([i+x0 for i in dxs])
-    ys = np.array([i+y0 for i in dys])
-
-    # Truncate on reasonableness.
-    ok = (xs>0) & (xs<4096)
-    x = xs[ok]
-    y = ys[ok]
-
-    return x, y
 
 
 def get_calibration_trace(order, x0, y0, path_to_cal):
