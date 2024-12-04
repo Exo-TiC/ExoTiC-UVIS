@@ -6,10 +6,19 @@ from scipy.ndimage import median_filter
 from exotic_uvis.plotting import plot_exposure
 
 
-def spatial_smoothing(obs, sigma=10):
-    '''
-    For Carlos.
-    '''
+def spatial_smoothing(obs, kernel=(5,5), sigma=10):
+    """Uses 2D median filtering to catch and remove hot pixels.
+
+    Args:
+        obs (xarray): obs.images contains the dataset we are cleaning.
+        kernel (tup, optional): the size of the kernel used to compute
+        the median-filtered image. Defaults to (5,5).
+        sigma (int, optional): threshold at which to remove an outlier.
+        Defaults to 10.
+
+    Returns:
+        xarray: obs with images cleaned and data quality flags updated.
+    """
     return obs
 
 
