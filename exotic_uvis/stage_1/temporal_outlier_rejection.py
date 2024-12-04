@@ -120,7 +120,7 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
     return obs
 
 
-def array1D_clip(array, threshold = 3.5, mode = 'median'): 
+def array1D_clip(array, threshold = 3.5):
     """Function to detect and replace outliers in a 1D array above or below
     a certain sigma threshold imposed.
 
@@ -128,7 +128,6 @@ def array1D_clip(array, threshold = 3.5, mode = 'median'):
         array (np.array): pixel time series to be cleaned for outliers.
         threshold (float, optional): threshold at which to call a value
         an outlier. Defaults to 3.5.
-        mode (str, optional): unusued. Defaults to 'median'.
 
     Returns:
         np.array: cleaned time series and mask marking where outliers were found.
