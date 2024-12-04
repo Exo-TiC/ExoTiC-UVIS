@@ -63,7 +63,7 @@ def refine_location(obs, location=None, window=20,
                       scatter_data = [[obs.attrs['target_posx']], [obs.attrs['target_posy']]],
                       title = 'Computed direct image target location',
                       show_plot=show_plots, save_plot=save_plots, 
-                      output_dir=output_dir, filename = [f'Target location in Direct image']) 
+                      output_dir=output_dir, filename = [f'target_location_in_direct_image']) 
     
     return 
 

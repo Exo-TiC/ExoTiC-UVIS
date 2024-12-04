@@ -40,7 +40,7 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
                                                           [trace_x,[i+halfwidth for i in trace_y[0]]],
                                                           [trace_x,[i-halfwidth for i in trace_y[0]]]],
                       title='Extraction Aperture', save_plot=(save_plots>0), show_plot=(show_plots>0),
-                      filename=['s2_aperture{}'.format(order)],output_dir=output_dir)
+                      filename=['aperture{}'.format(order)],output_dir=output_dir)
 
     # Iterate over frames.
     for k in tqdm(range(obs.images.shape[0]),
@@ -63,7 +63,7 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
                                                    [trace_x,[i+halfwidth for i in trace_y[0]]],
                                                    [trace_x,[i-halfwidth for i in trace_y[0]]]],
                               title='Extraction Aperture', save_plot=(save_plots>0), show_plot=(show_plots>0),
-                              filename=['s2_aperture-masked{}'.format(order)],output_dir=output_dir)
+                              filename=['aperture-masked{}'.format(order)],output_dir=output_dir)
 
         # Pull out just the trace from the frame.
         trace = get_trace(frame, halfwidth, trace_x, trace_y[k])
@@ -186,7 +186,7 @@ def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10
             plot_dir = os.path.join(output_dir,'plots')
             if not os.path.exists(plot_dir):
                 os.makedirs(plot_dir)
-            plt.savefig(os.path.join(plot_dir,"s2_WLC{}_tested-hws-wlcs.png".format(order)),
+            plt.savefig(os.path.join(plot_dir,"determine_halfwidth_{}_tested-hws-wlcs.png".format(order)),
                         dpi=300,bbox_inches='tight')
         if show_plots == 2:
             plt.show(block=True)
@@ -200,7 +200,7 @@ def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10
             plot_dir = os.path.join(output_dir,'plots')
             if not os.path.exists(plot_dir):
                 os.makedirs(plot_dir)
-            plt.savefig(os.path.join(plot_dir,"s2_{}_tested-hws.png".format(order)),
+            plt.savefig(os.path.join(plot_dir,"determine_halfwidth_{}_tested-hws.png".format(order)),
                         dpi=300,bbox_inches='tight')
         if show_plots > 0:
             plt.show(block=True)
