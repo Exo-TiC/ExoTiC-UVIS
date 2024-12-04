@@ -1,5 +1,6 @@
 import os
 
+
 def write_config(config_dict, run_name, stage, outdir):
     """Unpacks a dictionary and writes it out to a config file.
 
@@ -44,7 +45,7 @@ def write_config(config_dict, run_name, stage, outdir):
                     f.write("{0:<15} {1:<60} {2:}\n".format(keyword, value, subsection_comments[subsection][j]))
                 except IndexError:
                     print(subsection, subsection_keys[subsection])
-                    print("Index error here!")
+                    print("Index error here!") # for debug, if this shows up your output file is bad :(
             # A space between this step and the next step.
             f.write('\n')
         # Declare the file over.
@@ -101,6 +102,7 @@ def Stage0_info():
                            "Step 4":["# Bool. Whether to perform this step.",],
                            }
     return header, subsection_headers, subsection_keys, subsection_comments
+
 
 def Stage1_info():
     """Retrieves writer information for Stage 1.
@@ -220,6 +222,7 @@ def Stage1_info():
                            }
     return header, subsection_headers, subsection_keys, subsection_comments
 
+
 def Stage2_info():
     """Retrieves writer information for Stage 2.
 
@@ -284,6 +287,7 @@ def Stage2_info():
                                      "# Bool. If True, uses cross-correlation to align spectra to keep wavelength solution consistent.",],
                            }
     return header, subsection_headers, subsection_keys, subsection_comments
+
 
 def Stage3_info():
     """Retrieves writer information for Stage 3.

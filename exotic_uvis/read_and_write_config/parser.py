@@ -1,6 +1,7 @@
 import shlex
 import numpy as np
 
+
 def parse_config(path_to_config_file):
     """Parses config files to create a dictionary of inputs.
 
@@ -30,7 +31,7 @@ def parse_config(path_to_config_file):
         param = line[1]
         i = 2
         while "#" not in line[i]:
-            param = ' '.join([param,line[i]])
+            param = ' '.join([param,line[i]]) # the ' '. preserves spaces which may be found in lists or arrays
             i += 1
         try:
             param = eval(param)
