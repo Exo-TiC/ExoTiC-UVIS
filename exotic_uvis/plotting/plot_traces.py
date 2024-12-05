@@ -59,7 +59,34 @@ def plot_profile_fit(y_vals, profile, gaussian_fit, cal_center, fit_center,
     return
 
 
-def plot_fitted_positions():
+def plot_fitted_positions(trace_x, trace_y, trace, exp_num, fitted_trace = None, 
+                          show_plot = False, save_plot = False, output_dir = None):
+
+    # plot the computed positions and compare to calibration trace
+    plt.figure(figsize=(10, 7))
+    plt.plot(trace_x, trace, 'o', alpha = 0.4, color='indianred', label='Profile centers')
+    plt.plot(trace_x, trace_y, '--', color='gray', label='Calibration trace')
+
+    if fitted_trace is not None:
+        plt.plot(trace_x, fitted_trace, '-', color='black', label='Polynomial fit to centers')
+
+    plt.xlabel('X pixel position')
+    plt.ylabel('Y pixel position')
+    plt.title(f'Trace positions Exposure {exp_num}')
+    plt.legend()
+
+    if save_plot:
+        plot_dir = os.path.join(output_dir, 'plots') 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
+        filedir = os.path.join(plot_dir, 'Fitted_trace_positions.png')
+        plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
+
+    if show_plot:
+        plt.show(block=True)
+
+    plt.close() # save memory
+
     return
 
 def plot_fitted_amplitudes():

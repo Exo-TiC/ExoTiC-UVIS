@@ -174,7 +174,7 @@ def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10
         reses.append(np.mean(res_for_hw))
         wlcs.append(WLC)
 
-    if (show_plots == 2 or save_plots == 2):
+    if (show_plots > 0 or save_plots > 0):
         plot_aperture_lightcurves(obs, tested_hws, wlcs, 
                                 show_plot = (show_plots > 0), save_plot = (save_plots > 0),
                                     filename = "s2_WLC{}_tested-hws-wlcs.png".format(order), output_dir = output_dir)

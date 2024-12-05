@@ -8,6 +8,7 @@ from scipy import optimize
 import grismconf
 from exotic_uvis.plotting import plot_profile_fit
 from exotic_uvis.plotting import plot_exposure
+from exotic_uvis.plotting import plot_fitted_positions
 
 
 def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
@@ -199,6 +200,10 @@ def fit_trace(obs, trace_x, trace_y,
     images = obs.images.data.copy()
     y_data = range(obs.dims['y'])
 
+    # generate random number for plotting
+    plot_ind = np.random.randint(0, np.shape(images)[0])
+    print(plot_ind)
+
     # Iterate over all images.
     for i, image in enumerate(tqdm(images, desc = 'Computing trace... Progress:',
                                    disable=(verbose<1))):
@@ -218,8 +223,7 @@ def fit_trace(obs, trace_x, trace_y,
                 parameters, covariance = optimize.curve_fit(Gauss1D, 
                                                             y_vals, 
                                                             profile, 
-                                                            p0 = [0, np.amax(profile), 
-                                                            y_vals[np.argmax(profile)], 1])
+                                                            p0 = [0, np.amax(profile), y_vals[np.argmax(profile)], 1])
 
             # Append refined y0 position and fwhm of the profile.
             trace.append(parameters[2])
@@ -236,23 +240,37 @@ def fit_trace(obs, trace_x, trace_y,
             
         # If true, fit a polynomial to the extracted trace locations and widths.
         if fit_trace:
-            
             # Fit trace centers, improve this fitting: shift old polynomial with coefficients.
             coeffs = np.polyfit(trace_x, trace, deg = pol_deg)
-            trace = np.polyval(coeffs, trace_x)
+            fitted_trace = np.polyval(coeffs, trace_x)
 
             # Fit trace widths.
             coeffs = np.polyfit(trace_x, width, deg = pol_deg)
-            width = np.polyval(coeffs, trace_x)
+            fitted_width = np.polyval(coeffs, trace_x)
+
+            # Append this frame's y positions and dispersion profile widths to the entire set.
+            traces.append(fitted_trace)
+            widths.append(fitted_width)
+        
+        else:
+            # Append this frame's y positions and dispersion profile widths to the entire set.
+            traces.append(trace)
+            widths.append(width)
 
         # If true, plot all the traces over the image for comparison/validation.
-        if (show_plots == 2 or save_plots == 2):
-            plot_exposure([image], line_data = [[trace_x, trace_y], [trace_x, trace]],
-                          show_plot=(show_plots==2), save_plot=(save_plots==2),
-                          filename=['trace_validation'],output_dir=output_dir)
-
-        # Append this frame's y positions and dispersion profile widths to the entire set.
-        traces.append(trace)
-        widths.append(width)
+        if save_plots > 0 or show_plots > 0:
+            if (show_plots == 2 or save_plots == 2) or i == plot_ind:
+                plot_exposure([image], line_data = [[trace_x, trace_y], [trace_x, trace]],
+                            show_plot=(show_plots==2), save_plot=(save_plots==2),
+                            filename=['trace_validation'],output_dir=output_dir)
+                
+                if fit_trace:
+                    plot_fitted_positions(trace_x, trace_y, trace, i, fitted_trace = fitted_trace, 
+                            show_plot=(show_plots>0), save_plot=(show_plots>0), output_dir=output_dir)
+                else:
+                    plot_fitted_positions(trace_x, trace_y, trace, i, 
+                            show_plot=(show_plots>0), save_plot=(show_plots>0), output_dir=output_dir)
+                
+        
 
     return np.array(traces), np.array(widths)
