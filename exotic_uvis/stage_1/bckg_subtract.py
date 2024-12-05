@@ -221,12 +221,10 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0,
     # if true, plot histogram and location of maximum
     if save_plots > 0 or show_plots > 0:
         if exp_num == 0 and (save_plots>0 or show_plots>0):
-            plot_histogram(bin_cents, array, hist_mode, hist_median, hist_min, hist_max, hist_bins,
-                           fit, exp_num, gaussian_center, gaussian_fit,
+            plot_histogram(bin_cents, array, hist_mode, hist_median, exp_num, gaussian_center, gaussian_fit,
                            show_plots=(show_plots>0), save_plots=(save_plots>0), output_dir=output_dir)
         elif save_plots == 2 or show_plots == 2:
-            plot_histogram(bin_cents, array, hist_mode, hist_median, hist_min, hist_max, hist_bins,
-                           fit, exp_num, gaussian_center, gaussian_fit,
+            plot_histogram(bin_cents, array, hist_mode, hist_median, exp_num, gaussian_center, gaussian_fit,
                            show_plots=(show_plots==2), save_plots=(save_plots==2), output_dir=output_dir)
          
     return bkg_val

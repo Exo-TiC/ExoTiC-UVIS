@@ -77,7 +77,7 @@ def cross_corr(spec, temp_spec, order='+1', i=0, trim = 1, fit_window = 5, subpi
             plot_dir = os.path.join(output_dir, "plots")
             if not os.path.exists(plot_dir):
                 os.makedirs(plot_dir)
-            plt.savefig(os.path.join(plot_dir,'s2_cross_corr_order{}_f{}.png'.format(order,i)),
+            plt.savefig(os.path.join(plot_dir,'cross_corr_order{}_f{}.png'.format(order,i)),
                         dpi=300,bbox_inches='tight')
         if show_plots == 2:
             plt.show(block=True)
@@ -157,7 +157,7 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
             plot_dir = os.path.join(output_dir, "plots")
             if not os.path.exists(plot_dir):
                 os.makedirs(plot_dir)
-            plt.savefig(os.path.join(plot_dir,'s2_cross_corr_order{}.png'.format(order)),
+            plt.savefig(os.path.join(plot_dir,'cross_corr_order{}.png'.format(order)),
                         dpi=300,bbox_inches='tight')
         if show_plots > 0:
             plt.show(block=True)
@@ -178,7 +178,7 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
             plot_dir = os.path.join(output_dir, "plots")
             if not os.path.exists(plot_dir):
                 os.makedirs(plot_dir)
-            plt.savefig(os.path.join(plot_dir,'s2_shifted_spec_order{}.png'.format(order)),
+            plt.savefig(os.path.join(plot_dir,'shifted_spec_order{}.png'.format(order)),
                         dpi=300,bbox_inches='tight')
         if show_plots > 0:
             plt.show(block=True)

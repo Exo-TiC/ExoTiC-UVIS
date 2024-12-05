@@ -63,7 +63,7 @@ def refine_location(obs, location=None, window=20,
                       scatter_data = [[obs.attrs['target_posx']], [obs.attrs['target_posy']]],
                       title = 'Computed direct image target location',
                       show_plot=show_plots, save_plot=save_plots, 
-                      output_dir=output_dir, filename = [f'Target location in Direct image']) 
+                      output_dir=output_dir, filename = [f'target_location_in_direct_image']) 
     
     return 
 
@@ -185,6 +185,19 @@ def track_0thOrder(obs, guess,
 
         # centroid the window
         xs, ys = centroid_com(window)
+
+        # Plot solution.
+        if (show_plots > 0 or save_plots > 0):
+            if k == 0:
+                plot_exposure([window],scatter_data=[[xs,],[ys],],
+                              title='Tracked 0th in frame {}'.format(k),
+                              show_plot=(show_plots>0),save_plot=(save_plots>0),
+                              filename=['0th_tracking_frame{}'.format(k)],output_dir=output_dir)
+            elif (show_plots == 2 or save_plots == 2):
+                plot_exposure([window],scatter_data=[[xs,],[ys],],
+                              title='Tracked 0th in frame {}'.format(k),
+                              show_plot=(show_plots==2),save_plot=(save_plots==2),
+                              filename=['0th_tracking_frame{}'.format(k)],output_dir=output_dir)
 
         # return to native window
         xs += x0 - 70

@@ -1,5 +1,6 @@
 import os
 
+
 def write_config(config_dict, run_name, stage, outdir):
     """Unpacks a dictionary and writes it out to a config file.
 
@@ -44,7 +45,7 @@ def write_config(config_dict, run_name, stage, outdir):
                     f.write("{0:<15} {1:<60} {2:}\n".format(keyword, value, subsection_comments[subsection][j]))
                 except IndexError:
                     print(subsection, subsection_keys[subsection])
-                    print("Index error here!")
+                    print("Index error here!") # for debug, if this shows up your output file is bad :(
             # A space between this step and the next step.
             f.write('\n')
         # Declare the file over.
@@ -74,6 +75,7 @@ def Stage0_info():
                        "Step 1":["do_download",
                                  "programID",
                                  "target_name",
+                                 "token",
                                  "extensions"],
                        "Step 2":["do_organize",
                                  "visit_number",
@@ -90,6 +92,7 @@ def Stage0_info():
                            "Step 1":["# Bool. Whether to perform this step.",
                                      '# ID of the observing program you want to query data from. On MAST, referred to as "proposal_ID".',
                                      '# Name of the target object you want to query data from. On MAST, referred to as "target_name".',
+                                     "# str or None. If you are downloading proprietary data, please visit https://auth.mast.stsci.edu/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access to obtain an authentication token and enter it as a '' string here.",
                                      "# lst of str or None. File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified. _flt.fits, _spt.fits recommended as minimum working case.",],
                            "Step 2":["# Bool. Whether to perform this step.",
                                      "# The visit number you want to operate on.",
@@ -99,6 +102,7 @@ def Stage0_info():
                            "Step 4":["# Bool. Whether to perform this step.",],
                            }
     return header, subsection_headers, subsection_keys, subsection_comments
+
 
 def Stage1_info():
     """Retrieves writer information for Stage 1.
@@ -113,7 +117,6 @@ def Stage1_info():
                           "# Step 1: Read in the data",
                           "# Step 2: Reject cosmic rays with time iteration\n# Step 2a: Fixed iteration parameters",
                           "# Step 2b: Free iteration parameters",
-                          "# Step 2c: Sigma clip parameters",
                           "# Step 3: Reject hot pixels with spatial detection\n# Step 3a: Laplacian Edge Detection parameters",
                           "# Step 3b: Spatial smoothing parameters",
                           "# Step 4: Background subtraction\n# Step 4a: uniform value background subtraction",
@@ -137,14 +140,15 @@ def Stage1_info():
                                  "replacement",],
                        "Step 2b":["do_free_iter",
                                   "free_sigma"],
-                       "Step 2c":["do_sigma_clip",],
                        "Step 3a":["do_led",
                                   "led_threshold",
                                   "led_factor",
                                   "led_n",
                                   "fine_structure",
                                   "contrast_factor",],
-                       "Step 3b":["do_smooth",],
+                       "Step 3b":["do_smooth",
+                                  "smth_kernel",
+                                  "smth_threshold",],
                        "Step 4a":["do_uniform",
                                   "fit",
                                   "bounds",
@@ -183,14 +187,15 @@ def Stage1_info():
                                       "# int or None. If int, replaces flagged outliers with the median of values within +/-replacement indices of the outlier. If None, uses the median of the whole timeseries instead.",],
                            "Step 2b":["# Bool. Whether to use free iteration rejection to clean the timeseries.",
                                       "# float. The sigma to reject outliers at in each iteration. Iterates over each pixel's timeseries until no outliers at this sigma level are found.",],
-                           "Step 2c":["# Bool. Whether to use sigma clipping rejection to clean the timeseries.",],
                            "Step 3a":["# Bool. Whether to use Laplacian Edge Detection rejection to clean the frames.",
                                       "# Float. The threshold parameter at which to kick outliers in LED. The lower the number, the more values will be replaced.",
                                       "# Int. The subsampling factor. Minimum value 2. Higher values increase computation time but aren't expected to yield much improvement in rejection.",
                                       "# Int. Number of times to do LED on each frame. Enter None to continue performing LED on each frame until no outliers are found.",
                                       "# Bool. Whether to build a fine structure model, which can protect narrow bright features like traces from LED.",
                                       "# Float. If fine_structure is True, acts as the led_threshold for the fine structure step.",],
-                           "Step 3b":["# Bool. Whether to use spatial smoothing rejection to clean the frames.",],
+                           "Step 3b":["# Bool. Whether to use spatial smoothing rejection to clean the frames.",
+                                      "# Tuple of int. The kernel to use for building the median-filtered image. Each number in the kernel must be odd!",
+                                      "# Float. If an image pixel deviates from the median-filtered image by this threshold, kick it from the image. The lower the value, the more pixels get kicked.",],
                            "Step 4a":["# Bool. Whether to subtract the background using one uniform value as the value for the entire frame.",
                                       "# Str. The value to extract from the histogram. Options are None (to extract the mode), 'Gaussian' (to fit the mode with a Gaussian), or 'median' (to take the median within hist_min < v < hist_max).",
                                       "# Lst of lst of float. The region from which the background values will be extracted. Each list consists of [x1,x2,y1,y2]. If None, simply uses the full frame.",
@@ -217,6 +222,7 @@ def Stage1_info():
                            "Step 7":["# Bool. If True, saves the output xarray to be used in Stage 2.",],
                            }
     return header, subsection_headers, subsection_keys, subsection_comments
+
 
 def Stage2_info():
     """Retrieves writer information for Stage 2.
@@ -282,6 +288,7 @@ def Stage2_info():
                                      "# Bool. If True, uses cross-correlation to align spectra to keep wavelength solution consistent.",],
                            }
     return header, subsection_headers, subsection_keys, subsection_comments
+
 
 def Stage3_info():
     """Retrieves writer information for Stage 3.

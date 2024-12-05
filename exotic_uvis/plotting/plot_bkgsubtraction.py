@@ -163,8 +163,9 @@ def plot_mode_v_params(exp_times, modes, params,
     return 
 
 
-def plot_histogram(bin_cents, array, mode, median, hist_min, hist_max, hist_bins, fit, exp_num, 
-                   gaussian_center=False, gaussian_fit = None, show_plots=False, save_plots=False, output_dir=None):
+def plot_histogram(bin_cents, array, mode, median, exp_num, 
+                   gaussian_center=False, gaussian_fit = None,
+                   show_plots=False, save_plots=False, output_dir=None):
     """Plots a histogram of the background values for the given exposure.
 
     Args:
@@ -173,15 +174,6 @@ def plot_histogram(bin_cents, array, mode, median, hist_min, hist_max, hist_bins
         was computed.
         mode (float): mode of the array without any fit or trim.
         median (float): median of the array without any fit or trim.
-        hist_min (float): lower bound of values to consider when building
-        the histogram.
-        hist_max (float): upper bound of values to consider when building
-        the histogram.
-        hist_bins (int): number of bins to use for the calculation.
-        fit (str or None, optional): type of fit to apply to the histogram.
-        Options are 'Gaussian' (fits a 1D Gaussian to the histogram),
-        'median' (takes the median of the histogram), or can be left as
-        None to use just the histogram's mode. Defaults to None.
         exp_num (float): exposure number.
         gaussian_center (float, optional): if not False, center of the Gaussian
         fit to plot. Defaults to False.

@@ -3,7 +3,7 @@ import os
 from astroquery.mast import Observations as Obs
 
 
-def get_files_from_mast(programID, target_name, visit_number, outdir, extensions=None, verbose=2):
+def get_files_from_mast(programID, target_name, visit_number, outdir, token=None, extensions=None, verbose=2):
     """Queries MAST database and downloads specified files from specified
     program, target, and visit number.
 
@@ -14,6 +14,8 @@ def get_files_from_mast(programID, target_name, visit_number, outdir, extensions
         from. On MAST, referred to as "target_name".
         visit_number (str): The visit number you want to download, e.g. "01", "02", etc.
         outdir (str): The directory you want the files downloaded to.
+        token (str, optional): A MAST authentication token, if you are downloading
+        proprietary data. Defaults to None.
         extensions (lst of str, optional): File extensions you want to download.
         If None, take all file extensions. Otherwise, take only the files specified.
         Defaults to None.
@@ -21,7 +23,7 @@ def get_files_from_mast(programID, target_name, visit_number, outdir, extensions
         output logs to have. Defaults to 2.
     """
     data_products = query_MAST(programID, target_name, extensions, verbose)
-    download_from_MAST(data_products, visit_number, outdir, verbose)
+    download_from_MAST(data_products, visit_number, outdir, token, verbose)
 
 
 def query_MAST(programID, target_name, extensions, verbose=2):
@@ -57,7 +59,7 @@ def query_MAST(programID, target_name, extensions, verbose=2):
     return data_products
 
 
-def download_from_MAST(data_products, visit_number, outdir, verbose=2):
+def download_from_MAST(data_products, visit_number, outdir, token=None, verbose=2):
     """From the provided list of data products, downloads only those that have
     the appropriate visit number.
 
@@ -65,6 +67,8 @@ def download_from_MAST(data_products, visit_number, outdir, verbose=2):
         data_products (_type_): output of queryMAST.py.
         visit_number (str): The visit number you want to download, e.g. "01", "02", etc.
         outdir (str): The directory you want the files downloaded to.
+        token (str, optional): A MAST authentication token, if you are downloading
+        proprietary data. Defaults to None.
         verbose (int, optional): From 0 to 2, how much detail you want the
         output logs to have. Defaults to 2.
     """
@@ -78,6 +82,12 @@ def download_from_MAST(data_products, visit_number, outdir, verbose=2):
     
     if verbose >= 1:
         print("Examining {} queried data products for files in visit number {}...".format(len(data_products),visit_number))
+
+    # Authenticate the user if necessary.
+    if token != None:
+        if verbose >= 1:
+            print("Authenticating MAST query...")
+        Obs.login(token=token)
     
     # Download data only if the visit number is correct.
     k = 0
@@ -85,11 +95,18 @@ def download_from_MAST(data_products, visit_number, outdir, verbose=2):
         if ("hst_" not in data_product["productFilename"] and data_product["obs_id"][4:6]==visit_number):
             if verbose == 2:
                 print("Downloading file number {} from {}...".format(k, data_product["dataURI"]))
-            Obs.download_file(data_product["dataURI"], local_path=os.path.join(outdir, data_product["productFilename"]))
+            status, msg, url = Obs.download_file(data_product["dataURI"], local_path=os.path.join(outdir, data_product["productFilename"]))
+            if verbose == 2:
+                print(status, ':', msg)
             k += 1
         else:
             if verbose == 2:
                 print("Skipping over file at {}...".format(data_product["dataURI"]))
     if verbose >= 1:
         print("Downloaded {} queried files that had visit number {}.".format(k, visit_number))
-        
+    
+    # End user authentication session if necessary.
+    if token != None:
+        Obs.logout()
+        if verbose >= 1:
+            print("Ended authenticated MAST session.")

@@ -21,10 +21,6 @@ replacement     None                                        # int or None. If in
 do_free_iter   True                                         # Bool. Whether to use free iteration rejection to clean the timeseries.
 free_sigma      3.5                                         # float. The sigma to reject outliers at in each iteration. Iterates over each pixel's timeseries until no outliers at this sigma level are found.
 
-# Step 2c: Sigma clip parameters
-do_sigma_clip   True                                        # Bool. Whether to use sigma clipping rejection to clean the timeseries.
-# WIP!
-
 # Step 3: Reject hot pixels with spatial detection
 # Step 3a: Laplacian Edge Detection parameters
 do_led          True                                        # Bool. Whether to use Laplacian Edge Detection rejection to clean the frames.
@@ -36,6 +32,8 @@ contrast_factor 5                                           # Float. If fine_str
 
 # Step 3b: Spatial smoothing parameters
 do_smooth       True                                        # Bool. Whether to use spatial smoothing rejection to clean the frames.
+smth_kernel     (5,5)                                       # Tuple of int. The kernel to use for building the median-filtered image. Each number in the kernel must be odd!
+smth_threshold  10                                          # Float. If an image pixel deviates from the median-filtered image by this threshold, kick it from the image. The lower the value, the more pixels get kicked.
 # WIP
 
 # Step 4: Background subtraction
@@ -76,7 +74,6 @@ bkg_stars_loc   [[0, 0], [0, 0]]                            # Lst of lst of floa
 
 # Step 6: Quality quicklook
 do_quicklook    True                                        # Bool. Whether to perform this step.
-gif_dir         './'                                        # str. Where to save the quicklook gif to, relative to the toplevel_dir.
 
 # Step 7: Save outputs
 do_save         True                                        # Bool. If True, saves the output xarray to be used in Stage 2.
