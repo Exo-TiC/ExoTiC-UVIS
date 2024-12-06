@@ -1,3 +1,4 @@
+import os
 from tqdm import tqdm
 
 import numpy as np
@@ -97,15 +98,15 @@ def remove_zeroth_order(obs, mode = 'radial_profile', zero_pos = [1158, 300],
         mask_angle = ((tt > ang) & (tt < np.pi - ang)) | ((tt > ang - np.pi) & (tt < -ang))
 
         if verbose == 2:
-            print("Radial profile mask_anlge sum:",np.sum(mask_angle))
+            print("Radial profile mask_angle sum:",np.sum(mask_angle))
 
         hist_area = images[0].copy()
         hist_area[mask_angle & (rr < rmax) & (rr > rmin)] = 'nan'
-  
+
         if (save_plots>0 or show_plots>0):
             plot_exposure([hist_area], title = 'Area to build the histogram', 
                         show_plot=(show_plots>0), save_plot=(save_plots>0),
-                        output_dir=output_dir, filename = ['0th_order_histogram'])
+                        output_dir=output_dir, filename = ['0th_order_histogram-area_max'])
         
         # test plots:
         #hist_area = images[0].copy()
@@ -115,8 +116,9 @@ def remove_zeroth_order(obs, mode = 'radial_profile', zero_pos = [1158, 300],
         #plot_exposure([hist_area], min = 0, max = 2)
 
       
-        for j, image in enumerate(tqdm(images, desc = 'Calculating 0th order background... Process:'),
-                                  disable=(verbose==0)):
+        for j, image in enumerate(tqdm(images,
+                                       desc = 'Calculating 0th order background... Process:',
+                                       disable=(verbose==0))):
 
             profile = []
         
@@ -140,21 +142,32 @@ def remove_zeroth_order(obs, mode = 'radial_profile', zero_pos = [1158, 300],
                         hist_area[mask_angle & (rr < r_vect[i + 1]) & (rr > r_vect[i])] = 'nan'
 
 
-                        if (save_plots>0 or show_plots>0):
+                        if (save_plots==2 or show_plots==2):
                             plot_exposure([hist_area], title = 'Area to build the histogram', 
-                                        show_plot=(show_plots>0), save_plot=(save_plots>0),
-                                        output_dir=output_dir, filename = ['0th_order_histogram'])
+                                        show_plot=(show_plots==2), save_plot=(save_plots==2),
+                                        output_dir=output_dir, filename = [f'0th_order_histogram-area_frame{j}'])
                         
-                        plt.figure(figsize = (10, 7))
-                        plt.hist(image[mask], bins = np.linspace(-10, 60, 100), color = 'indianred', alpha = 0.7)
-                        plt.plot(bin_cents, Gauss1D(bin_cents, parameters[0], parameters[1], parameters[2]), color='gray')
-                        #plt.axvline(bin_edges[np.argmax(hist)], color = 'gray', linestyle = '--')
-                        plt.axvline(np.median(image[mask]), color= 'gray')
-                        #plt.axvline(np.median(image[mask]) + np.sqrt(np.median(image[mask])))
-                        #plt.axvline(np.median(image[mask]) - np.sqrt(np.median(image[mask])))
-                        plt.xlabel('Photons')
-                        plt.ylabel('Counts')
-                        plt.show(block=True)
+                            plt.figure(figsize = (10, 7))
+                            plt.hist(image[mask], bins = np.linspace(-10, 60, 100), color = 'indianred', alpha = 0.7)
+                            plt.plot(bin_cents, Gauss1D(bin_cents, parameters[0], parameters[1], parameters[2]), color='gray')
+                            #plt.axvline(bin_edges[np.argmax(hist)], color = 'gray', linestyle = '--')
+                            plt.axvline(np.median(image[mask]), color= 'gray')
+                            #plt.axvline(np.median(image[mask]) + np.sqrt(np.median(image[mask])))
+                            #plt.axvline(np.median(image[mask]) - np.sqrt(np.median(image[mask])))
+                            plt.xlabel('Photons')
+                            plt.ylabel('Counts')
+
+                            if save_plots==2:
+                                plot_dir = os.path.join(output_dir,'plots')
+                                if not os.path.exists(plot_dir):
+                                    os.makedirs(plot_dir)
+                                plt.savefig(os.path.join(plot_dir,f"0th_order_histogram_frame{j}.png"),
+                                            dpi=300,bbox_inches='tight')
+
+                            if show_plots==2:
+                                plt.show(block=True)
+                            
+                            plt.close() # save memory
 
                     profile.append(parameters[1]) # check, why negative values in histogram
 
@@ -167,38 +180,52 @@ def remove_zeroth_order(obs, mode = 'radial_profile', zero_pos = [1158, 300],
                     profile = np.array(profile)
                     mask_radius = (rr >= rmin) & (rr < rmax) 
                     mask = r_cents > 0
-                    popt, pcov = optimize.curve_fit(exponential, r_cents[mask], profile[mask], p0 = [100., 7., 1., -0.1])
+                    popt, pcov = optimize.curve_fit(exponential, r_cents[mask],
+                                                    profile[mask], p0 = [100., 7., 1., -0.1])
                     
                     fitted_profile = exponential(r_cents, popt[0], popt[1], popt[2], popt[3])
                     image[mask_radius] -= exponential(rr[mask_radius], popt[0], popt[1], popt[2], popt[3])
                     zero_bkg[j, mask_radius] = exponential(rr[mask_radius], popt[0], popt[1], popt[2], popt[3])
 
-                    plt.figure(figsize=(10, 7))
-                    plt.plot(r_cents, profile, '-o', color='indianred')
-                    if fit_profile:
-                        plt.plot(r_cents, fitted_profile, color = 'gray')
-                    plt.xlabel('Distance from 0th order')
-                    plt.ylabel('0th order value')
-                    plt.show()
+                    if (save_plots==2 or show_plots==2):
+                        plt.figure(figsize=(10, 7))
+                        plt.plot(r_cents, profile, '-o', color='indianred')
+                        if fit_profile:
+                            plt.plot(r_cents, fitted_profile, color = 'gray')
+                        plt.xlabel('Distance from 0th order')
+                        plt.ylabel('0th order value')
 
+                        if save_plots==2:
+                            plot_dir = os.path.join(output_dir,'plots')
+                            if not os.path.exists(plot_dir):
+                                os.makedirs(plot_dir)
+                            plt.savefig(os.path.join(plot_dir,f"0th_order_radial-vals_frame{j}.png"),
+                                        dpi=300,bbox_inches='tight')
 
+                        if show_plots==2:
+                            plt.show(block=True)
+                        
+                        plt.close() # save memory
                     
                 profiles.append(profile)
                 
                 if (j == 0) and ((show_plots>0) or (save_plots>0)):
-                    #utils.plot_image([obs.images.data[j, 1000:1400, 1700:2600], image[1000:1400, 1700:2600]], min = -1)
-                    #utils.plot_image([obs.images.data[j], image], min = -1)
-                    #utils.plot_image([zero_bkg[j]], min = 0.95, max = 1.8)
-
                     plot_exposure([obs.images.data[j, :], image], title = '0th order removal example', 
                                     show_plot=(show_plots>0), save_plot=(save_plots>0),
-                                    output_dir=output_dir, filename = ['0th_order_histogram'])
+                                    output_dir=output_dir, filename = ['0th_order_corrected_frame0'])
                     
                     plot_exposure([zero_bkg[j]], title = '0th order model', min=np.min(fitted_profile), max=np.max(fitted_profile),
                                     show_plot=(show_plots>0), save_plot=(save_plots>0),
-                                    output_dir=output_dir, filename = ['0th_order_histogram'])
-        
-
+                                    output_dir=output_dir, filename = ['0th_order_model_frame0'])
+                    
+                if ((show_plots==2) or (save_plots==2)):
+                    plot_exposure([obs.images.data[j, :], image], title = '0th order removal, frame {}'.format(j), 
+                                    show_plot=(show_plots==2), save_plot=(save_plots==2),
+                                    output_dir=output_dir, filename = [f'0th_order_corrected_frame{j}'])
+                    
+                    plot_exposure([zero_bkg[j]], title = '0th order model', min=np.min(fitted_profile), max=np.max(fitted_profile),
+                                    show_plot=(show_plots>0), save_plot=(save_plots>0),
+                                    output_dir=output_dir, filename = [f'0th_order_model_frame{j}'])
                     
         profiles = np.array(profiles)
         obs.images.data = images

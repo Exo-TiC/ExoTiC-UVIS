@@ -175,9 +175,9 @@ def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10
         wlcs.append(WLC)
 
     if (show_plots > 0 or save_plots > 0):
-        plot_aperture_lightcurves(obs, tested_hws, wlcs, 
-                                show_plot = (show_plots > 0), save_plot = (save_plots > 0),
-                                    filename = "s2_WLC{}_tested-hws-wlcs.png".format(order), output_dir = output_dir)
+        plot_aperture_lightcurves(obs, tested_hws, wlcs,
+                                  show_plot = (show_plots > 0), save_plot = (save_plots > 0),
+                                  filename = "determine_halfwidth_WLC{}_tested-hws-wlcs".format(order), output_dir = output_dir)
    
     if (show_plots > 0 or save_plots > 0):
         plt.figure(figsize=(10, 7))
@@ -258,6 +258,7 @@ def rampslope(x,a,b,c,d):
         np.array: ramp-slope trend.
     """
     return a*np.exp(b*(x-np.nanmean(x))) + c*(x-np.nanmean(x)) + d
+
 
 def create_circular_mask(h, w, center=None, radius=None):
     if center is None: # use the middle of the image

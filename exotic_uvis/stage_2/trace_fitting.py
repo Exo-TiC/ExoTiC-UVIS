@@ -13,7 +13,7 @@ from exotic_uvis.plotting import plot_fitted_positions
 
 
 def get_calibration_0th(obs, source_pos, path_to_cal,
-                       verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
+                        verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Uses a custom method based on GRISMCONF and the source position to
     locate the 0th order for removal purposes.
 
@@ -205,9 +205,6 @@ def get_calibration_trace(order, x0, y0, path_to_cal):
     # Turn the dxs limits into a full span of column positions.
     dxs = np.arange(dxs[0],dxs[1],1)
 
-    # extract x values relative to x00 (need to change y to x)
-    #xvals_rel = np.arange(obs.dims['y']) - x0
-
     # Compute the t values corresponding to the exact offsets
     ts = C.INVDISPX(order,x0,y0,dxs)
 
@@ -293,7 +290,7 @@ def fit_trace(obs, trace_x, trace_y,
 
     # Iterate over all images.
     for i, image in enumerate(tqdm(images, desc = 'Computing trace... Progress:',
-                                   disable=(verbose<1))):
+                                   disable=(verbose==0))):
         # Initialize trace y positions and profile widths and for this image.
         trace, width = [], []
 
@@ -353,11 +350,9 @@ def fit_trace(obs, trace_x, trace_y,
                 
                 if fit_trace:
                     plot_fitted_positions(trace_x, trace_y, trace, i, fitted_trace = fitted_trace, 
-                            show_plot=(show_plots>0), save_plot=(show_plots>0), output_dir=output_dir)
+                    show_plot=(show_plots>0), save_plot=(show_plots>0), filename="calibration_yfit", output_dir=output_dir)
                 else:
                     plot_fitted_positions(trace_x, trace_y, trace, i, 
-                            show_plot=(show_plots>0), save_plot=(show_plots>0), output_dir=output_dir)
-                
-        
+                            show_plot=(show_plots>0), save_plot=(show_plots>0), filename="calibration_noyfit", output_dir=output_dir)
 
     return np.array(traces), np.array(widths)
