@@ -356,3 +356,28 @@ def fit_trace(obs, trace_x, trace_y,
                             show_plot=(show_plots>0), save_plot=(show_plots>0), filename="calibration_noyfit", output_dir=output_dir)
 
     return np.array(traces), np.array(widths)
+
+
+def sens_correct(spec, spec_err, wav, fs):
+    """Simple function to apply the sensitivity
+    correction to a spectrum.
+
+    Args:
+        spec (array-like): spectrum without correction.
+        spec_err (array-like): spectrum uncertainties without correction.
+        wav (array-like): wavelength solution from GRISMCONF.
+        fs (array-like): sensitivity correction from GRISMCONF.
+
+    Returns:
+        array-like, array-like: the spectrum and its uncertainties adjusted
+        for the sensitivity of the detector.
+    """
+    # apply sens correction function 'fs' to the data
+    ok = (wav>2000) & (wav<8000)
+    for k in range(spec.shape[0]):
+        spec[k,:]/=fs[ok]
+        spec_err[k,:]/=fs[ok]
+    spec[~np.isfinite(spec)] = 0
+    spec_err[~np.isfinite(spec_err)] = 0
+
+    return spec, spec_err

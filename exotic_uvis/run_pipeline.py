@@ -34,6 +34,7 @@ from exotic_uvis.stage_2 import load_data_S2
 from exotic_uvis.stage_2 import save_data_S2
 from exotic_uvis.stage_2 import get_calibration_0th
 from exotic_uvis.stage_2 import get_trace_solution
+from exotic_uvis.stage_2 import sens_correct
 from exotic_uvis.stage_2 import determine_ideal_halfwidth
 from exotic_uvis.stage_2 import standard_extraction
 from exotic_uvis.stage_2 import optimal_extraction
@@ -373,13 +374,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
             # do sensitivity
             if stage2_dict['sens_correction']:
-                # apply sens correction function 'fs' to the data
-                ok = (wav>2000) & (wav<8000)
-                for k in range(spec.shape[0]):
-                    spec[k,:]/=fs[ok]
-                    spec_err[k,:]/=fs[ok]
-                spec[~np.isfinite(spec)] = 0
-                spec_err[~np.isfinite(spec_err)] = 0
+                spec, spec_err = sens_correct(spec, spec_err, wav, fs)
 
             # do alignment
             x_shifts, y_shifts = False, False

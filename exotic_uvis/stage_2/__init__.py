@@ -1,6 +1,7 @@
 __all__ = [
     "get_calibration_0th",
     "get_trace_solution",
+    "sens_correct",
     "standard_extraction",
     "determine_ideal_halfwidth",
     "align_spectra",
@@ -14,7 +15,7 @@ __all__ = [
 ]
 
 
-from exotic_uvis.stage_2.trace_fitting import get_calibration_0th, get_trace_solution
+from exotic_uvis.stage_2.trace_fitting import get_calibration_0th, get_trace_solution, sens_correct
 from exotic_uvis.stage_2.standard_extraction import standard_extraction, determine_ideal_halfwidth
 from exotic_uvis.stage_2.align_spectra import align_spectra, align_profiles
 from exotic_uvis.stage_2.clean_spectra import clean_spectra

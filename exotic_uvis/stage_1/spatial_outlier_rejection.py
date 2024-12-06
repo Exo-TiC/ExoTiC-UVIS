@@ -9,7 +9,7 @@ from exotic_uvis.plotting import plot_exposure
 from exotic_uvis.stage_2 import spatial_profile_smooth
 
 
-def spatial_smoothing(obs, type='smooth', kernel=11, sigma=10, bounds_set=[[260, 370, 640, 1100],],
+def spatial_smoothing(obs, type='1D_smooth', kernel=11, sigma=10, bounds_set=[[260, 370, 640, 1100],],
                       verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Uses 2D median filtering to catch and remove hot pixels.
 
@@ -24,8 +24,8 @@ def spatial_smoothing(obs, type='smooth', kernel=11, sigma=10, bounds_set=[[260,
         sigma (float, optional): threshold at which to remove an outlier.
         Defaults to 10.
         bounds_set (array-like, optional): whether to only perform spatial
-        smoothing on a subset of the array, for time-saving. Defaults to
-        [[260, 370, 640, 1100],].
+        smoothing on a subset of the array, for time-saving. If None, corrects
+        for the full frame. Defaults to [[260, 370, 640, 1100],].
         verbose (int, optional): how detailed you want the printed statements
         to be. Defaults to 0.
         show_plots (int, optional): how many plots you want to show.
