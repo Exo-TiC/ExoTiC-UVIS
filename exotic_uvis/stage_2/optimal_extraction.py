@@ -5,19 +5,88 @@ from scipy.stats import norm
 from scipy import optimize
 from tqdm import tqdm
 from scipy import interpolate
+from scipy.signal import medfilt
 from exotic_uvis.plotting import plot_exposure
 from exotic_uvis.stage_2 import standard_extraction
 
 
 
-def spatial_profile_smooth():
-    return 0
 
 def spatial_profile_curved():
     return 0
 
 def spatial_profile_curved_poly():
     return 0
+
+
+def spatial_profile_smooth(image_org, kernel = 11, threshold = 5., std_window = 20, 
+                           median_window = 7, show_plots=0, save_plots=0, output_dir=0):
+    
+    # copy image and initialize
+    image = image_org.copy()
+    nrows, ncols = np.shape(image)
+    P_prof, xhits, yhits = [], [], []
+
+    # iterate over all rows
+    for j in range(nrows):
+        
+        # get row
+        row = image[j].copy()
+        row_mask = ~np.isnan(row)
+        badpixels = True
+
+        while badpixels:
+            # replace masked values with median (otherwise the window might fail)
+            for ind in np.where(row_mask == 0)[0]:
+                row[ind] = np.median(row[np.amax((0, ind - median_window)):ind+median_window])
+               
+            # smooth row with median filter
+            row_model = medfilt(row, kernel)
+
+            # compute residuals
+            res = np.ma.array(row - row_model, mask = ~row_mask)
+
+            # calculate standard deviation with a window too 
+            #row_std = np.ma.std(res)
+            row_std = np.zeros_like(row)
+            for i, row_val in enumerate(row):
+                row_std[i] = np.std(res[np.amax((0, i-std_window)):i+std_window])
+                
+            #dev_row = np.ma.abs(res) / np.ma.std(res)
+            dev_row = np.ma.abs(res)/row_std
+            max_dev_ind = np.ma.argmax(dev_row)
+
+            # if maximum deviation pixel above threshold, mask pixel
+            if dev_row[max_dev_ind] > threshold:
+                row_mask[max_dev_ind] = False
+
+            # if no more pixels above threshold, finish
+            else: 
+                badpixels = False
+                P_prof.append(row_model)
+
+                # replace bad pixels with row model
+                for ind, good_pix in enumerate(row_mask):
+                    if not good_pix:         
+                        image[j, ind] = row_model[ind]
+                        xhits.append(ind)
+                        yhits.append(j)
+
+        # just some inside plots for sanity check
+        if (show_plots > 2 or save_plots > 2):   
+            plt.figure()
+            #plt.plot(image_org[j]/f_init)
+            plt.plot(image[j])
+            plt.plot(row_model)
+            plt.show(block=True)
+    
+    # normalize spatial profile
+    P_prof = np.array(P_prof)
+    P_prof[P_prof < 0.] = 0
+    P_prof = P_prof / np.sum(P_prof, axis = 0)
+     
+    return P_prof, image, np.array(xhits), np.array(yhits)
+
 
 
 def spatial_profile_median(images, show_plots=0, save_plots=0, output_dir=None):

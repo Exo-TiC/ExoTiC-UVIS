@@ -290,7 +290,6 @@ def fit_trace(obs, trace_x, trace_y,
 
     # generate random number for plotting
     plot_ind = np.random.randint(0, np.shape(images)[0])
-    print(plot_ind)
 
     # Iterate over all images.
     for i, image in enumerate(tqdm(images, desc = 'Computing trace... Progress:',

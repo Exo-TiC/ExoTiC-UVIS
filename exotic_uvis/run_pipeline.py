@@ -172,8 +172,14 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         # spatial removal by smoothing
         if stage1_dict['do_smooth']:
             obs = spatial_smoothing(obs,
+                                    type=stage1_dict["smth_type"],
                                     kernel=stage1_dict["smth_kernel"],
-                                    sigma=stage1_dict["smth_threshold"]) # WIP!
+                                    sigma=stage1_dict["smth_threshold"],
+                                    bounds_set=stage1_dict["smth_bounds"],
+                                    verbose=stage1_dict['verbose'],
+                                    show_plots=stage1_dict['show_plots'],
+                                    save_plots=stage1_dict['save_plots'],
+                                    output_dir=run_dir) 
 
         # background subtraction with a uniform bckg value
         if stage1_dict['do_uniform']:

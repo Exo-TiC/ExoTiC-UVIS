@@ -4,9 +4,11 @@ import numpy as np
 from scipy.ndimage import median_filter
 
 from exotic_uvis.plotting import plot_exposure
+from exotic_uvis.stage_2 import spatial_profile_smooth
 
 
-def spatial_smoothing(obs, kernel=(5,5), sigma=10):
+def spatial_smoothing(obs, type='1D_smooth', kernel=(5,5), sigma=10,  bounds_set=[260, 370, 640, 1100],
+                      verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Uses 2D median filtering to catch and remove hot pixels.
 
     Args:
@@ -19,6 +21,61 @@ def spatial_smoothing(obs, kernel=(5,5), sigma=10):
     Returns:
         xarray: obs with images cleaned and data quality flags updated.
     """
+
+    # get images and initialize
+    images = obs.images.data
+    all_xhits, all_yhits = [], []
+
+    # generate random exposure number for plotting
+    plot_ind = np.random.randint(0, np.shape(images)[0])
+
+    # check if bound were given
+    if bounds_set is None:
+        bounds_set = [[0, -1, 0, -1]]
+
+    # iterate over all images
+    for i, image in enumerate(tqdm(images, desc = 'Computing Spatial Profile... Progress:')):
+        # iterate over all bounds
+        for bounds in bounds_set:
+            # define sub_image according to given bounds
+            sub_image = image[bounds[0]:bounds[1], bounds[2]:bounds[3]].copy()
+           
+            # remove outliers with 1D smoothing in the dispersion direction
+            if type == '1D_smooth':
+                Pprof, sub_image_clean, xhits, yhits = spatial_profile_smooth(sub_image,
+                                                                            threshold = sigma,
+                                                                            kernel = kernel,
+                                                                            show_plots=show_plots,
+                                                                            save_plots=save_plots)           
+            # remove outliers with 2D smoothing 
+            elif type == '2D_smooth':
+                print('2D smooth cleaning')
+
+            # remove outliers with other routines
+            elif type == 'polyfit':
+                print('More cleaning options')
+
+            # save position of corrected outliers
+            all_xhits = np.concatenate((all_xhits, xhits))
+            all_yhits = np.concatenate((all_yhits, yhits))
+
+            # if true, plot one exposure and draw location of all detected cosmic rays in that exposures
+            if save_plots > 0 or show_plots > 0:
+                if (show_plots == 2 or save_plots == 2) or i == plot_ind:
+                    plot_exposure([sub_image, sub_image_clean], min = 1e0, 
+                                title = f'Spatial Bad Pixel removal Exposure {i}', 
+                                show_plot=(show_plots > 0), save_plot=(save_plots > 0),
+                                output_dir=output_dir,
+                                filename = ['BadPix_before_correction', 'BadPix_after_correction'])
+
+                    plot_exposure([sub_image], scatter_data=[xhits, yhits], min = 1e0, 
+                                title = f'Location of corrected pixels for Exposure {i}', mark_size = 1,
+                                show_plot=(show_plots > 0), save_plot=(save_plots > 0),
+                                output_dir=output_dir, filename = ['BadPix_location'])
+            
+            # update image
+            image[bounds[0]:bounds[1], bounds[2]:bounds[3]] = sub_image_clean
+          
     return obs
 
 

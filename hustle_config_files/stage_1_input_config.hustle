@@ -32,8 +32,10 @@ contrast_factor 5                                           # Float. If fine_str
 
 # Step 3b: Spatial smoothing parameters
 do_smooth       True                                        # Bool. Whether to use spatial smoothing rejection to clean the frames.
-smth_kernel     (5,5)                                       # Tuple of int. The kernel to use for building the median-filtered image. Each number in the kernel must be odd!
-smth_threshold  10                                          # Float. If an image pixel deviates from the median-filtered image by this threshold, kick it from the image. The lower the value, the more pixels get kicked.
+smth_type       '1D_smooth'                                 # Str. Type of spatial correction to be applied. Options are  '1D_smooth', '2D_smooth'.
+smth_kernel     (11)                                        # Tuple of int. The kernel to use for building the median-filtered image. Each number in the kernel must be odd!
+smth_threshold  5                                           # Float. If an image pixel deviates from the median-filtered image by this threshold, kick it from the image. The lower the value, the more pixels get kicked.
+smth_bounds     [[260, 370, 640, 1100]]                     # Lst of lst of float. The regions that will be corrected for bad pixels. Each list consists of [x1,x2,y1,y2]. If None, simply corrects the full frame.
 # WIP
 
 # Step 4: Background subtraction
