@@ -286,7 +286,7 @@ def Stage2_info():
                            "Step 3a":["# Bool. If True, automatically determines preferred half-width for each order by minimizing out-of-transit/eclipse residuals.",
                                       "# Lst of lsts of int. If determine_hw, these are the indices used to estimate the out-of-transit/eclipse residuals.",
                                       "# Lst of ints. The half-width of extraction aperture to use for each order. Input here is ignored if 'determine_hw' is True.",],
-                           "Step 3b":["# Str. Type of aperture to draw. Options are 'row_polyfit', 'column_polyfit', 'column_gaussfit', 'column_moffatfit', 'median', 'smooth'.",
+                           "Step 3b":["# Str. Type of aperture to draw. Options are 'median', 'polyfit', 'smooth', 'curved_poly', or 'curved_smooth'.",
                                       "# Lst of ints. The half-width of extraction aperture to use for each order. For optimum extraction, you should make this big (>12 pixels at least). There is no 'preferred' half-width in optimum extraction due to the weights.",],
                            "Step 4":["# Float. Sigma at which to reject spectral outliers in time. Outliers are replaced with median of timeseries. Enter False to skip this step.",
                                      "# Bool. If True, uses cross-correlation to align spectra to keep wavelength solution consistent.",],

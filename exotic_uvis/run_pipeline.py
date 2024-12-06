@@ -427,7 +427,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                 #                filename = 's2_2Dspec_order{}'.format(order),
                 #                output_dir = run_dir)
                 
-                plot_raw_whitelightcurve(obs.exp_time.data, spec, order="+1",
+                plot_raw_whitelightcurve(obs.exp_time.data,spec,
+                                         order=order,
                                          show_plot = (stage2_dict['show_plots'] > 0), 
                                          save_plot = (stage2_dict['save_plots'] > 0),
                                          filename = 'rawwlc_order{}'.format(order),

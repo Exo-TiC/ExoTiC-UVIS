@@ -534,7 +534,7 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
             prof = spatial_profile_curved(i, sub_image, image, trace_x, trace_y, low_val, up_val, init_spec = spectrum, correct_thresh = 6., smooth_window = 7, median_window = 7,
                                           show_plots = show_plots, save_plots=save_plots, output_dir=output_dir)
         
-        if (show_plots==1 or save_plots==1) and (i == plot_ind):
+        if (show_plots==1 or save_plots==1) and (i == 0):
             plot_exposure([prof], title = f'Example of Spatial profile Exposure {i}', min=1e-4, max=1e0,
                     show_plot=(show_plots > 0), save_plot=(save_plots > 0),
                     output_dir=output_dir, filename = [f'spatial_profile_exp{i}'])

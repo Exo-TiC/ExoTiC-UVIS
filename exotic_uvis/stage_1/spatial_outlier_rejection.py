@@ -51,8 +51,9 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=11, sigma=10, bounds_set=[[2
         bounds_set = [[0, -1, 0, -1]]
 
     # iterate over all images
-    for i, image in enumerate(tqdm(images, desc = 'Computing spatial profile... Progress:'),
-                              disable=(verbose==0)):
+    for i in tqdm(range(images.shape[0]), desc = 'Computing spatial profile... Progress:',
+                  disable=(verbose==0)):
+        image = images[i]
         # iterate over all bounds
         for bounds in bounds_set:
             # define sub_image according to given bounds
@@ -81,7 +82,7 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=11, sigma=10, bounds_set=[[2
 
             # if true, plot one exposure and draw location of all detected cosmic rays in that exposures
             if save_plots > 0 or show_plots > 0:
-                if (show_plots > 0 or save_plots > 0) and i == plot_ind:
+                if (show_plots > 0 or save_plots > 0) and i == 0:
                     plot_exposure([sub_image, sub_image_clean], min = 1e0, 
                                 title = f'Spatial Bad Pixel removal Exposure {i}', 
                                 show_plot=(show_plots > 0), save_plot=(save_plots > 0),
@@ -132,7 +133,7 @@ def spatial_2D_smooth(sub_image, kernel=(5,5), sigma=10):
 
     # look for outliers
     difference_image = sub_image - Pprof
-    clipped = sigma(difference_image,sigma=sigma,axis=0)
+    clipped = sigma_clip(difference_image,sigma=sigma,axis=0)
     mask = clipped.mask
     int_mask = mask.astype(float) * Pprof
     test = (~mask).astype(float)
@@ -142,8 +143,8 @@ def spatial_2D_smooth(sub_image, kernel=(5,5), sigma=10):
 
     # identify where changes were made
     bad_pix = np.argwhere(sub_image!=sub_image_clean)
-    xhits = np.array([i[0] for i in bad_pix])
-    yhits = np.array([i[1] for i in bad_pix])
+    yhits = np.array([i[0] for i in bad_pix])
+    xhits = np.array([i[1] for i in bad_pix])
 
     return Pprof, sub_image_clean, xhits, yhits
 
