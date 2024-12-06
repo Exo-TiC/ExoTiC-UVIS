@@ -185,7 +185,7 @@ def free_iteration_rejection(obs, threshold = 3.5,
         for j in range(obs.dims['y']):
             # check that sum of pixel along temporal dimension is non-zero (i.e., that the pixel is inside the subarray)
             if np.sum(images[:, i, j]):
-                _, hit_map[:, i, j] = array1D_clip(images[:, i, j], threshold, mode = 'median')
+                _, hit_map[:, i, j] = array1D_clip(images[:, i, j], threshold)
     
     # if true, plot one exposure and draw location of all detected cosmic rays in all exposures
     if save_plots > 0 or show_plots > 0:
