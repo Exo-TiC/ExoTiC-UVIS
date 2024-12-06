@@ -1,9 +1,9 @@
+from tqdm import tqdm
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import optimize
-from tqdm import tqdm
 from matplotlib.pyplot import rc
-import grismconf
 
 rc('font', family='serif')
 plt.rc('xtick', labelsize=14)
@@ -32,44 +32,50 @@ def Gauss1D(x, A, x0, sigma):
 
 
 def exponential(x, x0, y0, a, b):
-    """_summary_
+    """Creates a 1D exponential on a given x range.
 
     Args:
-        x (_type_): _description_
-        x0 (_type_): _description_
-        y0 (_type_): _description_
-        a (_type_): _description_
-        b (_type_): _description_
+        x (np.array): independent variable in the Gaussian.
+        x0 (float): normalisation of independent variable.
+        y0 (float): constant offset of the exp.
+        a (float): amplitude of the exponential.
+        b (float): power of the exponential.
 
     Returns:
-        _type_: _description_
+        p.array: 1D exponential on domain x.
     """
     return y0 + a * np.exp(b * (x - x0)) 
 
 
-
-def remove_zeroth_order(path_to_cal, source_pos, obs, mode = 'radial_profile', zero_pos = [1158, 300], rmin = 100, rmax = 300, rwidth = 3, fit_profile = False, 
-               verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
-    """_summary_
+def remove_zeroth_order(obs, mode = 'radial_profile', zero_pos = [1158, 300],
+                        rmin = 100, rmax = 300, rwidth = 3, fit_profile = False, 
+                        verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
+    """Method to model and remove the 0th order wings, which can contaminate
+    the bluest end of the +1 and -1 orders.
 
     Args:
-        path_to_cal (_type_): _description_
-        source_pos (_type_): _description_
-        obs (_type_): _description_
-        mode (str, optional): _description_. Defaults to 'radial_profile'.
+        obs (xarray): images to remove the 0th order from.
+        mode (str, optional): type of profile to model the 0th with.
+        Defaults to 'radial_profile'.
         zero_pos (list, optional): _description_. Defaults to [1158, 300].
         rmin (int, optional): _description_. Defaults to 100.
         rmax (int, optional): _description_. Defaults to 300.
         rwidth (int, optional): _description_. Defaults to 3.
         fit_profile (bool, optional): _description_. Defaults to False.
-        verbose (int, optional): _description_. Defaults to 0.
-        show_plots (int, optional): _description_. Defaults to 0.
-        save_plots (int, optional): _description_. Defaults to 0.
-        output_dir (_type_, optional): _description_. Defaults to None.
+        verbose (int, optional): How detailed you want the printed statements
+        to be. Defaults to 0.
+        show_plots (int, optional): How many plots you want to show. Defaults to 0.
+        save_plots (int, optional): How many plots you want to save. Defaults to 0.
+        output_dir (str, optional): Where to save the plots to, if save_plots
+        is greater than 0. Defaults to None.
 
     Returns:
-        _type_: _description_
+        array-like: obs corrected and a model of the 0th order in each frame.
     """
+    
+    if verbose>0:
+        print("Removing 0th order contamination...")
+    
     images = obs.images.data.copy()
 
     if mode == 'radial_profile':
@@ -90,14 +96,16 @@ def remove_zeroth_order(path_to_cal, source_pos, obs, mode = 'radial_profile', z
         ang = np.pi/6
         mask_angle = ((tt > ang) & (tt < np.pi - ang)) | ((tt > ang - np.pi) & (tt < -ang))
 
-        print(np.sum(mask_angle))
+        if verbose == 2:
+            print("Radial profile mask_anlge sum:",np.sum(mask_angle))
 
         hist_area = images[0].copy()
         hist_area[mask_angle & (rr < rmax) & (rr > rmin)] = 'nan'
   
-        plot_exposure([hist_area], title = 'Area to build the histogram', 
-                      show_plot=(show_plots>0), save_plot=(save_plots>0),
-                      output_dir=output_dir, filename = ['0th_order_histogram'])
+        if (save_plots>0 or show_plots>0):
+            plot_exposure([hist_area], title = 'Area to build the histogram', 
+                        show_plot=(show_plots>0), save_plot=(save_plots>0),
+                        output_dir=output_dir, filename = ['0th_order_histogram'])
         
         # test plots:
         #hist_area = images[0].copy()
@@ -107,7 +115,8 @@ def remove_zeroth_order(path_to_cal, source_pos, obs, mode = 'radial_profile', z
         #plot_exposure([hist_area], min = 0, max = 2)
 
       
-        for j, image in enumerate(tqdm(images, desc = 'Calculating 0th order background... Process:')):
+        for j, image in enumerate(tqdm(images, desc = 'Calculating 0th order background... Process:'),
+                                  disable=(verbose==0)):
 
             profile = []
         
@@ -129,10 +138,12 @@ def remove_zeroth_order(path_to_cal, source_pos, obs, mode = 'radial_profile', z
                     if i == int(len(r_vect)/2):
                         hist_area = image.copy()
                         hist_area[mask_angle & (rr < r_vect[i + 1]) & (rr > r_vect[i])] = 'nan'
-  
-                        plot_exposure([hist_area], title = 'Area to build the histogram', 
-                                    show_plot=(show_plots>0), save_plot=(save_plots>0),
-                                    output_dir=output_dir, filename = ['0th_order_histogram'])
+
+
+                        if (save_plots>0 or show_plots>0):
+                            plot_exposure([hist_area], title = 'Area to build the histogram', 
+                                        show_plot=(show_plots>0), save_plot=(save_plots>0),
+                                        output_dir=output_dir, filename = ['0th_order_histogram'])
                         
                         plt.figure(figsize = (10, 7))
                         plt.hist(image[mask], bins = np.linspace(-10, 60, 100), color = 'indianred', alpha = 0.7)

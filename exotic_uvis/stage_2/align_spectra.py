@@ -8,7 +8,7 @@ from scipy import signal
 
 
 def cross_corr(spec, temp_spec, order='+1', i=0, trim = 1, fit_window = 5, subpix_width = 0.01,
-               verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
+               show_plots = 0, save_plots = 0, output_dir = None):
     """Function to perform cross-correlation of two arrays.
     Based on ExoTic-JEDI align_spectra.py code
 
@@ -113,7 +113,7 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
     # initialize variables and define median spectrum as template
     align_specs = []
     align_specs_err = []
-    x_shifts, y_shifts = [], []
+    x_shifts = []
     # align only on the intended wavelengths of analysis
     ok = (trace_x>2000) & (trace_x<8000)
     temp_spec = np.median(specs[:,ok], axis = 0)

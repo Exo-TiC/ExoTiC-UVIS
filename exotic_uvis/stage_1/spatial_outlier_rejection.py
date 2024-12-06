@@ -2,21 +2,38 @@ from tqdm import tqdm
 
 import numpy as np
 from scipy.ndimage import median_filter
+from scipy.signal import medfilt2d
+from astropy.stats import sigma_clip
 
 from exotic_uvis.plotting import plot_exposure
 from exotic_uvis.stage_2 import spatial_profile_smooth
 
 
-def spatial_smoothing(obs, type='1D_smooth', kernel=(5,5), sigma=10,  bounds_set=[260, 370, 640, 1100],
+def spatial_smoothing(obs, type='smooth', kernel=11, sigma=10, bounds_set=[[260, 370, 640, 1100],],
                       verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Uses 2D median filtering to catch and remove hot pixels.
 
     Args:
         obs (xarray): obs.images contains the dataset we are cleaning.
-        kernel (tup, optional): the size of the kernel used to compute
-        the median-filtered image. Defaults to (5,5).
-        sigma (int, optional): threshold at which to remove an outlier.
+        type (str): options are "1D_smooth" (to use row-wise scipy
+        median-filtering),  "2D_smooth" (to use scipy 2D median-filtering),
+        and "polyfit" (to fit row-wise polynomials).
+        kernel (int or tup, optional): the size of the kernel used to compute
+        the median-filtered image. If using 1D_smooth, should be an odd int. If
+        using 2D_smooth, should be a tuple of two odd ints. Defaults to 11.
+        sigma (float, optional): threshold at which to remove an outlier.
         Defaults to 10.
+        bounds_set (array-like, optional): whether to only perform spatial
+        smoothing on a subset of the array, for time-saving. Defaults to
+        [[260, 370, 640, 1100],].
+        verbose (int, optional): how detailed you want the printed statements
+        to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show.
+        Defaults to 0.
+        save_plots (int, optional): how many plots you want to save.
+        Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots
+        is greater than 0. Defaults to None.
 
     Returns:
         xarray: obs with images cleaned and data quality flags updated.
@@ -34,7 +51,8 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=(5,5), sigma=10,  bounds_set
         bounds_set = [[0, -1, 0, -1]]
 
     # iterate over all images
-    for i, image in enumerate(tqdm(images, desc = 'Computing Spatial Profile... Progress:')):
+    for i, image in enumerate(tqdm(images, desc = 'Computing spatial profile... Progress:'),
+                              disable=(verbose==0)):
         # iterate over all bounds
         for bounds in bounds_set:
             # define sub_image according to given bounds
@@ -43,13 +61,15 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=(5,5), sigma=10,  bounds_set
             # remove outliers with 1D smoothing in the dispersion direction
             if type == '1D_smooth':
                 Pprof, sub_image_clean, xhits, yhits = spatial_profile_smooth(sub_image,
-                                                                            threshold = sigma,
-                                                                            kernel = kernel,
-                                                                            show_plots=show_plots,
-                                                                            save_plots=save_plots)           
+                                                                              threshold = sigma,
+                                                                              kernel = kernel,
+                                                                              show_plots=show_plots,
+                                                                              save_plots=save_plots)           
             # remove outliers with 2D smoothing 
             elif type == '2D_smooth':
-                print('2D smooth cleaning')
+                Pprof, sub_image_clean, xhits, yhits = spatial_2D_smooth(sub_image,
+                                                                         kernel=kernel,
+                                                                         sigma=sigma)
 
             # remove outliers with other routines
             elif type == 'polyfit':
@@ -61,22 +81,71 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=(5,5), sigma=10,  bounds_set
 
             # if true, plot one exposure and draw location of all detected cosmic rays in that exposures
             if save_plots > 0 or show_plots > 0:
-                if (show_plots == 2 or save_plots == 2) or i == plot_ind:
+                if (show_plots > 0 or save_plots > 0) and i == plot_ind:
                     plot_exposure([sub_image, sub_image_clean], min = 1e0, 
                                 title = f'Spatial Bad Pixel removal Exposure {i}', 
                                 show_plot=(show_plots > 0), save_plot=(save_plots > 0),
                                 output_dir=output_dir,
-                                filename = ['BadPix_before_correction', 'BadPix_after_correction'])
+                                filename = [f'spatialsmooth_before_correction_frame{i}', f'spatialsmooth_after_correction_frame{i}'])
 
                     plot_exposure([sub_image], scatter_data=[xhits, yhits], min = 1e0, 
                                 title = f'Location of corrected pixels for Exposure {i}', mark_size = 1,
                                 show_plot=(show_plots > 0), save_plot=(save_plots > 0),
-                                output_dir=output_dir, filename = ['BadPix_location'])
+                                output_dir=output_dir, filename = [f'spatialsmooth_location_frame{i}'])
+                
+                elif (show_plots == 2 or save_plots == 2):
+                    plot_exposure([sub_image, sub_image_clean], min = 1e0, 
+                                title = f'Spatial Bad Pixel removal Exposure {i}', 
+                                show_plot=(show_plots == 2), save_plot=(save_plots == 2),
+                                output_dir=output_dir,
+                                filename = [f'spatialsmooth_before_correction_frame{i}', f'spatialsmooth_after_correction_frame{i}'])
+
+                    plot_exposure([sub_image], scatter_data=[xhits, yhits], min = 1e0, 
+                                title = f'Location of corrected pixels for Exposure {i}', mark_size = 1,
+                                show_plot=(show_plots == 2), save_plot=(save_plots == 2),
+                                output_dir=output_dir, filename = [f'spatialsmooth_location_frame{i}'])
             
             # update image
             image[bounds[0]:bounds[1], bounds[2]:bounds[3]] = sub_image_clean
           
     return obs
+
+
+def spatial_2D_smooth(sub_image, kernel=(5,5), sigma=10):
+    """Uses scipy.signal.medfil2d to correct spatial outliers.
+    Adapted from routine developed by Trevor Foote (tof2@cornell.edu).
+
+    Args:
+        sub_image (array-like): a frame to clean of outliers.
+        kernel (tuple, optional): tuple of two odd ints which define the
+        kernel used for smoothing. Defaults to (5,5).
+        sigma (float, optional): threshold at which to remove an outlier.
+        Defaults to 10.
+
+    Returns:
+        array-like, array-like, array-like, array-like: the median-filtered
+        image, cleaned image, and maps of where pixels were hit in x and y.
+    """
+
+    # build the median-filtered model
+    Pprof = medfilt2d(sub_image,kernel_size=kernel)
+
+    # look for outliers
+    difference_image = sub_image - Pprof
+    clipped = sigma(difference_image,sigma=sigma,axis=0)
+    mask = clipped.mask
+    int_mask = mask.astype(float) * Pprof
+    test = (~mask).astype(float)
+
+    # replace outliers in the data
+    sub_image_clean =  (sub_image*test) + int_mask
+
+    # identify where changes were made
+    bad_pix = np.argwhere(sub_image!=sub_image_clean)
+    xhits = np.array([i[0] for i in bad_pix])
+    yhits = np.array([i[1] for i in bad_pix])
+
+    return Pprof, sub_image_clean, xhits, yhits
 
 
 def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=False, contrast_factor=5,

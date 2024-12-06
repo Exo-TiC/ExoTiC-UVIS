@@ -413,17 +413,17 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             # do plotting
             if (stage2_dict['show_plots'] > 0 or stage2_dict['save_plots'] > 0):
                 
-                plot_one_spectrum(wav, spec[0, :], order,
+                plot_one_spectrum(wav, spec[0, :],
                                 show_plot=(stage2_dict['show_plots'] > 0),
                                 save_plot=(stage2_dict['save_plots'] > 0),
-                                filename='s2_1Dspec_order{}'.format(order),
+                                filename='1Dspec_order{}'.format(order),
                                 output_dir=run_dir,
                                 )
                                 
-                plot_2d_spectra(wav, spec, order="+1",
+                plot_2d_spectra(wav, spec,
                                 show_plot = (stage2_dict['show_plots'] > 0), 
                                 save_plot = (stage2_dict['save_plots'] > 0),
-                                filename = 's2_2Dspec_order{}'.format(order),
+                                filename = '2Dspec_order{}'.format(order),
                                 output_dir = run_dir)
                 
                 #plot_raw_spectrallightcurves(obs.exp_time.data, spec, order="+1",
@@ -433,17 +433,17 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                 #                output_dir = run_dir)
                 
                 plot_raw_whitelightcurve(obs.exp_time.data, spec, order="+1",
-                                show_plot = (stage2_dict['show_plots'] > 0), 
-                                save_plot = (stage2_dict['save_plots'] > 0),
-                                filename = 's2_rawwlc_order{}'.format(order),
-                                output_dir = run_dir)
+                                         show_plot = (stage2_dict['show_plots'] > 0), 
+                                         save_plot = (stage2_dict['save_plots'] > 0),
+                                         filename = 'rawwlc_order{}'.format(order),
+                                         output_dir = run_dir)
 
                 plot_spec_gif(wav,spec,
-                            order=order,
-                            show_plot=(stage2_dict['show_plots'] > 0),
-                            save_plot=(stage2_dict['save_plots'] > 0),
-                            filename='s2_1Dspec',
-                            output_dir=run_dir)
+                              order=order,
+                              show_plot=(stage2_dict['show_plots'] > 0),
+                              save_plot=(stage2_dict['save_plots'] > 0),
+                              filename='1Dspec_order{}'.format(order),
+                              output_dir=run_dir)
            
             # save order xarray
             save_data_S2(obs, 

@@ -60,7 +60,25 @@ def plot_profile_fit(y_vals, profile, gaussian_fit, cal_center, fit_center,
 
 
 def plot_fitted_positions(trace_x, trace_y, trace, exp_num, fitted_trace = None, 
-                          show_plot = False, save_plot = False, output_dir = None):
+                          show_plot = False, save_plot = False, filename = None, output_dir = None):
+    """Plots the GRISMCONF y-pos versus the fitted y-pos of the trace.
+
+    Args:
+        trace_x (array-like): GRISMCONF solution to the columns.
+        trace_y (array-like): GRISMCONF solution to the rows.
+        trace (array-like): _description_
+        exp_num (int): which frame this is, for plot title and filename.
+        fitted_trace (array-like, optional): a polynomial fit to the trace
+        center, may or may not be performed. Defaults to None.
+        show_plot (bool, optional): whether to interrupt execution to show the
+        user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot to a file.
+        Defaults to False.
+        filename (str, optional): name to give this file, if saving.
+        Defaults to None.
+        output_dir (str, optional): where to save the file, if saving.
+        Defaults to None.
+    """
 
     # plot the computed positions and compare to calibration trace
     plt.figure(figsize=(10, 7))
@@ -79,7 +97,7 @@ def plot_fitted_positions(trace_x, trace_y, trace, exp_num, fitted_trace = None,
         plot_dir = os.path.join(output_dir, 'plots') 
         if not os.path.exists(plot_dir):
             os.makedirs(plot_dir) 
-        filedir = os.path.join(plot_dir, 'Fitted_trace_positions.png')
+        filedir = os.path.join(plot_dir, f'{filename}_frame{exp_num}.png')
         plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
 
     if show_plot:
@@ -88,6 +106,7 @@ def plot_fitted_positions(trace_x, trace_y, trace, exp_num, fitted_trace = None,
     plt.close() # save memory
 
     return
+
 
 def plot_fitted_amplitudes():
     return
