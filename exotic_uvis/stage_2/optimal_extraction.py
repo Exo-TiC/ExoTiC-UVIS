@@ -21,6 +21,21 @@ def spatial_profile_curved_poly():
 
 def spatial_profile_smooth(image_org, kernel = 11, threshold = 5., std_window = 20, 
                            median_window = 7, show_plots=0, save_plots=0, output_dir=0):
+    """_summary_
+
+    Args:
+        image_org (_type_): _description_
+        kernel (int, optional): _description_. Defaults to 11.
+        threshold (_type_, optional): _description_. Defaults to 5..
+        std_window (int, optional): _description_. Defaults to 20.
+        median_window (int, optional): _description_. Defaults to 7.
+        show_plots (int, optional): _description_. Defaults to 0.
+        save_plots (int, optional): _description_. Defaults to 0.
+        output_dir (int, optional): _description_. Defaults to 0.
+
+    Returns:
+        _type_: _description_
+    """
     
     # copy image and initialize
     image = image_org.copy()
@@ -90,6 +105,17 @@ def spatial_profile_smooth(image_org, kernel = 11, threshold = 5., std_window = 
 
 
 def spatial_profile_median(images, show_plots=0, save_plots=0, output_dir=None):
+    """_summary_
+
+    Args:
+        images (_type_): _description_
+        show_plots (int, optional): _description_. Defaults to 0.
+        save_plots (int, optional): _description_. Defaults to 0.
+        output_dir (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
 
     # calculate median image
     P_prof = np.median(images, axis = 0)
@@ -113,11 +139,17 @@ def spatial_profile_median(images, show_plots=0, save_plots=0, output_dir=None):
 
 def window_profile(image, init_pix, fin_pix, pol_degree = 6, 
                    threshold = 6.):
+    """_summary_
 
-    """
-    
-    Function to build the spatial profile of a given window
-    
+    Args:
+        image (_type_): _description_
+        init_pix (_type_): _description_
+        fin_pix (_type_): _description_
+        pol_degree (int, optional): _description_. Defaults to 6.
+        threshold (_type_, optional): _description_. Defaults to 6..
+
+    Returns:
+        _type_: _description_
     """
 
     # initialize
@@ -175,11 +207,20 @@ def window_profile(image, init_pix, fin_pix, pol_degree = 6,
 
 def spatial_profile(exp_ind, image_org, window = 40, threshold = 4., normalize = False,
                     show_plots=0, save_plots=0, output_dir=0):
+    """_summary_
 
-    """"
-    
-    Function to calculate the spatial profile 
-    
+    Args:
+        exp_ind (_type_): _description_
+        image_org (_type_): _description_
+        window (int, optional): _description_. Defaults to 40.
+        threshold (_type_, optional): _description_. Defaults to 4..
+        normalize (bool, optional): _description_. Defaults to False.
+        show_plots (int, optional): _description_. Defaults to 0.
+        save_plots (int, optional): _description_. Defaults to 0.
+        output_dir (int, optional): _description_. Defaults to 0.
+
+    Returns:
+        _type_: _description_
     """
 
     # copy image and initialize
@@ -233,12 +274,27 @@ def spatial_profile(exp_ind, image_org, window = 40, threshold = 4., normalize =
 def spatial_profile_curved_poly(exp_ind, sub_image_org, image, tx_main, ty_main, low_val, up_val, init_spec = None, 
                                 fit_thresh = 4., fit_degree = 5, window = 50, correct_thresh = None,
                                 show_plots=0, save_plots=0, output_dir=0):
+    """_summary_
 
+    Args:
+        exp_ind (_type_): _description_
+        sub_image_org (_type_): _description_
+        image (_type_): _description_
+        tx_main (_type_): _description_
+        ty_main (_type_): _description_
+        low_val (_type_): _description_
+        up_val (_type_): _description_
+        init_spec (_type_, optional): _description_. Defaults to None.
+        fit_thresh (_type_, optional): _description_. Defaults to 4..
+        fit_degree (int, optional): _description_. Defaults to 5.
+        window (int, optional): _description_. Defaults to 50.
+        correct_thresh (_type_, optional): _description_. Defaults to None.
+        show_plots (int, optional): _description_. Defaults to 0.
+        save_plots (int, optional): _description_. Defaults to 0.
+        output_dir (int, optional): _description_. Defaults to 0.
 
-    """
-    
-    Function to create a spatial profile
-    
+    Returns:
+        _type_: _description_
     """
 
     # copy image data and extract y values
@@ -361,14 +417,25 @@ def spatial_profile_curved_poly(exp_ind, sub_image_org, image, tx_main, ty_main,
 def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_type = 'polyfit', 
                        iterate = False, plot = True, zero_bkg = None,
                        verbose=0, show_plots=0, save_plots=0, output_dir=None):
+    """_summary_
 
+    Args:
+        obs (_type_): _description_
+        trace_x (_type_): _description_
+        traces_y (_type_): _description_
+        width (int, optional): _description_. Defaults to 25.
+        thresh (_type_, optional): _description_. Defaults to 17..
+        prof_type (str, optional): _description_. Defaults to 'polyfit'.
+        iterate (bool, optional): _description_. Defaults to False.
+        plot (bool, optional): _description_. Defaults to True.
+        zero_bkg (_type_, optional): _description_. Defaults to None.
+        verbose (int, optional): _description_. Defaults to 0.
+        show_plots (int, optional): _description_. Defaults to 0.
+        save_plots (int, optional): _description_. Defaults to 0.
+        output_dir (_type_, optional): _description_. Defaults to None.
 
-    """
-
-    
-    Function to extract the spectrum following the methods from Horne 1986
-
-    
+    Returns:
+        _type_: _description_
     """
 
     #initialize

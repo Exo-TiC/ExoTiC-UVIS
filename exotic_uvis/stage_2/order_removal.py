@@ -32,28 +32,44 @@ def Gauss1D(x, A, x0, sigma):
 
 
 def exponential(x, x0, y0, a, b):
+    """_summary_
 
+    Args:
+        x (_type_): _description_
+        x0 (_type_): _description_
+        y0 (_type_): _description_
+        a (_type_): _description_
+        b (_type_): _description_
+
+    Returns:
+        _type_: _description_
     """
-
-    Function to define an inverse profile
-
-    """
-
-
     return y0 + a * np.exp(b * (x - x0)) 
 
 
 
 def remove_zeroth_order(path_to_cal, source_pos, obs, mode = 'radial_profile', zero_pos = [1158, 300], rmin = 100, rmax = 300, rwidth = 3, fit_profile = False, 
                verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
+    """_summary_
 
+    Args:
+        path_to_cal (_type_): _description_
+        source_pos (_type_): _description_
+        obs (_type_): _description_
+        mode (str, optional): _description_. Defaults to 'radial_profile'.
+        zero_pos (list, optional): _description_. Defaults to [1158, 300].
+        rmin (int, optional): _description_. Defaults to 100.
+        rmax (int, optional): _description_. Defaults to 300.
+        rwidth (int, optional): _description_. Defaults to 3.
+        fit_profile (bool, optional): _description_. Defaults to False.
+        verbose (int, optional): _description_. Defaults to 0.
+        show_plots (int, optional): _description_. Defaults to 0.
+        save_plots (int, optional): _description_. Defaults to 0.
+        output_dir (_type_, optional): _description_. Defaults to None.
 
+    Returns:
+        _type_: _description_
     """
-    
-    Function to simulate the background flux due to the zeroth order around the edges of the spectra
-
-    """
-
     images = obs.images.data.copy()
 
     if mode == 'radial_profile':
