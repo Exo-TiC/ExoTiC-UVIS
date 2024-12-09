@@ -295,8 +295,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         if not os.path.exists(run_dir):
             os.makedirs(run_dir)
 
-        correct_zero = False
-        if correct_zero:
+        if stage2_dict['correct_zero']:
             # calibrate 0th order
             x0th, y0th = get_calibration_0th(obs,
                                             source_pos=stage2_dict['location'],

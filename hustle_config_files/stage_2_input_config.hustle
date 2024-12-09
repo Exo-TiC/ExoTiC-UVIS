@@ -17,6 +17,7 @@ refine_fit      True                                        # Bool. If True, use
 
 # Step 3: 1D spectral extraction
 method          'box'                                       # Str. Options are 'box' (draw a box around the trace and sum without weights) or 'optimal' (weight using Horne 1986 methods).
+correct_zero    False                                       # Bool. Whether to model the contaminating 0th order and subtract it from your data during extraction. Sometimes works, sometimes just adds lots of scatter.
 subtract_contam False                                       # Bool. Whether to model the contaminating orders and subtract them from your trace during extraction. Sometimes works, sometimes just adds lots of scatter.
 sens_correction False                                       # Bool. Whether to correct for the G280's changing sensitivity as a function of wavelength. Since absolute calibrated spectra aren't needed in exoplanetary sciences, you can skip this safely.
 mask_objs       [[0,0,0],]                                  # List of lists. If there are background objects in your planned aperture, mask them here. Each entry is (x,y,radius).
@@ -27,7 +28,7 @@ indices         ([0,10],[-10,-1])                           # Lst of lsts of int
 halfwidths_box  (12,12)                                     # Lst of ints. The half-width of extraction aperture to use for each order. Input here is ignored if 'determine_hw' is True.
 
 # Step 3b: Optimum extraction parameters
-aperture_type   'median'                                    # Str. Type of aperture to draw. Options are 'row_polyfit', 'column_polyfit', 'column_gaussfit', 'column_moffatfit', 'median', 'smooth'.
+aperture_type   'median'                                    # Str. Type of aperture to draw. Options are 'median', 'polyfit', 'smooth', or 'curved_poly'.
 halfwidths_opt  (12,12)                                     # Lst of ints. The half-width of extraction aperture to use for each order. For optimum extraction, you should make this big (>12 pixels at least). There is no 'preferred' half-width in optimum extraction due to the weights.
 
 # Step 4: 1D spectral cleaning and aligning
