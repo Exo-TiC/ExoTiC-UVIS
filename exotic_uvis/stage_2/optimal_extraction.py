@@ -521,8 +521,8 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
                                            save_plots=save_plots, output_dir=output_dir)
 
         elif prof_type == 'smooth':
-            prof, _, _, _ = spatial_profile_smooth(i, sub_image, window_len = 13, threshold = 5,
-                                                   show_plots=show_plots, save_plots=save_plots, output_dir=output_dir)
+            prof, _, _, _ = spatial_profile_smooth(sub_image, kernel = 11, threshold = 5., std_window = 20, 
+                                            median_window = 7, show_plots=show_plots, save_plots=save_plots, output_dir=output_dir)
         
         elif prof_type == 'curved_poly':
             image = images[i]
