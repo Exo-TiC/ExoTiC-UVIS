@@ -15,7 +15,7 @@ plt.rc('legend',**{'fontsize':11})
 
 
 def plot_profile_fit(y_vals, profile, gaussian_fit, cal_center, fit_center,
-                    order="+1", show_plot = False, save_plot = False, 
+                    order="+1", column=0, show_plot = False, save_plot = False, 
                     output_dir = None):
     """Plot the fitted trace profiles.
 
@@ -42,13 +42,13 @@ def plot_profile_fit(y_vals, profile, gaussian_fit, cal_center, fit_center,
     plt.axvline(cal_center, color = 'black', linestyle = '-.', alpha = 0.8)
     plt.ylabel('Counts')
     plt.xlabel('Detector Pixel Position')
-    plt.title('Example of Profile fitted to Trace')
+    plt.title(f'Example of Profile fitted to Trace Column {column}')
 
     if save_plot:
         plot_dir = os.path.join(output_dir, 'plots') 
         if not os.path.exists(plot_dir):
             os.makedirs(plot_dir) 
-        filedir = os.path.join(plot_dir, 'trace_profile_order{}.png'.format(order))
+        filedir = os.path.join(plot_dir, 'trace_profile_order{}_column{}.png'.format(order, column))
         plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
 
     if show_plot:

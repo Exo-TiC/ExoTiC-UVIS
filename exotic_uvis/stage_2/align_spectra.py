@@ -164,6 +164,7 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
         
         plt.close() # save memory
 
+        '''
         colors = plt.cm.rainbow(np.linspace(0, 1, 25))
 
         plt.figure(figsize = (10, 7))
@@ -185,6 +186,7 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
 
         plt.close() # save memory
         plt.close() # save memory
+        '''
     
     return align_specs, align_specs_err, np.array(x_shifts)
 

@@ -113,9 +113,9 @@ def plot_raw_whitelightcurve(times, spec, order="+1",
     """
 
     # define order colors
-    colors = {"+1":'red',"-1":'blue',
+    colors = {"+1":'indianred',"-1":'dodgerblue',
               "+2":'orangered',"-2":'royalblue',
-              "+3":'darkorange',"-3":'dodgerblue',
+              "+3":'darkorange',"-3":'blue',
               "+4":'orange',"-4":'deepskyblue'}
 
     raw_wlc = np.sum(spec, axis=1)
@@ -164,9 +164,9 @@ def plot_raw_spectrallightcurves(times, spec, order="+1",
     """
 
     # define order colors
-    colors = {"+1":'red',"-1":'blue',
+    colors = {"+1":'indianred',"-1":'dodgerblue',
               "+2":'orangered',"-2":'royalblue',
-              "+3":'darkorange',"-3":'dodgerblue',
+              "+3":'darkorange',"-3":'blue',
               "+4":'orange',"-4":'deepskyblue'}    
 
     for i, lc in enumerate(np.transpose(spec)):

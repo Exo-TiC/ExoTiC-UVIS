@@ -152,7 +152,8 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
     
     # Plot the calibration over the image.
     if (show_plots > 0 or save_plots > 0):
-        plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y]],
+        plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y]], 
+                      title=f'Calibration Trace Order {order}',
                       filename = ['calibration_{}'.format(order)],
                       save_plot=(save_plots>0), show_plot=(show_plots>0),
                       output_dir=output_dir)
@@ -160,11 +161,12 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
     # Use Gaussian fitting to refine the y positions if asked.
     if refine_calibration:
         trace_y, widths = fit_trace(obs, trace_x, trace_y, profile_width = 70, pol_deg = 7, fit_type = 'Gaussian',
-                                    fit_trace = True, plot_profile = [20, 300], 
+                                    fit_trace = True, plot_profile = [20, 300], order=order, 
                                     verbose = verbose, show_plots = show_plots, save_plots = save_plots, output_dir = output_dir)
         
         # Plot refined calibration.
-        plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y[0]]],
+        plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y[0]]], 
+                      title=f'Refined Trace Order {order}',
                       filename = ['calibration-refined_{}'.format(order)],
                       save_plot=(save_plots>0), show_plot=(show_plots>0),
                       output_dir=output_dir)
@@ -249,7 +251,7 @@ def Gauss1D(x, H, A, x0, sigma):
 
 def fit_trace(obs, trace_x, trace_y, 
               profile_width = 40, pol_deg = 7, fit_type = 'Gaussian',
-              fit_trace = False, plot_profile = None,
+              fit_trace = False, plot_profile = None, order="+1",
               verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Refines the trace vertical location by fitting profile curves to the
     cross-dispersion profiles.
@@ -318,7 +320,7 @@ def fit_trace(obs, trace_x, trace_y,
                 if save_plots > 0 or show_plots > 0:
                     profile_fit = Gauss1D(y_vals, parameters[0], parameters[1], parameters[2], parameters[3])
 
-                    plot_profile_fit(y_vals, profile, profile_fit, trace_y[j], parameters[2],
+                    plot_profile_fit(y_vals, profile, profile_fit, trace_y[j], parameters[2], order=order, column=j,
                                     show_plot = (show_plots>0), save_plot = (save_plots>0), 
                                     output_dir = output_dir)
             
@@ -350,10 +352,10 @@ def fit_trace(obs, trace_x, trace_y,
                 
                 if fit_trace:
                     plot_fitted_positions(trace_x, trace_y, trace, i, fitted_trace = fitted_trace, 
-                    show_plot=(show_plots>0), save_plot=(show_plots>0), filename="calibration_yfit", output_dir=output_dir)
+                    show_plot=(show_plots>0), save_plot=(save_plots>0), filename="calibration_yfit", output_dir=output_dir)
                 else:
                     plot_fitted_positions(trace_x, trace_y, trace, i, 
-                            show_plot=(show_plots>0), save_plot=(show_plots>0), filename="calibration_noyfit", output_dir=output_dir)
+                            show_plot=(show_plots>0), save_plot=(save_plots>0), filename="calibration_noyfit", output_dir=output_dir)
 
     return np.array(traces), np.array(widths)
 

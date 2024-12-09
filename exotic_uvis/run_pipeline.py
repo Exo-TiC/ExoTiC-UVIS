@@ -295,26 +295,25 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         if not os.path.exists(run_dir):
             os.makedirs(run_dir)
 
-        # calibrate 0th order
-        x0th, y0th = get_calibration_0th(obs,
-                                         source_pos=stage2_dict['location'],
-                                         path_to_cal=stage2_dict['path_to_cal'],
-                                         verbose=stage2_dict['verbose'],
-                                         show_plots=stage2_dict['show_plots'], 
-                                         save_plots=stage2_dict['save_plots'],
-                                         output_dir=run_dir)
-
-        # test 0th order removal
-            #remove_zeroth_order(stage2_dict['path_to_cal'],
-            #                    stage2_dict['location'],
-            #                    obs, 
-            #                    zero_pos = [1158, 300], 
-            #                    rmin = 100, rmax = 300, rwidth = 3, 
-            #                    fit_profile = True,
-            #                    verbose = stage2_dict['verbose'],
-            #                    show_plots = stage2_dict['show_plots'],
-            #                    save_plots = stage2_dict['save_plots'],
-            #                    output_dir = None)
+        correct_zero = False
+        if correct_zero:
+            # calibrate 0th order
+            x0th, y0th = get_calibration_0th(obs,
+                                            source_pos=stage2_dict['location'],
+                                            path_to_cal=stage2_dict['path_to_cal'],
+                                            verbose=stage2_dict['verbose'],
+                                            show_plots=stage2_dict['show_plots'], 
+                                            save_plots=stage2_dict['save_plots'],
+                                            output_dir=run_dir)
+            # test 0th order removal
+            remove_zeroth_order(obs, 
+                                zero_pos = [x0th, y0th], 
+                                rmin = 100, rmax = 300, rwidth = 3, 
+                                fit_profile = True,
+                                verbose = stage2_dict['verbose'],
+                                show_plots = stage2_dict['show_plots'],
+                                save_plots = stage2_dict['save_plots'],
+                                output_dir = None)
 
         # iterate over orders
         for i, order in enumerate(stage2_dict['traces_to_conf']):
@@ -328,8 +327,6 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                                    show_plots=stage2_dict['show_plots'], 
                                                                    save_plots=stage2_dict['save_plots'],
                                                                    output_dir=run_dir)
-            
-            
             
             # extract
             if stage2_dict['method'] == 'box':

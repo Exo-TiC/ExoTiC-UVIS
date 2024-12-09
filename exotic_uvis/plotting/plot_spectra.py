@@ -33,9 +33,9 @@ def plot_one_spectrum(wavelengths, spectrum, order="+1",
         Defaults to None.
     """
     # define order colors
-    colors = {"+1":'red',"-1":'blue',
+    colors = {"+1":'indianred',"-1":'dodgerblue',
               "+2":'orangered',"-2":'royalblue',
-              "+3":'darkorange',"-3":'dodgerblue',
+              "+3":'darkorange',"-3":'blue',
               "+4":'orange',"-4":'deepskyblue'}
 
     # bound wavelengths to the region G280 is sensitive to
@@ -84,14 +84,14 @@ def plot_spec_gif(wav, spec, order="+1",
     """
 
     # define order colors
-    colors = {"+1":'red',"-1":'blue',
+    colors = {"+1":'indianred',"-1":'dodgerblue',
               "+2":'orangered',"-2":'royalblue',
-              "+3":'darkorange',"-3":'dodgerblue',
+              "+3":'darkorange',"-3":'blue',
               "+4":'orange',"-4":'deepskyblue'}
 
     # create animation for each order
     #for wav, spec, order in zip(wavelengths, spectra, orders):
-    fig,ax = plt.subplots(figsize=(6,4))
+    fig,ax = plt.subplots(figsize=(10, 7))
     
     # plot first spectrum to get things started
     ok = (wav>2000) & (wav<8000)
@@ -142,7 +142,7 @@ def plot_spec_gif(wav, spec, order="+1",
     return 
 
 
-def plot_2d_spectra(wav, spec,
+def plot_2d_spectra(wav, spec, order="+1", 
                     show_plot = False, save_plot = False,
                     filename = None, output_dir = None):
     """Plots 2D image of the normalised spectra over time.
@@ -173,8 +173,8 @@ def plot_2d_spectra(wav, spec,
     plt.colorbar()
     plt.ylabel('Integration number')
     plt.xlabel('Wavelength (microns)')
+    plt.title(f'2D spectral map Order {order}')
 
-      
     if save_plot:
         plot_dir = os.path.join(output_dir, 'plots') 
         if not os.path.exists(plot_dir):
