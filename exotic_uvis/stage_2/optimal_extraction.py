@@ -13,6 +13,9 @@ from exotic_uvis.stage_2 import standard_extraction
 def spatial_profile_curved():
     return 0
 
+def spatial_profile_curved_poly():
+    return 0
+
 
 def spatial_profile_smooth(image_org, kernel = 11, threshold = 5., std_window = 20, 
                            median_window = 7, show_plots=0, save_plots=0, output_dir=0):
