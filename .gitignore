@@ -42,3 +42,6 @@ tests/test_exotic_uvis_data/
 *.txt
 *.fits
 *.dat
+*WFC3.UVIS
+*.conf
+docs/source/views/api/summary

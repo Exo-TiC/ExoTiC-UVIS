@@ -17,8 +17,10 @@ output_dir = '/Users/carlos/Desktop/'
 quicklookup(data_dir, output_dir)
 
 # read data
-obs = read_data(data_dir, verbose = 0)
+#obs = read_data(data_dir, verbose = 0)
 
+
+'''
 # plot one exposure
 image = obs.images.data[0]
 plot_exposure([image])
@@ -35,11 +37,21 @@ track_bkgstars(obs,  bkg_stars = bkg_stars, plot = True)
 
 
 # define corner coordinates
-bounds = [[0, 150, 0, 400], 
-          [440, 590, 0, 400]]
+bounds = [[0, 150, 0, 400], [440, 590, 0, 400]]
 
 # try background subtraction
 corner_bkg_subtraction(obs, plot = True, bounds = bounds, check_all = False, fit = 'Gaussian')
+'''
+
+
+
+# Run Stage 2
+
+
+#config_order_to_parameters(order, config)
+
+#get_calibration_trace()
+
 
 
 
