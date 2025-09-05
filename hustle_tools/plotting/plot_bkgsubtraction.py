@@ -121,13 +121,14 @@ def plot_bkgvals(exp_times, bkg_vals, method,
     return 
 
 
-def plot_mode_v_params(exp_times, modes, params,
+def plot_mode_v_params(exp_times, modes, meds, params,
                        output_dir = None, save_plot = False, show_plot = False):
     """Function to create a diagnostic plot for Pagul et al. bkg subtraction.
 
     Args:
         exp_times (np.array): BJD exposure times for each frame.
         modes (np.array): measured mode of each frame, used for comparison.
+        meds (np.array): measured median of each frame, used for comparison.
         params (np.array): Pagul+ sky image scaling parameter. Ideally, the
         mode and scaling parameters should not be too different.
         output_dir (str, optional): output directory where the plot will be
@@ -140,12 +141,13 @@ def plot_mode_v_params(exp_times, modes, params,
 
     # initialize figure
     plt.figure(figsize = (10, 7))
-    # add the modes and params in different colors and markers
+    # add the modes, medians, and params in different colors and markers
     plt.scatter(exp_times, modes, marker='s', color='red',label='mode')
+    plt.scatter(exp_times, meds, marker='v', color='blue',label='median')
     plt.scatter(exp_times, params, marker='o', color='k',label='scaling parameter')
     plt.xlabel('Exposure')
     plt.ylabel('Counts')
-    plt.title('Frame mode vs scaling parameter')
+    plt.title('Frame mode/median vs scaling parameter')
     plt.legend()
     
     if save_plot:

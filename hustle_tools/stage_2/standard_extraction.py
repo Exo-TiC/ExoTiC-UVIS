@@ -83,7 +83,7 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
 
     # Extract 1D spectrum using the standard method.
     for k in range(traces.shape[0]):
-        err = box(err_traces[k,:,:])
+        err = np.sqrt(box(err_traces[k,:,:]**2))
         flx = box(traces[k,:,:])
         oneD_spec.append(flx)
         spec_err.append(err)

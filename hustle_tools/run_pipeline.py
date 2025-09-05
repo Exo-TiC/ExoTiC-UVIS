@@ -7,6 +7,7 @@ from hustle_tools.read_and_write_config import parse_config
 from hustle_tools.read_and_write_config import write_config
 
 from hustle_tools.plotting import plot_one_spectrum
+from hustle_tools.plotting import plot_many_spectra
 from hustle_tools.plotting import plot_spec_gif
 from hustle_tools.plotting import plot_2d_spectra
 from hustle_tools.plotting import plot_raw_whitelightcurve
@@ -22,6 +23,7 @@ from hustle_tools.stage_0 import check_subarray
 
 from hustle_tools.stage_1 import load_data_S1
 from hustle_tools.stage_1 import save_data_S1
+from hustle_tools.stage_1 import correct_hst_flags
 from hustle_tools.stage_1 import uniform_value_bkg_subtraction
 from hustle_tools.stage_1 import Pagul_bckg_subtraction
 from hustle_tools.stage_1 import column_by_column_subtraction
@@ -42,6 +44,8 @@ from hustle_tools.stage_2 import determine_ideal_halfwidth
 from hustle_tools.stage_2 import standard_extraction
 from hustle_tools.stage_2 import optimal_extraction
 from hustle_tools.stage_2 import clean_spectra
+from hustle_tools.stage_2 import smooth_spectra
+from hustle_tools.stage_2 import running_clean_spectra
 from hustle_tools.stage_2 import align_spectra
 from hustle_tools.stage_2 import align_profiles
 from hustle_tools.stage_2 import remove_zeroth_order
@@ -51,7 +55,6 @@ from hustle_tools.stage_3 import save_data_S3
 from hustle_tools.stage_3 import bin_light_curves
 from hustle_tools.stage_3 import clip_light_curves
 from hustle_tools.stage_3 import get_state_vectors
-
 
 
 def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
@@ -109,6 +112,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         # create quicklook gif
         if stage0_dict['do_quicklook']:
             quicklookup(stage0_dict['toplevel_dir'],
+                        stage0_dict['traces_included'],
                         stage0_dict['verbose'], 
                         stage0_dict['show_plots'], 
                         stage0_dict['save_plots'],
@@ -152,6 +156,16 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         run_dir = os.path.join(stage_dir,stage1_dict['output_run'])
         if not os.path.exists(run_dir):
             os.makedirs(run_dir)
+
+        # hst flag corrections
+        if stage1_dict['do_hst_flags']:
+            obs = correct_hst_flags(obs,
+                                    stage1_dict['hst_flags'],
+                                    stage1_dict['hst_replace'],
+                                    verbose=stage1_dict['verbose'],
+                                    show_plots=stage1_dict['show_plots'],
+                                    save_plots=stage1_dict['save_plots'],
+                                    output_dir=run_dir)
 
         # temporal removal fixed iterations
         if stage1_dict['do_fixed_iter']:
@@ -271,6 +285,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         # create quicklook gif
         if stage1_dict['do_quicklook']:
             quicklookup(obs,
+                        stage1_dict['traces_included'],
                         stage1_dict['verbose'], 
                         stage1_dict['show_plots'], 
                         stage1_dict['save_plots'],
@@ -323,7 +338,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                 verbose = stage2_dict['verbose'],
                                 show_plots = stage2_dict['show_plots'],
                                 save_plots = stage2_dict['save_plots'],
-                                output_dir = None)
+                                output_dir = run_dir)
 
         # iterate over orders
         for i, order in enumerate(stage2_dict['traces_to_conf']):
@@ -411,17 +426,44 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             # do clean spectra
             if stage2_dict['outlier_sigma']:
                 spec = clean_spectra(spec,
-                                     sigma=stage2_dict['outlier_sigma'])
+                                     sigma=stage2_dict['outlier_sigma'],
+                                     verbose=stage2_dict['verbose'])
+                
+                '''
+                spec = smooth_spectra(spec, wav, order=order,
+                                      orbit_numbers=obs.orbit_numbers.values,
+                                      sigma=stage2_dict['outlier_sigma'],
+                                      verbose=stage2_dict['verbose'],
+                                      show_plots=stage2_dict['show_plots'], 
+                                      save_plots=stage2_dict['save_plots'],
+                                      output_dir=run_dir)
+
+                spec = running_clean_spectra(spec, wav, order=order,
+                                            sigma=stage2_dict['outlier_sigma'],
+                                            kernel_size=5,
+                                            verbose=stage2_dict['verbose'],
+                                            show_plots=stage2_dict['show_plots'], 
+                                            save_plots=stage2_dict['save_plots'],
+                                            output_dir=run_dir)
+                '''
 
             # do plotting
             if (stage2_dict['show_plots'] > 0 or stage2_dict['save_plots'] > 0):
                 
-                plot_one_spectrum(wav, spec[0, :],
+                plot_one_spectrum(wav, np.median(spec[:, :],axis=0), order,
                                 show_plot=(stage2_dict['show_plots'] > 0),
                                 save_plot=(stage2_dict['save_plots'] > 0),
-                                filename='1Dspec_order{}'.format(order),
+                                filename='1Dspec-med_order{}'.format(order),
                                 output_dir=run_dir,
                                 )
+                
+                plot_many_spectra(wav, spec, order,
+                                  show_plot=(stage2_dict['show_plots'] > 0),
+                                save_plot=(stage2_dict['save_plots'] > 0),
+                                filename='1Dspec-all_order{}'.format(order),
+                                output_dir=run_dir,
+                                )
+                                
                                 
                 plot_2d_spectra(wav, spec,
                                 show_plot = (stage2_dict['show_plots'] > 0), 

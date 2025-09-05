@@ -51,7 +51,7 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
 
     # track scaling parameters, should be ~equal to the frame mode
     scaling_parameters = []
-    modes = []
+    modes, meds = [], []
 
     # open the Pagul et al. sky image
     with fits.open(pagul_path) as fits_file:
@@ -61,29 +61,30 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
 
     # get the subarr_coords
     x1,x2,y1,y2 = [int(x) for x in obs.subarr_coords.values]
-
-    # pick a bin_number that won't break image
-    d_test = obs.images[0].values
-    bin_number = int(0.50*d_test.shape[0]*d_test.shape[1])
-    
     # iterate over all images
     for k, image in enumerate(tqdm(images, desc = 'Fitting Pagul et al. sky image... Progress:',
                                    disable=(verbose<1))):
         # first, get the coarse frame mode and standard deviation using the frame's finite values
         finite = image[np.isfinite(image)]
-        hist, bin_edges = np.histogram(finite, bins=bin_number)
+        small = finite[np.abs(finite)<100]
+        # pick a reasonable bin_number
+        bin_number = int(0.10*small.shape[0])
+        hist, bin_edges = np.histogram(small, bins=bin_number)
         ind = np.argmax(hist)
         mode = (bin_edges[ind]+bin_edges[ind+1])/2
         sig = np.nanstd(finite)
 
         modes.append(mode)
+        meds.append(np.median(small))
 
         # next, mask any sources in the frame using the frame mode and standard deviation
         masked_frame = np.ma.masked_where(np.abs(image - mode) > masking_parameter*sig, image)
 
         # if true, plot the masked frame
         if (save_plots > 0 or show_plots > 0) and k == 0:
-            plot_exposure([masked_frame,], max = 50, title = 'Pagul+ Background Removal Mask', 
+            plot_mask = np.where(np.abs(image - mode) > masking_parameter*sig, 1, 1e-7)
+            plot_exposure([plot_mask,], title = 'Pagul+ Background Removal Mask',
+                          min = 1e-7, max = 1,
                           show_plot=(show_plots>0), save_plot=(save_plots>0),
                           output_dir=output_dir, filename = ['bkg_pagul_mask',])
     
@@ -107,7 +108,7 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
     # then remove the background
     for k, image in enumerate(tqdm(images, desc = 'Removing background... Progress:',
                                    disable=(verbose<1))):
-         image -= scaling_parameters[k]*pagul_bckg[y1:y2+1,x1:x2+1]
+         images[k] -= scaling_parameters[k]*pagul_bckg[y1:y2+1,x1:x2+1]
 
     # save background values
     obs['bkg_vals'] = xr.DataArray(data = scaling_parameters, dims = ['exp_time'])
@@ -119,7 +120,7 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
                       show_plot=(show_plots>0), save_plot=(save_plots>0),
                       output_dir=output_dir, filename = ['bkg_before_subtraction', 'bkg_after_subtraction'])
-        plot_mode_v_params(obs.exp_time.data, modes, scaling_parameters,
+        plot_mode_v_params(obs.exp_time.data, modes, meds, scaling_parameters,
                            output_dir=output_dir,
                            show_plot=(show_plots>0), save_plot=(save_plots>0))
 

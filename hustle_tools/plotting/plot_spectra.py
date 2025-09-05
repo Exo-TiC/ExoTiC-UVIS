@@ -3,6 +3,8 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import matplotlib.cm as cm
+import matplotlib.pylab as pl
 
 
 #define plotting parameters
@@ -46,7 +48,63 @@ def plot_one_spectrum(wavelengths, spectrum, order="+1",
     plt.plot(wavelengths[ok], spectrum[ok], color=colors[order])
     plt.xlabel('Wavelength (nm)')
     plt.ylabel('Extracted Counts')
-    plt.title('Example of extracted order {} spectrum'.format(order))
+    plt.title('Median extracted order {} spectrum'.format(order))
+    
+    if save_plot:
+        plot_dir = os.path.join(output_dir, 'plots') 
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
+        filedir = os.path.join(plot_dir, f'{filename}.png')
+        plt.savefig(filedir,dpi=300,bbox_inches='tight')
+
+    if show_plot:
+        plt.show(block=True)
+
+    plt.close() # save memory
+
+    return 
+
+
+def plot_many_spectra(wavelengths, spectra, order="+1", labels=None,
+                      show_plot = False, save_plot = False,
+                      filename = None, output_dir = None):
+    """Function to plot multiple extracted spectra overtop each other.
+
+    Args:
+        wavelengths (np.array): wavelength solution for given order.
+        spectra (np.array): 1D extracted spectra.
+        order (str, optional): which order this is, for plot title.
+        Defaults to "+1".
+        labels (tup, optional): legend labels for each spectrum.
+        Defaults to None.
+        show_plot (bool, optional): whether to interrupt execution to
+        show the user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot to a file.
+        Defaults to False.
+        filename (str, optional): name to give this file, if saving.
+        Defaults to None.
+        output_dir (str, optional): where to save the file, if saving.
+        Defaults to None.
+    """
+    # define colors
+    colors = pl.cm.jet(np.linspace(0, 1, len(spectra)))
+
+    # bound wavelengths to the region G280 is sensitive to
+    ok = (wavelengths>2000) & (wavelengths<8000)
+
+    # initialize plot and plot data that's in the okay range
+    plt.figure(figsize = (10, 7))
+    for i in range(len(spectra)):
+        if labels:
+            plt.plot(wavelengths[ok], spectra[i][ok], alpha=0.5,
+                     color=colors[i], label=labels[i])
+        else:
+            plt.plot(wavelengths[ok], spectra[i][ok], alpha=0.5,
+                     color=colors[i])
+    plt.xlabel('Wavelength (nm)')
+    plt.ylabel('Extracted Counts')
+    plt.legend(loc='upper right')
+    plt.title('Overplotted spectra for order {}'.format(order))
     
     if save_plot:
         plot_dir = os.path.join(output_dir, 'plots') 

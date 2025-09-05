@@ -26,7 +26,7 @@ def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose
     """
 
     # initialize data structures
-    images, errors, data_quality, subarr_coords, orbit_Ns = [], [], [], [], []
+    images, errors, data_quality, hst_dq, subarr_coords, orbit_Ns = [], [], [], [], [], []
     exp_time, exp_time_UT, exp_duration, read_noise = [], [], [], []
     
     # iterate over all files in specs directory
@@ -54,6 +54,7 @@ def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose
                 #print(repr(hdul[0].header))
                 exp_time.append((hdul[0].header['EXPSTART'] + hdul[0].header['EXPEND'])/2)
                 exp_time_UT.append((hdul[0].header['TIME-OBS']))
+                hst_dq.append(hdul[3].data)
                 data_quality.append(np.zeros_like(hdul[3].data))
                 exp_duration.append(hdul[0].header["EXPTIME"])
 
@@ -103,6 +104,7 @@ def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose
             direct_image = (["x", "y"], direct_image),
             badpix_mask = (["exp_time", "x", "y"], np.ones_like(images, dtype = 'bool')),
             data_quality = (["exp_time", "x", "y"], data_quality),
+            hst_dq = (["exp_time", "x", "y"], hst_dq),
             read_noise = (['exp_time'], read_noise)
         ),
         coords=dict(
