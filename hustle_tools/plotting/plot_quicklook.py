@@ -66,7 +66,7 @@ def get_images(data_dir, traces_included = ("+1",),
                     section = [y-20, y+40, x-350, x-100] # +1 order will always fall within these values, more or less
                     sections.append(section)
                 if "-1" in traces_included:
-                    section = [y-10, y+30, x+100, x+350] # -1 order will always fall within these values, more or less
+                    section = [y-40, y+20, x+190, x+440] # -1 order will always fall within these values, more or less
                     sections.append(section)
                 have_xy = True
 
@@ -125,7 +125,7 @@ def parse_xarr(obs, traces_included = ("+1",),
                     section = [y-20, y+40, x-350, x-100] # +1 order will always fall within these values, more or less
                     sections.append(section)
                 if "-1" in traces_included:
-                    section = [y-10, y+30, x+100, x+350] # -1 order will always fall within these values, more or less
+                    section = [y-40, y+20, x+190, x+440] # -1 order will always fall within these values, more or less
                     sections.append(section)
                 have_xy = True
 
@@ -210,10 +210,10 @@ def create_gif(exp_times, images, total_flux, partial_flux, sections,
         im.set_data(images[i])
 
         # update line data
-        sum_flux_line.set_data(exp_times[:i], total_flux[:i])
+        sum_flux_line.set_data(exp_times[:i+1], total_flux[:i+1])
 
         # update line data 2
-        transit_line.set_data(exp_times[:i], partial_flux[:i])
+        transit_line.set_data(exp_times[:i+1], partial_flux[:i+1])
     
         return sum_flux_line, transit_line
         
@@ -307,10 +307,10 @@ def create_dq_gif(exp_times, images, dq, sections,
         im.set_data(dq[i])
 
         # update line data
-        sum_flux_line.set_data(exp_times[:i], dq_flags_per_frame[:i])
+        sum_flux_line.set_data(exp_times[:i+1], dq_flags_per_frame[:i+1])
 
         # update line data 2
-        transit_line.set_data(exp_times[:i], dq_flags_per_box[:i])
+        transit_line.set_data(exp_times[:i+1], dq_flags_per_box[:i+1])
     
         return sum_flux_line, transit_line
         

@@ -33,7 +33,7 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
     hit_map = np.zeros_like(images)
 
     # Iterate over each sigma.
-    for j, sigma in tqdm(enumerate(sigmas),
+    for j, sigma in tqdm(enumerate(sigmas), total=len(sigmas),
                          desc='Iterating with fixed sigmas to remove CRs... Progess:',
                          disable=(verbose < 1)):
         # Get the median time frame and std as a reference.
@@ -228,5 +228,130 @@ def free_iteration_rejection(obs, threshold = 3.5,
     if verbose >= 1:
         print("Free iterations complete. Total pixels corrected: %.0f out of %.0f" % (np.count_nonzero(hit_map),
                                                                                       hit_map.shape[0]*hit_map.shape[1]*hit_map.shape[2]))
+
+    return obs
+
+
+def detrend_outlier_rejection(obs, sigma=3.5, flux_threshold=1000, 
+                              window=10, replacement='tseries',
+                              verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
+    """Estimates systematic trends to catch cosmic rays otherwise not detected
+    by either of the other available time outlier rejection methods.
+
+    Args:
+        obs (xarray): obs.images DataSet contains the images.
+        sigma (float, optional): sigma to reject outliers at. Defaults to 3.5.
+        flux_threshold (float, optional): median e-/s value at which a pixel's
+        time series will be subjected to this method. Method fails if there is
+        insufficient flux by which to estimate systematics. Defaults to 1000.
+        window (int, optional): median time-series of pixels is computed using
+        pixels +/- window length away from target pixel. Defaults to 10.
+        replacement (str, optional): if 'tseries', replaces outliers with scaled
+        median time-series of nearby pixels. If 'median', replace outlier pixels
+        with pixel's median value in time. Defaults to 'tseries'.
+        verbose (int, optional): how detailed you want the printed statements
+        to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots
+        is greater than 0. Defaults to None.
+
+    Returns:
+        xarray: obs with .images cleaned of CRs and with .data_quality updated
+        to indicate where CRs were found.
+    """
+    # Copy images, get median-normalized t-series, and define hit map.
+    images = obs.images.data.copy()
+    med_images = obs.images.data.copy()
+    med_images /= np.median(med_images,axis=0)
+    hit_map = np.zeros_like(images)
+
+    # Iterate over each suitably-bright pixel.
+    xfix, yfix = np.where(np.median(images,axis=0)>flux_threshold)
+    for x, y in tqdm(zip(xfix,yfix),total=len(xfix),
+                     desc='Identifying CRs in areas with strong systematics... Progress:',
+                     disable=(verbose < 1)):
+        # Do not attempt corrections if y is too close to the detector edge.
+        proximity_alert = (y-window<0) or (y+window>med_images.shape[2])
+        if proximity_alert:
+            continue
+
+        # Get local median time-series.
+        med_series = np.median(med_images[:,x,y-window:y+window],axis=1)
+
+        # Detrend target time-series and measure statistics.
+        detrended_series = med_images[:,x,y]/med_series
+        med = np.median(detrended_series)
+        sig = np.std(detrended_series)
+
+        # Update hit map to record where outliers were found.
+        hit_map[:,x,y] = np.where(np.abs(detrended_series-med)>sigma*sig,1,hit_map[:,x,y])
+    
+    # Report results.
+    if verbose >= 1:
+        print("Identification complete. Pixels identified as %.2f-sigma CRs: %.0f out of %.0f" % (sigma,np.count_nonzero(hit_map),
+                                                                                                  hit_map.shape[0]*hit_map.shape[1]*hit_map.shape[2]))
+
+    # Iterate through hits in time and space and replace as requested.
+    thits, xhits, yhits = np.where(hit_map!=0)
+    for t,x,y in tqdm(zip(thits,xhits,yhits),total=len(thits),
+                      desc='Correcting CRs using {}... Progress:'.format(replacement),
+                      disable=(verbose < 1)):
+        if replacement == 'tseries':
+            # Recompute median time series.
+            med_series = np.median(med_images[:,x,y-window:y+window],axis=1)
+
+            # Get scale factor from actual data.
+            scale_factor = np.median(images[:,x,y],axis=0)
+
+            # Update data.
+            images[t,x,y] = scale_factor*med_series[t]
+
+        elif replacement == 'median':
+            # Update data.
+            images[t,x,y] = np.median(images[:,x,y])
+        
+        else:
+            raise ValueError("Replacement method {} not recongized, please update .hustle file and rerun.".format(replacement))
+    
+    # Report    
+    if verbose == 2:
+        print("Corrections complete.")
+    
+    # if true, plot one exposure and draw location of all detected cosmic rays in all exposures
+    if save_plots > 0 or show_plots > 0:
+        thits, xhits, yhits = np.where(hit_map == 1)
+        plot_exposure([obs.images.data[0], images[0]],
+                      title = 'Temporal Bad Pixel removal Example', 
+                      show_plot=(show_plots >= 1), save_plot=(save_plots >= 1),
+                      output_dir=output_dir, filename = ['CR-detrend_before_correction', 'CR-detrend_after_correction'])
+
+        plot_exposure([obs.images.data[0]], scatter_data=[yhits, xhits],
+                      title = 'Location of corrected pixels', mark_size = 1,
+                      show_plot=(show_plots >= 1), save_plot=(save_plots >= 1),
+                      output_dir=output_dir, filename = ['CR-detrend_location'])
+        
+        counts_per_frame = [np.count_nonzero(hit_map[i,:,:]) for i in range(hit_map.shape[0])]
+        plot_flags_per_time([obs.exp_time.values,], [counts_per_frame,], style='scatter',
+                            title='Temporal outliers counted per frame',
+                            xlabel=['time [mjd]',],
+                            ylabel=['counts [#]',],
+                            xmin = np.min(obs.exp_time.values), xmax = np.max(obs.exp_time.values),
+                            ymin = 0.995*np.min(counts_per_frame), ymax = 1.005*np.max(counts_per_frame),
+                            show_plot=(show_plots>=1),save_plot=(save_plots>=1),
+                            filename=['CR-detrend_outliers_per_frame',],output_dir=output_dir)
+
+    # if true, check each exposure separately
+    if save_plots == 2 or show_plots == 2:
+        for i in range(len(images)):
+            xhits, yhits = np.where(hit_map[i] == 1)
+            plot_exposure([obs.images.data[i]], scatter_data=[yhits, xhits],
+                          title = 'Location of corrected pixels in frame {}'.format(i), mark_size = 1,
+                          show_plot=(show_plots == 2), save_plot=(save_plots == 2),
+                          output_dir=output_dir, filename = [f'CR-detrend_location_frame{i}'])
+            
+    # modify original images and dq
+    obs.images.data = images
+    obs.data_quality.data = np.where(hit_map != 0, hit_map, obs.data_quality.data)
 
     return obs

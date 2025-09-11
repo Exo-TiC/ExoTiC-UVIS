@@ -31,6 +31,7 @@ from hustle_tools.stage_1 import track_bkgstars
 from hustle_tools.stage_1 import track_0thOrder
 from hustle_tools.stage_1 import free_iteration_rejection
 from hustle_tools.stage_1 import fixed_iteration_rejection
+from hustle_tools.stage_1 import detrend_outlier_rejection
 from hustle_tools.stage_1 import laplacian_edge_detection
 from hustle_tools.stage_1 import spatial_smoothing
 from hustle_tools.stage_1 import refine_location
@@ -185,6 +186,17 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                            show_plots=stage1_dict['show_plots'],
                                            save_plots=stage1_dict['save_plots'],
                                            output_dir=run_dir)
+            
+        if stage1_dict['do_detrend_rej']:
+            obs = detrend_outlier_rejection(obs,
+                                            sigma=stage1_dict['dtr_sigma'],
+                                            flux_threshold=stage1_dict['flux_threshold'],
+                                            window=stage1_dict['dtr_window'],
+                                            replacement=stage1_dict['dtr_replace'],
+                                            verbose=stage1_dict['verbose'],
+                                            show_plots=stage1_dict['show_plots'],
+                                            save_plots=stage1_dict['save_plots'],
+                                            output_dir=run_dir)
 
         # spatial removal by led
         if stage1_dict['do_led']:
@@ -284,6 +296,9 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             
         # create quicklook gif
         if stage1_dict['do_quicklook']:
+            if stage1_dict['include_hst_dq']:
+                obs.data_quality.values += np.where(obs.hst_dq.values >= 1, 1, 0)
+                obs.data_quality.values = np.where(obs.data_quality.values >= 1, 1, 0)
             quicklookup(obs,
                         stage1_dict['traces_included'],
                         stage1_dict['verbose'], 

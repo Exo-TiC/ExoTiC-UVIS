@@ -1,5 +1,6 @@
 from tqdm import tqdm
 
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import medfilt2d
 
@@ -37,7 +38,7 @@ def correct_hst_flags(obs, flags=[4,16,4096], replace=True,
     hst_flags = [2**i for i in range(1,15)]
 
     # Iterate over each flag.
-    for target_flag in sorted(flags).reverse():
+    for target_flag in sorted(flags,reverse=True):
         # Target largest flags first and move to successively lower.
         hst_dq = obs.hst_dq.data.copy()
         for i in tqdm(range(images.shape[0]), desc = 'Correcting HST flag {}... Progress:'.format(target_flag),
@@ -46,11 +47,11 @@ def correct_hst_flags(obs, flags=[4,16,4096], replace=True,
             dq = hst_dq[i]
 
             # Subtract off flags larger than the current flag if present.
-            for hst_flag in [x for x in hst_flags.reverse() if x > target_flag]:
+            for hst_flag in [x for x in sorted(hst_flags,reverse=True) if x > target_flag]:
                 dq[dq>=hst_flag] -= hst_flag
             
-            # Anything greater than the desired flag at this point has our flag in it.
-            dq[dq<=target_flag] = 0
+            # Anything greater than or equal to the desired flag at this point has our flag in it.
+            dq[dq<target_flag] = 0
 
             # Anything not zero has the target flag in it and must be corrected.
             if replace:
@@ -65,7 +66,7 @@ def correct_hst_flags(obs, flags=[4,16,4096], replace=True,
                 obs.badpix_mask.values[i,:,:] = np.where(dq>0,True,obs.badpix_mask.values[i,:,:])
             
             # Update hit map.
-            hit_map = np.where(dq>0,1,hit_map)
+            hit_map[i,:,:] = np.where(dq>0,1,hit_map[i,:,:])
     
     # Report results.
     if verbose >= 1:
