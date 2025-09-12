@@ -2,6 +2,7 @@ __all__ = [
     "get_calibration_0th",
     "get_trace_solution",
     "sens_correct",
+    "time_and_relative_detrending_in_space",
     "standard_extraction",
     "determine_ideal_halfwidth",
     "align_spectra",
@@ -18,6 +19,7 @@ __all__ = [
 
 
 from hustle_tools.stage_2.trace_fitting import get_calibration_0th, get_trace_solution, sens_correct
+from hustle_tools.stage_2.tardis import time_and_relative_detrending_in_space
 from hustle_tools.stage_2.standard_extraction import standard_extraction, determine_ideal_halfwidth
 from hustle_tools.stage_2.align_spectra import align_spectra, align_profiles
 from hustle_tools.stage_2.clean_spectra import clean_spectra, smooth_spectra, running_clean_spectra

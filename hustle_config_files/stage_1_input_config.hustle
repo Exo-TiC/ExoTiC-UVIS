@@ -26,13 +26,6 @@ replacement     None                                        # int or None. If in
 do_free_iter    True                                        # Bool. Whether to use free iteration rejection to clean the timeseries.
 free_sigma      3.5                                         # float. The sigma to reject outliers at in each iteration. Iterates over each pixel's timeseries until no outliers at this sigma level are found.
 
-# Step 3c: Detrend rejection parameters
-do_detrend_rej  True                                        # Bool. Whether to use systematic-detrending rejection to clean the timeseries. Useful for low-cadence datasets where the above two methods are prone to missing trace-striking rays.
-dtr_sigma       3.5                                         # float. The sigma to reject outliers at.
-flux_threshold  1000                                        # float. The e-/s counts value above which this method will be used. Method fails if there is insufficient flux to detect trends with, so keep this at least as high as the median wing flux value.
-dtr_window      10                                          # int. Median time-series trends will be measured using pixels +/- window columns away from target pixel.
-dtr_replace     'tseries'                                   # str. If 'tseries', uses median time-series trends to replace outliers. If 'median', uses pixel's median value in time to replace outliers.
-
 # Step 4: Reject hot pixels with spatial detection
 # Step 4a: Laplacian Edge Detection parameters
 do_led          True                                        # Bool. Whether to use Laplacian Edge Detection rejection to clean the frames.

@@ -31,7 +31,6 @@ from hustle_tools.stage_1 import track_bkgstars
 from hustle_tools.stage_1 import track_0thOrder
 from hustle_tools.stage_1 import free_iteration_rejection
 from hustle_tools.stage_1 import fixed_iteration_rejection
-from hustle_tools.stage_1 import detrend_outlier_rejection
 from hustle_tools.stage_1 import laplacian_edge_detection
 from hustle_tools.stage_1 import spatial_smoothing
 from hustle_tools.stage_1 import refine_location
@@ -41,6 +40,7 @@ from hustle_tools.stage_2 import save_data_S2
 from hustle_tools.stage_2 import get_calibration_0th
 from hustle_tools.stage_2 import get_trace_solution
 from hustle_tools.stage_2 import sens_correct
+from hustle_tools.stage_2 import time_and_relative_detrending_in_space
 from hustle_tools.stage_2 import determine_ideal_halfwidth
 from hustle_tools.stage_2 import standard_extraction
 from hustle_tools.stage_2 import optimal_extraction
@@ -186,17 +186,6 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                            show_plots=stage1_dict['show_plots'],
                                            save_plots=stage1_dict['save_plots'],
                                            output_dir=run_dir)
-            
-        if stage1_dict['do_detrend_rej']:
-            obs = detrend_outlier_rejection(obs,
-                                            sigma=stage1_dict['dtr_sigma'],
-                                            flux_threshold=stage1_dict['flux_threshold'],
-                                            window=stage1_dict['dtr_window'],
-                                            replacement=stage1_dict['dtr_replace'],
-                                            verbose=stage1_dict['verbose'],
-                                            show_plots=stage1_dict['show_plots'],
-                                            save_plots=stage1_dict['save_plots'],
-                                            output_dir=run_dir)
 
         # spatial removal by led
         if stage1_dict['do_led']:
@@ -367,6 +356,19 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                                    show_plots=stage2_dict['show_plots'], 
                                                                    save_plots=stage2_dict['save_plots'],
                                                                    output_dir=run_dir)
+            
+            # tardis clean
+            if stage2_dict['do_tardis']:
+                obs = time_and_relative_detrending_in_space(obs, trace_x, np.median(trace_y,axis=0),
+                                                            wav, order,
+                                                            sigma=stage2_dict['tardis_sigma'],
+                                                            flux_threshold=stage2_dict['flux_threshold'],
+                                                            window=stage2_dict['tardis_window'],
+                                                            replacement=stage2_dict['tardis_replace'],
+                                                            verbose=stage2_dict['verbose'],
+                                                            show_plots=stage2_dict['show_plots'],
+                                                            save_plots=stage2_dict['save_plots'],
+                                                            output_dir=run_dir)
             
             # extract
             if stage2_dict['method'] == 'box':
