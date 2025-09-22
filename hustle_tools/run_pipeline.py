@@ -359,11 +359,11 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             
             # tardis clean
             if stage2_dict['do_tardis']:
-                obs = time_and_relative_detrending_in_space(obs, trace_x, np.median(trace_y,axis=0),
-                                                            wav, order,
-                                                            sigma=stage2_dict['tardis_sigma'],
+                obs = time_and_relative_detrending_in_space(obs, trace_x,
+                                                            np.median(trace_y,axis=0), order,
+                                                            sigmas=stage2_dict['tardis_sigma'],
                                                             flux_threshold=stage2_dict['flux_threshold'],
-                                                            window=stage2_dict['tardis_window'],
+                                                            windows=stage2_dict['tardis_window'],
                                                             replacement=stage2_dict['tardis_replace'],
                                                             verbose=stage2_dict['verbose'],
                                                             show_plots=stage2_dict['show_plots'],

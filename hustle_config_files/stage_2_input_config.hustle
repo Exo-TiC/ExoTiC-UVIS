@@ -17,9 +17,9 @@ refine_fit      True                                        # Bool. If True, use
 
 # Step 3: Time And Relative Detrending In Space (TARDIS)
 do_tardis       True                                        # Bool. Whether to use TARDIS to clean the timeseries. Useful for low-cadence datasets where Stage 1 cleaning methods are prone to missing trace-striking cosmic rays.
-tardis_sigma    3.5                                         # float. The sigma to reject outliers at.
+tardis_sigma    [5.0,3.5]                                   # list of float. The sigmas to reject outliers at. One sigma per window value is needed.
 flux_threshold  1000                                        # float. The e-/s counts value above which this method will be used. Method fails if there is insufficient flux to detect trends with, so keep this at least as high as the median wing flux value.
-tardis_window   10                                          # int. Median time-series trends will be measured using pixels +/- window columns away from target pixel.
+tardis_window   [10,5]                                      # list of int. Median time-series trends will be measured using pixels +/- window columns away from target pixel.
 tardis_replace  'tseries'                                   # str. If 'tseries', uses median time-series trends to replace outliers. If 'median', uses pixel's median value in time to replace outliers.
 
 # Step 3: 1D spectral extraction

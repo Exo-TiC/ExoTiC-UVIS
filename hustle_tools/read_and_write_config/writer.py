@@ -312,7 +312,7 @@ def Stage2_info():
                                      "# Lst of str. The traces you want to configure and extraction from.",
                                      "# Bool. If True, uses Gaussian fitting to refine the trace solution.",],
                            "Step 3":["# Bool. Whether to use systematic-detrending rejection to clean the timeseries. Useful for low-cadence datasets where the above two methods are prone to missing trace-striking rays.",
-                                      "# float. The sigma to reject outliers at.",
+                                      "# list of float. The sigmas to reject outliers at. One sigma per window value is needed.",
                                       "# float. The e-/s counts value above which this method will be used. Method fails if there is insufficient flux to detect trends with, so keep this at least as high as the median wing flux value.",
                                       "# int. Median time-series trends will be measured using pixels +/- window columns away from target pixel.",
                                       "# str. If 'tseries', uses median time-series trends to replace outliers. If 'median', uses pixel's median value in time to replace outliers.",],
