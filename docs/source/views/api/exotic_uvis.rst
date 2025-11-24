@@ -1,11 +1,11 @@
-Exotic-UVIS
+HUSTLE-tools
 -----------
 
-.. currentmodule:: exotic_uvis
+.. currentmodule:: hustle_tools
 
-.. automodule:: exotic_uvis
+.. automodule:: hustle_tools
 
 .. autosummary::
    :toctree: summary
 
-    exotic_uvis.run_pipeline
+    hustle_tools.run_pipeline
