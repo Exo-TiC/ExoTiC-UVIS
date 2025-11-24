@@ -11,7 +11,7 @@ Words here.
 .. toctree::
     :maxdepth: 2
 
-    exotic_uvis
+    hustle_tools
 
 Stage 0
 -------
@@ -21,4 +21,4 @@ Words here.
 .. toctree::
     :maxdepth: 2
 
-    exotic_uvis.stage_0
+    hustle_tools.stage_0
