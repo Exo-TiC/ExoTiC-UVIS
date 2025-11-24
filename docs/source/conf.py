@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'ExoTiC-UVIS'
+project = 'HUSTLE-Tools'
 copyright = '2024, Abby Boehm and Carlos Gascon'
 author = 'Abby Boehm and Carlos Gascon'
 release = 'v0.0.1'
