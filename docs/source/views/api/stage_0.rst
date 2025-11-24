@@ -1,11 +1,11 @@
 Stage 0
 -------
 
-.. currentmodule:: exotic_uvis.stage_0
+.. currentmodule:: hustle_tools.stage_0
 
-.. automodule:: exotic_uvis.stage_0
+.. automodule:: hustle_tools.stage_0
 
 .. autosummary::
    :toctree: summary
 
-    exotic_uvis.stage_0
+    hustle_tools.stage_0
