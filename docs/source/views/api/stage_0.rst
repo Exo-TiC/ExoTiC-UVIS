@@ -8,4 +8,4 @@ Stage 0
 .. autosummary::
    :toctree: summary
 
-    hustle_tools.stage_0
+    .
