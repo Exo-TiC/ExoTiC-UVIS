@@ -12,3 +12,5 @@ wfc3tools
 ipykernel
 nbsphinx
 sphinx_rtd_theme
+# temporary to fix build error
+jwst
