@@ -3,14 +3,10 @@ scipy>=1.8.0
 xarray
 astroquery
 astropy
-photutils
+photutils<=1.13.0
 matplotlib
 tqdm
 grismconf
-
-# trying to eliminate these dependencies
-#wfc3tools
-#jwst
-
+wfc3tools
 # for sphinx documentation
 sphinx_rtd_theme
