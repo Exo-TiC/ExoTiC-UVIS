@@ -1,34 +1,80 @@
 Stage 1
------------
+=======
 
-.. currentmodule:: hustle_tools
-.. currentmodule:: hustle_tools.stage_1
+Load and Save Data
+------------------
 
-.. automodule:: hustle_tools.stage_1
+.. currentmodule:: hustle_tools.stage_1.load_and_save_data
+
+.. automodule:: hustle_tools.stage_1.load_and_save_data
 
 .. autosummary::
    :toctree: summary
 
-   hustle_tools.stage_1.load_and_save_data.load_data_S1
+   load_data_S1
 
-   hustle_tools.stage_1.load_and_save_data.save_data_S1
+   save_data_S1
 
-   hustle_tools.stage_1.temporal_outlier_rejection.fixed_iteration_rejection
 
-   hustle_tools.stage_1.temporal_outlier_rejection.free_iteration_rejection
+Temporal Outlier Rejection
+--------------------------
 
-   hustle_tools.stage_1.spatial_outlier_rejection.spatial_smoothing
+.. currentmodule:: hustle_tools.stage_1.temporal_outlier_rejection
 
-   hustle_tools.stage_1.spatial_outlier_rejection.laplacian_edge_detection
+.. automodule:: hustle_tools.stage_1.temporal_outlier_rejection
 
-   hustle_tools.stage_1.bckg_subtract.Pagul_bckg_subtraction
+.. autosummary::
+   :toctree: summary
 
-   hustle_tools.stage_1.bckg_subtract.uniform_value_bkg_subtraction
+   fixed_iteration_rejection
 
-   hustle_tools.stage_1.bckg_subtract.column_by_column_subtraction
+   free_iteration_rejection
 
-   hustle_tools.stage_1.compute_displacements.refine_location
 
-   hustle_tools.stage_1.compute_displacements.track_bkg_stars
+Spatial Outlier Rejection
+-------------------------
 
-   hustle_tools.stage_1.compute_displacements.track_0thOrder
+.. currentmodule:: hustle_tools.stage_1.spatial_outlier_rejection
+
+.. automodule:: hustle_tools.stage_1.spatial_outlier_rejection
+
+.. autosummary::
+   :toctree: summary
+
+   spatial_smoothing
+
+   laplacian_edge_detection
+
+
+Background Subtraction
+---------------------
+
+.. currentmodule:: hustle_tools.stage_1.bckg_subtract
+
+.. automodule:: hustle_tools.stage_1.bckg_subtract
+
+.. autosummary::
+   :toctree: summary
+
+   Pagul_bckg_subtraction
+
+   uniform_value_bkg_subtraction
+
+   column_by_column_subtraction
+
+
+Compute Displacements
+---------------------
+
+.. currentmodule:: hustle_tools.stage_1.compute_displacements
+
+.. automodule:: hustle_tools.stage_1.compute_displacements
+
+.. autosummary::
+   :toctree: summary
+
+   refine_location
+
+   track_bkg_stars
+
+   track_0thOrder
