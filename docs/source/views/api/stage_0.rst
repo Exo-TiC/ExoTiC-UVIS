@@ -8,4 +8,10 @@ Stage 0
 .. autosummary::
    :toctree: summary
 
-    .
+    collect_and_move_files
+
+    identify_orbits
+
+    collect_files
+
+    
