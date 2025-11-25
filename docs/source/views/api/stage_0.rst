@@ -1,6 +1,8 @@
 Stage 0
------------
+=======
+
 Collect and Move Files
+----------------------
 
 .. currentmodule:: hustle_tools.stage_0.collect_and_move_files
 
@@ -9,13 +11,15 @@ Collect and Move Files
 .. autosummary::
    :toctree: summary
 
-   hustle_tools.stage_0.collect_and_move_files.collect_and_move_files
+   collect_and_move_files
 
-   hustle_tools.stage_0.collect_and_move_files.identify_orbits
+   identify_orbits
 
-   hustle_tools.stage_0.collect_and_move_files.collect_files
+   collect_files
+
 
 Get Files From Mast
+-------------------
 
 .. currentmodule:: hustle_tools.stage_0.get_files_from_mast
 
