@@ -1,46 +1,45 @@
 API
 ===
 
-TBD.
-
 Primary Interface
------------------
+'''''''''''''''''
 
-Words here.
+hustle_tools.run_pipeline
+----------------------------
+.. automodule:: hustle_tools.run_pipeline
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
-.. toctree::
-    :maxdepth: 2
-
-    hustle_tools
 
 Stage 0
--------
+'''''''''''''''''
 
-Words here.
-
-.. toctree::
-    :maxdepth: 3
-
-    stage_0
+hustle_tools.stage_0
+----------------------------
+.. automodule:: hustle_tools.stage_0
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 
 Stage 1
--------
+'''''''''''''''''
 
-Words here.
-
-.. toctree::
-    :maxdepth: 3
-
-    stage_1
+hustle_tools.stage_1
+----------------------------
+.. automodule:: hustle_tools.stage_1
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 
 Stage 2
--------
+'''''''''''''''''
 
-Words here.
-
-.. toctree::
-    :maxdepth: 3
-
-    stage_2
+hustle_tools.stage_2
+----------------------------
+.. automodule:: hustle_tools.stage_2
+    :members:
+    :undoc-members:
+    :show-inheritance:
