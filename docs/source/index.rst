@@ -1,19 +1,16 @@
 .. HUSTLE-tools documentation master file.
 
 .. image:: hustle-tools_logo.png
-  :width: 256
+  :width: 512
   :align: center
   :alt: HUSTLE-tools Logo
 
 |
 
-HUSTLE-Tools
-===================================
+HUSTLE-Tools: A One-Stop Shop for WFC3/UVIS G280 Data Reduction
+===============================================================
 
-Introduction
-------------
-
-:code:`HUSTLE-tools` is a Python package for downloading, reducing, and extracting 1D spectra from WFC3/UVIS G280 observations. :code:`HUSTLE-tools` is a one stop shop for extracting precise 1D spectral time series from the raw *flt.fits files of your observation using user-friendly and easily-replicable reduction instructions supplied from .hustle configuration files. :code:`HUSTLE-tools` is under active development - stay tuned for future updates which will include tools for exoplanet transmission and emission spectral extraction!
+:code:`HUSTLE-tools` is a one stop shop Python Package for extracting precise 1D spectral time series from WFC3/UVIS G280 time-series obserations. :code:`HUSTLE-tools` processes the raw *flt.fits files of your observation with a user-friendly interface and easily-replicable reduction instructions supplied from .hustle configuration files. :code:`HUSTLE-tools` is under active development - stay tuned for future updates which will include tools for exoplanet transmission and emission spectral extraction!
 
 .. toctree::
    :maxdepth: 2
@@ -31,7 +28,7 @@ Acknowledgements
 
 :code:`HUSTLE-tools` is built and maintained by Abby Boehm and Carlos Gascon.
 
-We also thank Hannah Wakeford, David Grant, and Ailsa Campbell for contributing to the development and testing of :code:`HUSTLE-tools`!
+We thank Hannah Wakeford, David Grant, and Ailsa Campbell for contributing to the development and testing of :code:`HUSTLE-tools`!
 
 If you make use of :code:`HUSTLE-tools` in your research, see the :doc:`citation page <views/citation>`
 for info on how to cite this package. Anyone can get involved by following
