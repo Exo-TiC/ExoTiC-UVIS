@@ -8,10 +8,10 @@ Stage 0
 .. autosummary::
    :toctree: summary
 
-    collect_and_move_files
+   hustle_tools.stage_0.collect_and_move_files
 
-    identify_orbits
+   hustle_tools.stage_0.identify_orbits
 
-    collect_files
+   hustle_tools.stage_0.collect_files
 
     
