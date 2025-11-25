@@ -1,3 +1,7 @@
+Stage 1
+-----------
+
+.. currentmodule:: hustle_tools
 .. currentmodule:: hustle_tools.stage_1
 
 .. automodule:: hustle_tools.stage_1
