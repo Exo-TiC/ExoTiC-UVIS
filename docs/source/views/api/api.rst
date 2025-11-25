@@ -21,4 +21,4 @@ Words here.
 .. toctree::
     :maxdepth: 2
 
-    hustle_tools.stage_0
+    stage_0
