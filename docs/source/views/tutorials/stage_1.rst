@@ -105,9 +105,18 @@ Step 1: Read in the data
 ~~~~~~~~~~~~~~~~~~~~~~~~
 HST WFC3 data is known to present strong systematics that may vary between orbits. For WFC3/IR data, strong systematics may require that the entire first orbit be removed from analysis to maximize the quality of the retrieved spectra. This can be done by setting :code:`skip_first_or` to True. For HST WFC3/UVIS, most observations do not suffer from systematics that affect the entire first orbit, and so you can usually get away with setting :code:`skip_first_or` to False. However, the first frame of each orbit has been seen in some observations to possess enhanced systematics, requiring that the first frames be discarded. If your data suffer from enhanced first-frame systematics, you can remove them from analysis by setting :code:`skip_first_fm` to True.
 
-Step 2: Organizing files
-~~~~~~~~~~~~~~~~~~~~~~~~
-If you have not pre-downloaded the data, or if you have pre-downloaded the data but they are not yet organized, then set :code:`do_organize` to True. This step will sort your files by orbit number, visit number, and file contents. Specify the :code:`visit_number` variable as a two-character string to select which visit in the observation corresponds to your target. As before, you can find the visit number by heading to `https://www.stsci.edu/hst/observing/program-information <https://www.stsci.edu/hst/observing/program-information>`_ and searching for your program by proposal ID and/or PI/Co-I name. If you have pre-downloaded your data, store all of it in the folder specified in the :code:`filesfrom_dir` variable.
+Step 2: Reject cosmic rays with time iteration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Cosmic rays, or energetic particles striking the detector at random and originating from unknown astrophysical sources, contribute additional noise to extracted spectra. :code:`HUSTLE-tools` offers two routines for treating cosmic rays in your data: fixed iteration rejection and free iteration rejection.
+
+Step 2a: Fixed iteration parameters
+'''''''''''''''''''''''''''''''''''
+Fixed iteration rejection iterates over every pixel's time series a fixed number of times, using a specified threshold at each iteration to reject outliers. Set :code:`do_fixed_iter` to True if you want to use this method. The number of iterations, and the threshold for rejection at each iteration, is specified by supplying a list of thresholds to the :code:`fixed_sigmas` variable. When outliers are found, their handling is controlled by the :code:`replacement` variable, which can be set to an integer to specify the half-width of the running median window used to compute the replacement value, or can be set to None to replace the outlier by the overall median of the pixel's time series.
+
+Step 2b: Free iteration parameters
+''''''''''''''''''''''''''''''''''
+Free iteration rejection iterates over every pixel's time series at a single rejection threshold, and will continue iterating at that threshold until no outliers are found. Set :code:`do_free_iter` to True if you want to use this method. The threshold that will be used on these iterations is set as a float supplied to the :code:`free_sigma` variable.
+  
 
 Step 3: Locating the target star
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
