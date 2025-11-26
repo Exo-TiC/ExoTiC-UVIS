@@ -1,7 +1,7 @@
 Quick start
 ===========
 
-Ready to get going with :code:`HUSTLE-tools`? This quickstart guide will help you understand the basics of running :code:`HUSTLE-tools` on your G280 data. More detailed instructions for each Stage can be found in the `Tutorials <https://hustle-tools.readthedocs.io/en/latest/views/tutorials.html>`_ page.
+Ready to get going with :code:`HUSTLE-tools`? This quick start guide will help you understand the basics of running :code:`HUSTLE-tools` on your G280 data. More detailed instructions for each stage can be found in the `Tutorials <https://hustle-tools.readthedocs.io/en/latest/views/tutorials.html>`_ page.
 
 1. Install :code:`HUSTLE-tools`
 -------------------------------
@@ -11,14 +11,14 @@ The first step to running :code:`HUSTLE-tools` is to make sure you have it and i
 2. Set up a run directory
 -------------------------
 
-We recommend keeping your G280 data reduction projects separate for ease of navigation. For this quickstart, let's create a directory for the observations of HAT-P-41B from visit 01 of HST-GO 15288 (PI: David Sing):
+We recommend keeping your G280 data reduction projects separate for ease of navigation. For this quick start, let's create a directory for the observations of HAT-P-41B from visit 01 of HST-GO 15288 (PI: David Sing):
 
 .. code-block:: bash
 
   mkdir /User/hustle-tools_demo/
   cd /User/hustle-tools_demo/
 
-The :code:`HUSTLE-tools` pipeline is operated by reading in .hustle configuration files to a high-level wrapper function, :code:`hustle_tools.run_pipeline()`. To run :code:`HUSTLE-tools` in our new run directory, we'll need to create a folder for the configuration files, and a script to run :code:`hustle_tools.run_pipeline()` with. Let's call our configuration file folder :code:`/User/hustle-tools_demo/configs`, and our pipeline script :code:`/User/hustle-tools_demo/run_pipeline.py`.
+The :code:`HUSTLE-tools` pipeline is operated by reading in .hustle configuration files to a high-level wrapper function, :code:`hustle_tools.run_pipeline()`. To run :code:`HUSTLE-tools` in our new run directory, we'll need to create a folder for the configuration files, and a script to run :code:`hustle_tools.run_pipeline()` with. Let's call our configuration file folder :code:`/User/hustle-tools_demo/configs/`, and our pipeline script :code:`/User/hustle-tools_demo/run_pipeline.py`.
 
 2.1. Create the pipeline wrapper script
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,7 +39,7 @@ That's it!
 2.2. Supply the configuration files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The .hustle configuration files are at the core of operating :code:`HUSTLE-tools` and they take some time to get to know. For this quickstart, we've written most of the .hustle files for you, but if you want to learn more about how to tune these files for your research, check out the `Tutorials <https://hustle-tools.readthedocs.io/en/latest/views/tutorials.html>`_ tab! For now, just :code:`cd` into :code:`configs` and follow the instructions below to create the .hustle configuration files for this run.
+The .hustle configuration files are at the core of operating :code:`HUSTLE-tools` and they take some time to get to know. For this quick start, we've written most of the .hustle files for you, but if you want to learn more about how to tune these files for your research, check out the `Tutorials <https://hustle-tools.readthedocs.io/en/latest/views/tutorials.html>`_ tab! For now, just :code:`cd` into :code:`configs` and follow the instructions below to create the .hustle configuration files for this run.
 
 First, use your favorite text editor to create :code:`configs/stage_0_input_config.hustle` and populate it with the following script:
 
@@ -103,7 +103,7 @@ Next, create :code:`configs/stage_1_input_config.hustle` and populate it with th
   
   # Step 3: Reject hot pixels with spatial detection
   # Step 3a: Laplacian Edge Detection parameters
-  do_led          True                                        # Bool. Whether to use Laplacian Edge Detection rejection to clean the frames.
+  do_led          False                                       # Bool. Whether to use Laplacian Edge Detection rejection to clean the frames.
   led_threshold   5                                           # Float. The threshold parameter at which to kick outliers in LED. The lower the number, the more values will be replaced.
   led_factor      2                                           # Int. The subsampling factor. Minimum value 2. Higher values increase computation time but aren't expected to yield much improvement in rejection.
   led_n           2                                           # Int. Number of times to do LED on each frame. Enter None to continue performing LED on each frame until no outliers are found.
@@ -161,7 +161,7 @@ Next, create :code:`configs/stage_1_input_config.hustle` and populate it with th
   
   # ENDPARSE
 
-Lastly, create :code:`configs/stage_2_input_config.hustle` and populate it with the following script, making sure to replace the :code:`path_to_cal` variable currently supplied with the input 'User/path/to/grismconf/calibration' with your own path to the :code:`grismconf` reference UVIS_G280_CCD2_V2.conf file you downloaded during `Installation <https://hustle-tools.readthedocs.io/en/latest/views/installation.html>`_:
+Lastly, create :code:`configs/stage_2_input_config.hustle` and populate it with the following script, making sure to replace the :code:`path_to_cal` variable currently supplied with the input 'User/path/to/grismconf/calibration.conf' with your own path to the :code:`grismconf` reference UVIS_G280_CCD2_V2.conf file you downloaded during `Installation <https://hustle-tools.readthedocs.io/en/latest/views/installation.html>`_:
 
 .. code-block:: bash
 
@@ -178,7 +178,7 @@ Lastly, create :code:`configs/stage_2_input_config.hustle` and populate it with 
   # Step 1: Read in the data
   
   # Step 2: Trace configuration
-  path_to_cal     'User/path/to/grismconf/calibration'        # Str. The absolute path to the .conf file used by GRISMCONF for the chip your data were taken on.
+  path_to_cal     'User/path/to/grismconf/calibration.conf'   # Str. The absolute path to the .conf file used by GRISMCONF for the chip your data were taken on.
   traces_to_conf  ('+1','-1')                                 # Lst of str. The traces you want to configure and extraction from.
   refine_fit      True                                        # Bool. If True, uses Gaussian fitting to refine the trace solution.
   
@@ -240,8 +240,10 @@ Stage 0 downloads our data and organizes it. The most important output of Stage 
 
 Stage 1 handles data reduction, and outputs a lot of diagnostic plots we can use to assess whether our reduction strategy is appropriate. Open the :code:`outputs/stage_1/demo/plots/` folder and take a look at the following plots:
 
-  1.will come back to this
-  2.and this
+  1. CR_location.png plots the location of all pixels flagged as a cosmic ray in any frame in any orbit. CR_location_frameX.png shows the cosmic rays flagged in each individual frame. Both of these plots show us that our cosmic ray rejection routine successfully targeted cosmic rays without overcorrecting the data.
+  2. bkg_values_uniform.png shows us the estimated background value in each frame. bkg_before_subtraction.png and bkg_after_subtraction.png plot the first frame of the observation before and after the estimated background value was subtracted.
+  3. target_location_in_direct_image.png plots the updated position of the target star in the direct image. The plotted position matches the center of the star's PSF very well, ensuring our wavelength calibration in Stage 2 will succeed.
+  4. 0th_order_x_displacement.png and 0th_order_y_displacement.png show the position of the bright 0th order in the data frames over time. These small sub-pixel shifts in pointing can introduce systematic trends into our extracted 1D spectral time-series, but by measuring these shifts now we can correct for them later.
 
 Stage 1 also outputs a revised quicklookup.gif that we can compare to our Stage 0 gif to see how the frames have changed after reduction. We also receive a similar gif showing the data quality (DQ) array, which shows the pixels in each frame that were flagged for DQ issues.
 
@@ -250,10 +252,15 @@ Stage 1 also outputs a revised quicklookup.gif that we can compare to our Stage 
 
 Stage 2 extracts the 1D spectral time series from our reduced data frame, and likewise produces lots of diagnostic plots for our use. Open the :code:`outputs/stage_2/demo/plots/` folder and take a look at the following plots:
 
-  1.will come back to this
-  2.and this
+  1. calibration_+1.png and calibration_-1.png show the :code:`grismconf` calibrated positions of the +1 and -1 order traces. If your calibration was successful, these should fall right along the middle of the brightest curves on either side of the 0th order.
+  2. aperture_+1.png and aperture_-1.png likewise show the calibration solution as well as the upper and lower bounds of the the aperture for extraction. A good aperture is wide enough to encompass the trace and its wings without pulling in too much background noise.
+  3. xshifts_cc_order+1.png, xshifts_cc_order-1.png, yshifts_cc_order+1.png, and yshifts_cc_order-1.png show the displacements estimated from cross-correlating the traces. These should generally resemble the displacements measured from the 0th order in Stage 1.
+  4. 1Dspec_order+1.png and 1Dspec_order-1.png show the first frame's 1D spectrum for each order. 2Dspec_order+1.png and 2Dspec_order-1.png plot the 1D spectra in every frame over time as a 2D map. 1Dspec_order+1.gif and 1Dspec_order-1.gif plays all extracted 1D spectra for each order as a gif. All of these plots can be used to assess the quality of the extracted spectra, including looking for uncorrected cosmic rays or systematic signals.
+  5. rawwlc_order+1.png and rawwlc_order-1.png show the white light curves obtained by summing all 1D spectra across all wavelengths. These light curves should be clean and with good signal-to-noise ratio, with minimal systematic patterns and no spurious points from e.g. cosmic rays.
+
+The 1D spectra for each order will be output to specs_+1.nc and specs_-1.nc which are DataSet files that can be opened and manipulated with the :code:`xarray` package. These are the final science products on which you would perform your analyses.
 
 5. What next?
 ----------------------
 
-That's it for the quickstart! You are now ready to start running :code:`HUSTLE-tools` on your own data! If you want to learn more about how to adjust .hustle configuration files and operate each stage, head over to the `Tutorials <https://hustle-tools.readthedocs.io/en/latest/views/tutorials.html>`_ page!
+That's it for the quick start! You are now ready to start running :code:`HUSTLE-tools` on your own data! If you want to learn more about how to adjust .hustle configuration files and operate each stage, head over to the `Tutorials <https://hustle-tools.readthedocs.io/en/latest/views/tutorials.html>`_ page!
