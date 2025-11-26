@@ -145,30 +145,55 @@ Step 4c: Pagul et al. background subtraction
 ''''''''''''''''''''''''''''''''''''''''''''
 Recently, the complex spatial structure of the G280 sky has been recognized and efforts have been taken out to correct it. :code:`HUSTLE-tools` can fit the background in each frame by scaling the empirically-determined background sky structure image measured by `Pagul et al. 2023 <https://www.stsci.edu/files/live/sites/www/files/home/hst/instrumentation/wfc3/documentation/instrument-science-reports-isrs/_documents/2023/WFC3-ISR-2023-06.pdf>`_ and hosted on `https://www.stsci.edu/hst/instrumentation/wfc3/documentation/grism-resources/uvis-grism-sky-images <https://www.stsci.edu/hst/instrumentation/wfc3/documentation/grism-resources/uvis-grism-sky-images>`_. This method of background correction is the most effective in treating spatial variations in background signal, but requires more run-time and a lot of fine-tuning to get the fit process to succeed. Set :code:`do_Pagul` to True to apply this method of background subtraction to your G280 data. Supply the absolute path of your downloaded G280 sky image to the :code:`path_to_Pagul` variable. To fit the background accurately, target and background sources in the data must be masked. Tune :code:`mask_parameter` until the diagnostic mask image output by this routine masks over sources without masking over so much of the frame that there is insufficient flux from which to estimate the background. As the median background value in each frame is not expected to vary dramatically between frames, outlier estimates of the paramter by which the empirical sky image is scaled to match the data can be rejected by setting :code:`smooth_fits` to True and adjusting :code:`smoothing_param` to higher/lower values to reject outliers less/more aggressively. Early versions of the empirical sky frame were undersampled in regions of the detector where observers frequently place their target traces. To smooth over these undersampled regions, set :code:`median_columns` to True. Later versions of the empirical sky image (e.g. v1.0 and above) generally do not need to be smoothed in this manner.
 
-Running Stage 0
+Step 5: Displacement estimation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Drift in the telescope pointing over the course of a visit can introduce systematic trends into the extracted 1D spectral time-series or cause offsets in the wavelength solution assigned by :code:`grismconf`. To correct for these trends, :code:`HUSTLE-tools` offers many methods of tracking telescope drift.
+
+
+Step 5a: Refine target location
+'''''''''''''''''''''''''''''''
+This routine refines estimates of the target's location in the direct photometric image using centroiding, which can ensure a more accurate wavelength solution in Stage 2. Set :code:`do_location` to True to run this routine and update the target location for use in Stage 2.
+  
+Step 5b: Source center-of-mass tracking
+'''''''''''''''''''''''''''''''''''''''
+The saturated 0th order can be tracked via centroiding, although the bloom above and below can affect y-position determination. Set :code:`do_0thtracking` to True to run this routine. If you did not run location fitting to this point, you can manually set the :code:`location` here.
+
+Step 5c: Background star tracking
+'''''''''''''''''''''''''''''''''
+If there are unsaturated background stars available in your frame, they may be more useful to track than the 0th order. Set :code:`do_bkg_stars` to True to run this routine. For each background star you wish to track, supply its x and y coordinates as a list entry in the :code:`bkg_stars_loc` list.
+  
+Step 6: Quality quicklook
+~~~~~~~~~~~~~~~~~~~~~~~~~
+If you want to save a "quicklook" gif that presents all of the data frames in succession as well as simple diagnostics of the image and trace flux, simply set :code:`do_quicklook` to True. Additionally, this will save a quicklook gif made using the data quality array, which can be checked to ensure that your reduction has not overcorrected the data.
+  
+Step 7: Save outputs
+~~~~~~~~~~~~~~~~~~~~
+If you want to save your cleaned images out to an xarray .nc file (necessary for running Stage 2), set :code:`do_save` to True.
+
+Running Stage 1
 ---------------
 
-With the configuration file created and stored in :code:`configs/stage_0_input_config.hustle`, create a simple .py or .ipynb script with the following contents:
+With the configuration file created and stored in :code:`configs/stage_1_input_config.hustle`, create a simple .py or .ipynb script with the following contents:
 
 .. code-block:: bash
 
   from hustle_tools import run_pipeline
   
   config_files_dir = "configs"
-  stages = (0,)
+  stages = (1,)
   
   run_pipeline(config_files_dir, stages)
 
-Then execute this script to run Stage 0! The output in your cell should look similar to the output shown below, where we have used HST-GO 15288 (PI: David Sing), visit 01, target HAT-P-41B as an example:
+Then execute this script to run Stage 1! The output in your cell should look similar to the output shown below, where we have used HST-GO 15288 (PI: David Sing), visit 01, target HAT-P-41B as an example:
 
 .. code-block:: bash
 
   '''will come back to this later :3'''
 
-Assessing Stage 0's success
+Assessing Stage 1's success
 ---------------------------
-Stage 0 is the simplest stage that has very few diagnostics to look over. You will know if Stage 0 succeeded if:
+Stage 1 is the most customizable stage and has a lot of diagnostics to look over. You will know if Stage 1 succeeded if:
 
-  1. The :code:`toplevel_dir` folder has been created and populated with the :code:`specimages`, :code:`directimages`, :code:`visitfiles`, :code:`miscfiles`, and :code:`outputs` subfolders.
+  1. Maps of pixels flagged by ...
   2. The :code:`toplevel_dir/outputs/stage_0` folder contains an updated copy of the .hustle configuration folder with the :code:`location` variable changed from None to a tuple of floats.
   3. The quicklookup.gif created by this stage, or the .fits files downloaded to the :code:`toplevel_dir/specimages` directory, clearly show your target star and contain all of the orbits and total number of frames you expected.
