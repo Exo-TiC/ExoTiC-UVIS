@@ -48,7 +48,7 @@ First, use your favorite text editor to create :code:`configs/stage_0_input_conf
   # HUSTLE-tools config file for launching Stage 0: Data Handling
 
   # Setup for Stage 0
-  toplevel_dir    'output'                                   # Directory where you want your files to be stored after Stage 0 has run. This is where /specimages, /directimages, /visitfiles, and /miscfiles will be stored.
+  toplevel_dir    'output'                                    # Directory where you want your files to be stored after Stage 0 has run. This is where /specimages, /directimages, /visitfiles, and /miscfiles will be stored.
   verbose         2                                           # Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.
   show_plots      0                                           # Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.
   save_plots      2                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
@@ -56,7 +56,7 @@ First, use your favorite text editor to create :code:`configs/stage_0_input_conf
   # Step 1: Download files from MAST
   do_download     True                                        # Bool. Whether to perform this step.
   programID       '15288'                                     # ID of the observing program you want to query data from. On MAST, referred to as "proposal_ID".
-  target_name     'HAT-P-41B'                                  # Name of the target object you want to query data from. On MAST, referred to as "target_name".
+  target_name     'HAT-P-41B'                                 # Name of the target object you want to query data from. On MAST, referred to as "target_name".
   token           None                                        # str or None. If you are downloading proprietary data, please visit https://auth.mast.stsci.edu/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access to obtain an authentication token and enter it as a '' string here.
   extensions      ['_flt.fits','_spt.fits']                   # lst of str or None. File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified. _flt.fits, _spt.fits recommended as minimum working case.
   
@@ -81,8 +81,8 @@ Next, create :code:`configs/stage_1_input_config.hustle` and populate it with th
   # HUSTLE-tools config file for launching Stage 1: Reduction
   
   # Setup for Stage 1
-  toplevel_dir    'output'                                   # Directory where your Stage 0 files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data.
-  output_run      'demo'                                     # Str. This is the name to save the current run to. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).
+  toplevel_dir    'output'                                    # Directory where your Stage 0 files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data.
+  output_run      'demo'                                      # Str. This is the name to save the current run to. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).
   verbose         2                                           # Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.
   show_plots      0                                           # Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.
   save_plots      2                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
@@ -233,7 +233,7 @@ The outputs of the pipeline will be stored in :code:`output/outputs/`. Stages 0,
 4.1. The outputs of Stage 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Stage 0 downloads our data and organizes it. The most important output of Stage 0 is the quicklookup.gif file. This gif compiles all of the G280 exposures, the total image flux, and the flux contained in an aperture containing the positive first order. We can use this gif to confirm that we captured the transit/eclipse of our target planet, or to look for issues such as tracking failures or satellite crossings. As you can see, the quicklookup.gif for this visit has no issues!
+Stage 0 downloads our data and organizes it. The most important output of Stage 0 is the quicklookup.gif file. This gif compiles all of the G280 exposures, the total image flux, and the flux contained in an aperture containing the positive first order. We can use this gif to confirm that we captured the transit/eclipse of our target planet, or to look for issues such as tracking failures or satellite crossings. As you will see, the quicklookup.gif for this visit has no issues!
 
 4.2. The outputs of Stage 1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -245,7 +245,7 @@ Stage 1 handles data reduction, and outputs a lot of diagnostic plots we can use
   3. target_location_in_direct_image.png plots the updated position of the target star in the direct image. The plotted position matches the center of the star's PSF very well, ensuring our wavelength calibration in Stage 2 will succeed.
   4. 0th_order_x_displacement.png and 0th_order_y_displacement.png show the position of the bright 0th order in the data frames over time. These small sub-pixel shifts in pointing can introduce systematic trends into our extracted 1D spectral time-series, but by measuring these shifts now we can correct for them later.
 
-Stage 1 also outputs a revised quicklookup.gif that we can compare to our Stage 0 gif to see how the frames have changed after reduction. We also receive a similar gif showing the data quality (DQ) array, which shows the pixels in each frame that were flagged for DQ issues.
+Stage 1 also outputs a revised quicklookup.gif that we can compare to our Stage 0 gif to see how the frames have changed after reduction. We also receive a similar gif showing the data quality array, which shows the pixels in each frame that were flagged for data quality issues during reduction (e.g. cosmic rays caught by temporal rejection, hot pixels caught by spatial rejection, etc.).
 
 4.3. The outputs of Stage 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -258,7 +258,7 @@ Stage 2 extracts the 1D spectral time series from our reduced data frame, and li
   4. 1Dspec_order+1.png and 1Dspec_order-1.png show the first frame's 1D spectrum for each order. 2Dspec_order+1.png and 2Dspec_order-1.png plot the 1D spectra in every frame over time as a 2D map. 1Dspec_order+1.gif and 1Dspec_order-1.gif plays all extracted 1D spectra for each order as a gif. All of these plots can be used to assess the quality of the extracted spectra, including looking for uncorrected cosmic rays or systematic signals.
   5. rawwlc_order+1.png and rawwlc_order-1.png show the white light curves obtained by summing all 1D spectra across all wavelengths. These light curves should be clean and with good signal-to-noise ratio, with minimal systematic patterns and no spurious points from e.g. cosmic rays.
 
-The 1D spectra for each order will be output to specs_+1.nc and specs_-1.nc which are DataSet files that can be opened and manipulated with the :code:`xarray` package. These are the final science products on which you would perform your analyses.
+The 1D spectra for each order will be output to specs_+1.nc and specs_-1.nc which can be opened and manipulated with the :code:`xarray` package. These are the final science products on which you would perform your analyses.
 
 5. What next?
 ----------------------
