@@ -1,12 +1,12 @@
 Quick start
 ===========
 
-Ready to get going with :code:`HUSTLE-tools`? This quickstart guide will help you understand the basics of running :code:`HUSTLE-tools` on your G280 data. More detailed instructions for each Stage can be found in the :ref:`Tutorials` page.
+Ready to get going with :code:`HUSTLE-tools`? This quickstart guide will help you understand the basics of running :code:`HUSTLE-tools` on your G280 data. More detailed instructions for each Stage can be found in the `Tutorials <https://hustle-tools.readthedocs.io/en/latest/views/tutorials.html>`_ page.
 
 1. Install :code:`HUSTLE-tools`
 -------------------------------
 
-The first step to running :code:`HUSTLE-tools` is to make sure you have it and its dependencies installed. Follow the instructions on the :ref:`Installation` page to get your :code:`HUSTLE-tools` conda environment set up and ready to go.
+The first step to running :code:`HUSTLE-tools` is to make sure you have it and its dependencies installed. Follow the instructions on the `Installation <https://hustle-tools.readthedocs.io/en/latest/views/installation.html>`_ page to get your :code:`HUSTLE-tools` conda environment set up and ready to go.
 
 2. Set up a run directory
 -------------------------
@@ -18,16 +18,7 @@ We recommend keeping your G280 data reduction projects separate for ease of navi
   mkdir /User/hustle-tools_demo/
   cd /User/hustle-tools_demo/
 
-The :code:`HUSTLE-tools` pipeline is operated by reading in .hustle configuration files to a high-level wrapper function, :code:`hustle_tools.run_pipeline()`. To run :code:`HUSTLE-tools` in our new run directory, we'll need to create two items:
-  1. A folder to store our .hustle configuration files in.
-  2. A simple .py script to run the pipeline with.
-
-.. code-block:: bash
-
-  mkdir configs
-  vim run_pipeline.py
-
-We'll need to populate each of these items as follows.
+The :code:`HUSTLE-tools` pipeline is operated by reading in .hustle configuration files to a high-level wrapper function, :code:`hustle_tools.run_pipeline()`. To run :code:`HUSTLE-tools` in our new run directory, we'll need to create a folder for the configuration files, and a script to run :code:`hustle_tools.run_pipeline()` with. Let's call our configuration file folder :code:`/User/hustle-tools_demo/configs`, and our pipeline script :code:`/User/hustle-tools_demo/run_pipeline.py`.
 
 2.1. Create the pipeline wrapper script
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -48,7 +39,7 @@ That's it!
 2.2. Supply the configuration files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The .hustle configuration files are at the core of operating :code:`HUSTLE-tools` and they take some time to get to know. For this quickstart, we've written most of the .hustle files for you, but if you want to learn more about how to tune these files for your needs, check out the :ref:`Tutorials` tab! For now, just :code:`cd` into :code:`configs` and follow the instructions below to create the .hustle configuration files for this run.
+The .hustle configuration files are at the core of operating :code:`HUSTLE-tools` and they take some time to get to know. For this quickstart, we've written most of the .hustle files for you, but if you want to learn more about how to tune these files for your research, check out the `Tutorials <https://hustle-tools.readthedocs.io/en/latest/views/tutorials.html>`_ tab! For now, just :code:`cd` into :code:`configs` and follow the instructions below to create the .hustle configuration files for this run.
 
 First, use your favorite text editor to create :code:`configs/stage_0_input_config.hustle` and populate it with the following script:
 
@@ -107,7 +98,7 @@ Next, create :code:`configs/stage_1_input_config.hustle` and populate it with th
   replacement     7                                           # int or None. If int, replaces flagged outliers with the median of values within +/-replacement indices of the outlier. If None, uses the median of the whole timeseries instead.
   
   # Step 2b: Free iteration parameters
-  do_free_iter   False                                        # Bool. Whether to use free iteration rejection to clean the timeseries.
+  do_free_iter    False                                       # Bool. Whether to use free iteration rejection to clean the timeseries.
   free_sigma      3.5                                         # float. The sigma to reject outliers at in each iteration. Iterates over each pixel's timeseries until no outliers at this sigma level are found.
   
   # Step 3: Reject hot pixels with spatial detection
@@ -170,7 +161,7 @@ Next, create :code:`configs/stage_1_input_config.hustle` and populate it with th
   
   # ENDPARSE
 
-Lastly, create :code:`configs/stage_2_input_config.hustle` and populate it with the following script, making sure to replace the :code:`path_to_cal` variable currently supplied with the input 'User/path/to/grismconf/calibration' with your own path to the :code:`grismconf` reference UVIS_G280_CCD2_V2.conf file you downloaded during :ref:`Installation`:
+Lastly, create :code:`configs/stage_2_input_config.hustle` and populate it with the following script, making sure to replace the :code:`path_to_cal` variable currently supplied with the input 'User/path/to/grismconf/calibration' with your own path to the :code:`grismconf` reference UVIS_G280_CCD2_V2.conf file you downloaded during `Installation <https://hustle-tools.readthedocs.io/en/latest/views/installation.html>`_:
 
 .. code-block:: bash
 
@@ -229,3 +220,40 @@ Most of the pipeline will run hands-free. However, in Stage 0 you will be presen
 ----------------------
 
 If you reached the end with no errors, congratulations! You have successfully run :code:`HUSTLE-tools`.
+
+Now let's check out the products of each stage. All of our outputs will have been sent to the :code:`output` folder. The files for our observation were downloaded in Stage 0 and sorted based on the file's contents:
+
+  1. :code:`output/specimages/` contains the G280 data frames for our observations. They have been renamed to include the orbit number and frame number within each orbit.
+  2. :code:`output/directimages/` contains the F300X photometric filter image. This image was presented to you in Stage 0 to locate the target star in.
+  3. :code:`output/visitfiles/` contains files that were associated with the program ID, visit, and specific orbit, but not associated with image data.
+  4. :code:`output/miscfiles/` contains all other files associated with the program ID and visit.
+
+The outputs of the pipeline will be stored in :code:`output/outputs/`. Stages 0, 1, and 2 output to :code:`output/outputs/stage_0/`, :code:`output/outputs/stage_1/`, and :code:`output/outputs/stage_2/` respectively. Stages 1 and 2 can be run multiple times on the same Stage 0 output. Stage 1 can output to its own subfolder based on the :code:`output_run` variable supplied. Stage 2 can receive different Stage 1 run inputs based on the :code:`input_run` variable, and can also output to its own :code:`output_run` subfolder. For this run, we used :code:`demo` as the input and output run names, so we can find our Stage 1 and 2 outputs in :code:`output/outputs/stage_1/demo/` and :code:`output/outputs/stage_2/demo/`.
+
+4.1. The outputs of Stage 0
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Stage 0 downloads our data and organizes it. The most important output of Stage 0 is the quicklookup.gif file. This gif compiles all of the G280 exposures, the total image flux, and the flux contained in an aperture containing the positive first order. We can use this gif to confirm that we captured the transit/eclipse of our target planet, or to look for issues such as tracking failures or satellite crossings. As you can see, the quicklookup.gif for this visit has no issues!
+
+4.2. The outputs of Stage 1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Stage 1 handles data reduction, and outputs a lot of diagnostic plots we can use to assess whether our reduction strategy is appropriate. Open the :code:`outputs/stage_1/demo/plots/` folder and take a look at the following plots:
+
+  1.will come back to this
+  2.and this
+
+Stage 1 also outputs a revised quicklookup.gif that we can compare to our Stage 0 gif to see how the frames have changed after reduction. We also receive a similar gif showing the data quality (DQ) array, which shows the pixels in each frame that were flagged for DQ issues.
+
+4.3. The outputs of Stage 2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Stage 2 extracts the 1D spectral time series from our reduced data frame, and likewise produces lots of diagnostic plots for our use. Open the :code:`outputs/stage_2/demo/plots/` folder and take a look at the following plots:
+
+  1.will come back to this
+  2.and this
+
+5. What next?
+----------------------
+
+That's it for the quickstart! You are now ready to start running :code:`HUSTLE-tools` on your own data! If you want to learn more about how to adjust .hustle configuration files and operate each stage, head over to the `Tutorials <https://hustle-tools.readthedocs.io/en/latest/views/tutorials.html>`_ page!
