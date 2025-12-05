@@ -70,12 +70,14 @@ Step 2: Trace configuration
   :align: left
   :alt: [SCI] header info showing the CCD chip number stored in the CCDCHIP keyword
 
+
 :code:`grismconf` supports extraction of both the positive (higher throughput, dispersed to left) orders and the negative (lower throughput, dispersed to right) orders, with support for up to the 4th order trace. You can specify which traces you want to extract by supplying the sign and order of each trace in the :code:`traces_to_conf` variable, e.g. by supplying this variable as ("+1","-1") you can request to extract the positive and negative 1st-order traces. Below we show a G280 data frame with the 0th order and all extractable traces marked.
 
 .. image:: ../orders.png
   :width: 512
   :align: left
   :alt: A WFC3/UVIS G280 data frame showing the 0th order (middle), all extractable positive orders (left), and all extractable negative orders (right)
+
 
 Shifts in the trace position over time can affect the wavelength solution, which is determined from the static direct photometric image taken at the observation start. You can refine the trace solution by setting :code:`refine_fit` to True to allow the trace solution to be updated in each frame.
 
