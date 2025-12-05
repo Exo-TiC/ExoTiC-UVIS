@@ -111,7 +111,7 @@ Cosmic rays, or energetic particles striking the detector at random and originat
 
 Step 2a: Fixed iteration parameters
 '''''''''''''''''''''''''''''''''''
-Fixed iteration rejection iterates over every pixel's time series a fixed number of times, using a specified threshold at each iteration to reject outliers. Set :code:`do_fixed_iter` to True if you want to use this method. The number of iterations, and the threshold for rejection at each iteration, is specified by supplying a list of thresholds to the :code:`fixed_sigmas` variable. When outliers are found, their handling is controlled by the :code:`replacement` variable, which can be set to an integer to specify the half-width of the running median window used to compute the replacement value, or can be set to None to replace the outlier by the overall median of the pixel's time series.
+Fixed iteration rejection iterates over every pixel's time series a fixed number of times, using a specified threshold at each iteration to reject outliers. Set :code:`do_fixed_iter` to True if you want to use this method. The number of iterations, and the threshold for rejection at each iteration, is specified by supplying a list of thresholds to the :code:`fixed_sigmas` variable. When outliers are found, their handling is controlled by the :code:`replacement` variable, which can be set to an integer to specify the half-width of the running median window used to compute the replacement value, or can be set to None to replace the outlier by the median of the pixel's full time series.
 
 Step 2b: Free iteration parameters
 ''''''''''''''''''''''''''''''''''
@@ -119,7 +119,7 @@ Free iteration rejection iterates over every pixel's time series at a single rej
 
 Step 3: Reject hot pixels with spatial detection
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Hot pixels output too much signal compared to their neighbors, while cold/dead pixels output little to no signal compared to their neighbors. Both contribute additiona noise to extracted spectra but neither are substantially time-varying and therefore cannot be treated with time-based methods. :code:`HUSTLE-tools` offers two routines for treating hot, cold, and dead pixels: Laplacian Edge Detection and spatial smoothing.
+Hot pixels output too much signal compared to their neighbors, while cold/dead pixels output little to no signal compared to their neighbors. Both contribute additional noise to extracted spectra but neither are substantially time-varying and therefore cannot be treated with time-based methods. :code:`HUSTLE-tools` offers two routines for treating hot, cold, and dead pixels: Laplacian Edge Detection and spatial smoothing.
 
 Step 3a: Laplacian Edge Detection parameters
 ''''''''''''''''''''''''''''''''''''''''''''
@@ -131,7 +131,7 @@ LED can be time-intensive as it requires building a noise model and optionally a
 
 Step 4: Background subtraction
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The HST WFC3/UVIS G280 sky is complicated, showing variations in both space and time. The trace also occupies a substantial fraction of the frame, and the slitles nature of the G280 grism means that background objects' dispersed spectra can interfere with background estimation. To accomodate this, :code:`HUSTLE-tools` offers a wide range of background treatment options for you to explore to determine which suits your data best.
+The HST WFC3/UVIS G280 sky is complicated, showing variations in both space and time. The trace also occupies a substantial fraction of the frame, and the slitless nature of the G280 grism means that background objects' dispersed spectra can interfere with background estimation. To accomodate this, :code:`HUSTLE-tools` offers a wide range of background treatment options for you to explore to determine which suits your data best.
 
 Step 4a: uniform value background subtraction
 '''''''''''''''''''''''''''''''''''''''''''''
@@ -143,12 +143,11 @@ This method of background correction treats the value of the background as const
   
 Step 4c: Pagul et al. background subtraction
 ''''''''''''''''''''''''''''''''''''''''''''
-Recently, the complex spatial structure of the G280 sky has been recognized and efforts have been taken out to correct it. :code:`HUSTLE-tools` can fit the background in each frame by scaling the empirically-determined background sky structure image measured by `Pagul et al. 2023 <https://www.stsci.edu/files/live/sites/www/files/home/hst/instrumentation/wfc3/documentation/instrument-science-reports-isrs/_documents/2023/WFC3-ISR-2023-06.pdf>`_ and hosted on `https://www.stsci.edu/hst/instrumentation/wfc3/documentation/grism-resources/uvis-grism-sky-images <https://www.stsci.edu/hst/instrumentation/wfc3/documentation/grism-resources/uvis-grism-sky-images>`_. This method of background correction is the most effective in treating spatial variations in background signal, but requires more run-time and a lot of fine-tuning to get the fit process to succeed. Set :code:`do_Pagul` to True to apply this method of background subtraction to your G280 data. Supply the absolute path of your downloaded G280 sky image to the :code:`path_to_Pagul` variable. To fit the background accurately, target and background sources in the data must be masked. Tune :code:`mask_parameter` until the diagnostic mask image output by this routine masks over sources without masking over so much of the frame that there is insufficient flux from which to estimate the background. As the median background value in each frame is not expected to vary dramatically between frames, outlier estimates of the paramter by which the empirical sky image is scaled to match the data can be rejected by setting :code:`smooth_fits` to True and adjusting :code:`smoothing_param` to higher/lower values to reject outliers less/more aggressively. Early versions of the empirical sky frame were undersampled in regions of the detector where observers frequently place their target traces. To smooth over these undersampled regions, set :code:`median_columns` to True. Later versions of the empirical sky image (e.g. v1.0 and above) generally do not need to be smoothed in this manner.
+Recently, the complex spatial structure of the G280 sky has been recognized and efforts have been taken to accurately model it. :code:`HUSTLE-tools` can fit the background in each frame by scaling the empirically-determined background sky structure image measured by `Pagul et al. 2023 <https://www.stsci.edu/files/live/sites/www/files/home/hst/instrumentation/wfc3/documentation/instrument-science-reports-isrs/_documents/2023/WFC3-ISR-2023-06.pdf>`_ and hosted on `https://www.stsci.edu/hst/instrumentation/wfc3/documentation/grism-resources/uvis-grism-sky-images <https://www.stsci.edu/hst/instrumentation/wfc3/documentation/grism-resources/uvis-grism-sky-images>`_. This method of background correction is the most effective in treating spatial variations in background signal, but requires more run-time and a lot of fine-tuning to get the fit process to succeed. Set :code:`do_Pagul` to True to apply this method of background subtraction to your G280 data. Supply the absolute path of your downloaded G280 sky image to the :code:`path_to_Pagul` variable. To fit the background accurately, target and background sources in the data must be masked. Tune :code:`mask_parameter` until the diagnostic mask image output by this routine masks over sources without masking over so much of the frame that there is insufficient flux from which to estimate the background. As the median background value in each frame is not expected to vary dramatically between frames, outlier estimates of the paramter by which the empirical sky image is scaled to match the data can be rejected by setting :code:`smooth_fits` to True and adjusting :code:`smoothing_param` to higher/lower values to reject outliers less/more aggressively. Early versions of the empirical sky frame were undersampled in regions of the detector where observers frequently place their target traces. To smooth over these undersampled regions, set :code:`median_columns` to True. Later versions of the empirical sky image (e.g. v1.0 and above) generally do not need to be smoothed in this manner.
 
 Step 5: Displacement estimation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Drift in the telescope pointing over the course of a visit can introduce systematic trends into the extracted 1D spectral time-series or cause offsets in the wavelength solution assigned by :code:`grismconf`. To correct for these trends, :code:`HUSTLE-tools` offers many methods of tracking telescope drift.
-
 
 Step 5a: Refine target location
 '''''''''''''''''''''''''''''''
@@ -156,7 +155,7 @@ This routine refines estimates of the target's location in the direct photometri
   
 Step 5b: Source center-of-mass tracking
 '''''''''''''''''''''''''''''''''''''''
-The saturated 0th order can be tracked via centroiding, although the bloom above and below can affect y-position determination. Set :code:`do_0thtracking` to True to run this routine. If you did not run location fitting to this point, you can manually set the :code:`location` here.
+The saturated 0th order can be tracked via centroiding, although the bloom above and below can affect y-position determination. Set :code:`do_0thtracking` to True to run this routine. If you did not run location fitting to this point, you can manually set the :code:`location` here, which is needed to initiate the 0th centroiding routine.
 
 Step 5c: Background star tracking
 '''''''''''''''''''''''''''''''''
@@ -194,6 +193,8 @@ Assessing Stage 1's success
 ---------------------------
 Stage 1 is the most customizable stage and has a lot of diagnostics to look over. You will know if Stage 1 succeeded if:
 
-  1. Maps of pixels flagged by ...
-  2. The :code:`toplevel_dir/outputs/stage_0` folder contains an updated copy of the .hustle configuration folder with the :code:`location` variable changed from None to a tuple of floats.
-  3. The quicklookup.gif created by this stage, or the .fits files downloaded to the :code:`toplevel_dir/specimages` directory, clearly show your target star and contain all of the orbits and total number of frames you expected.
+  1. Maps of pixels flagged by temporal and spatial outlier rejection routines (e.g. CR_location.png, LED_location_of_all_corrected_pixels.png) show largely random spatial distributions with no obvious correlation to the trace.
+  2. The plot of estimated background values over time (bkg_values_{name of method you used}.png) shows reasonable background values consistent with the typical value of pixels away from the trace, and the plot showing the median background pixel values before and after correction (bkg_correction_{name of method you used}.png) shows that the post-corrected values are consistent with 0 e-.
+  3. Measured 0th-order displacements are reasonable (should be order pixels to sub-pixels, not tens of pixels), and if available, the background star displacements are reasonably consistent with each other and the 0th-order displacements.
+  4. The quicklookup.gif created by this stage shows a clear transit, a smooth background signal, no flickering or other odd visual patterns, and no obvious cosmic rays.
+  5. Additionally, the quicklookupDQ.gif created by this stage shows a spatially random distribution of flagged pixels - at no point should you be able to see the shape of the trace in this gif, and if you do see it, you have overcorrected the data!
