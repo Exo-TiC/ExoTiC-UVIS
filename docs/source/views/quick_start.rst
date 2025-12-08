@@ -211,7 +211,7 @@ You are now ready to run :code:`HUSTLE-tools`!
 
 .. code-block::
 
-  cd ..
+  cd ~/User/hustle-tools_demo/
   python run_pipeline.py
 
 Most of the pipeline will run hands-free. However, in Stage 0 you will be presented with the direct photometric image taken as part of these observations and asked to locate the target star in the image, which is essential to getting the wavelength solution right. In these observations, you will find the target star at :code:`x=974.82` and :code:`y=160.16`. After this step, the pipeline will operate on its own. On an average laptop with a good internet connection, it should take about ten minutes.
