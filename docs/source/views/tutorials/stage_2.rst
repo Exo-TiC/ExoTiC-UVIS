@@ -113,9 +113,9 @@ With the configuration file created and stored in :code:`configs/stage_2_input_c
 
 Then execute this script to run Stage 2! The output in your cell should look similar to the output shown below, where we have used HST-GO 15288 (PI: David Sing), visit 01, target HAT-P-41B as an example:
 
-.. code-block:: bash
+.. include:: stage_2_output.txt
+   :literal:
 
-  '''will come back to this later :3'''
 
 Assessing Stage 2's success
 ---------------------------
