@@ -11,7 +11,7 @@ The first step to running :code:`HUSTLE-tools` is to make sure you have it and i
 2. Set up a run directory
 -------------------------
 
-We recommend keeping your G280 data reduction projects separate for ease of navigation. For this quick start, let's create a directory for the observations of HAT-P-41B from visit 01 of HST-GO 15288 (PI: David Sing):
+We recommend keeping your G280 data reduction projects separate for ease of navigation. For this quick start, let's create a directory for the HUSTLE program observations of WASP-127b from visit 12 of HST-GO 17183 (PI: Hannah Wakeford):
 
 .. code-block:: bash
 
@@ -55,14 +55,14 @@ First, use your favorite text editor to create :code:`configs/stage_0_input_conf
   
   # Step 1: Download files from MAST
   do_download     True                                        # Bool. Whether to perform this step.
-  programID       '15288'                                     # ID of the observing program you want to query data from. On MAST, referred to as "proposal_ID".
-  target_name     'HAT-P-41B'                                 # Name of the target object you want to query data from. On MAST, referred to as "target_name".
+  programID       '17183'                                     # ID of the observing program you want to query data from. On MAST, referred to as "proposal_ID".
+  target_name     'WASP-127'                                  # Name of the target object you want to query data from. On MAST, referred to as "target_name".
   token           None                                        # str or None. If you are downloading proprietary data, please visit https://auth.mast.stsci.edu/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access to obtain an authentication token and enter it as a '' string here.
   extensions      ['_flt.fits','_spt.fits']                   # lst of str or None. File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified. _flt.fits, _spt.fits recommended as minimum working case.
   
   # Step 2: Organizing files
   do_organize     True                                        # Bool. Whether to perform this step.
-  visit_number    '01'                                        # The visit number you want to operate on.
+  visit_number    '12'                                        # The visit number you want to operate on.
   filesfrom_dir   None                                        # None or str. If you downloaded data in Step 1, leave this as None. If you have pre-downloaded data, please place all of it in filesfrom_dir. Don't sort it into sub-folders; HUSTLE-tools won't be able to find them if they are inside sub-folders!
   
   # Step 3: Locating the target star
@@ -94,7 +94,7 @@ Next, create :code:`configs/stage_1_input_config.hustle` and populate it with th
   # Step 2: Reject cosmic rays with time iteration
   # Step 2a: Fixed iteration parameters
   do_fixed_iter   True                                        # Bool. Whether to use fixed iteration rejection to clean the timeseries.
-  fixed_sigmas    [3.5,3.5]                                   # lst of float. The sigma to reject outliers at in each iteration. The length of the list is the number of iterations.
+  fixed_sigmas    [5.0,5.0]                                   # lst of float. The sigma to reject outliers at in each iteration. The length of the list is the number of iterations.
   replacement     7                                           # int or None. If int, replaces flagged outliers with the median of values within +/-replacement indices of the outlier. If None, uses the median of the whole timeseries instead.
   
   # Step 2b: Free iteration parameters
@@ -121,7 +121,7 @@ Next, create :code:`configs/stage_1_input_config.hustle` and populate it with th
   # Step 4a: uniform value background subtraction
   do_uniform      True                                        # Bool. Whether to subtract the background using one uniform value as the value for the entire frame.
   fit             'Gaussian'                                  # Str. The value to extract from the histogram. Options are None (to extract the mode), 'Gaussian' (to fit the mode with a Gaussian), or 'median' (to take the median within hist_min < v < hist_max).
-  bounds          [[0,150,0,400],[440,590,0,400]]             # Lst of lst of float. The region from which the background values will be extracted. Each list consists of [x1,x2,y1,y2]. If None, simply uses the full frame.
+  bounds          [[0,150,0,400],[450,600,0,400],[0,150,1700,2100],[450,600,1700,2100]] # Lst of lst of float. The region from which the background values will be extracted. Each list consists of [x1,x2,y1,y2]. If None, simply uses the full frame.
   hist_min        -20                                         # Float. Minimum value to consider for the background. Leave as None to use min(data).
   hist_max        50                                          # Float. Maximum value to consider for the background. Leave as None to use max(data).
   hist_bins       1000                                        # Int. Number of histogram bins for background subtraction.
@@ -178,9 +178,9 @@ Lastly, create :code:`configs/stage_2_input_config.hustle` and populate it with 
   # Step 1: Read in the data
   
   # Step 2: Trace configuration
-  path_to_cal     'User/path/to/grismconf/calibration.conf'   # Str. The absolute path to the .conf file used by GRISMCONF for the chip your data were taken on.
+  path_to_cal     'User/path/to/grismconf/WFC3.UVIS.G280.CHIP2.V3.0.conf' # Str. The absolute path to the .conf file used by GRISMCONF for the chip your data were taken on.
   traces_to_conf  ('+1','-1')                                 # Lst of str. The traces you want to configure and extraction from.
-  refine_fit      True                                        # Bool. If True, uses Gaussian fitting to refine the trace solution.
+  refine_fit      False                                       # Bool. If True, uses Gaussian fitting to refine the trace solution.
   
   # Step 3: 1D spectral extraction
   method          'box'                                       # Str. Options are 'box' (draw a box around the trace and sum without weights) or 'optimal' (weight using Horne 1986 methods).
@@ -192,11 +192,11 @@ Lastly, create :code:`configs/stage_2_input_config.hustle` and populate it with 
   # Step 3a: Box extraction parameters
   determine_hw    False                                       # Bool. If True, automatically determines preferred half-width for each order by minimizing out-of-transit/eclipse residuals.
   indices         ([0,10],[-10,-1])                           # Lst of lsts of int. If determine_hw, these are the indices used to estimate the out-of-transit/eclipse residuals.
-  halfwidths_box  (12,12)                                     # Lst of ints. The half-width of extraction aperture to use for each order. Input here is ignored if 'determine_hw' is True.
+  halfwidths_box  (10,10)                                     # Lst of ints. The half-width of extraction aperture to use for each order. Input here is ignored if 'determine_hw' is True.
   
   # Step 3b: Optimum extraction parameters
   aperture_type   'median'                                    # Str. Type of aperture to draw. Options are 'median', 'polyfit', 'smooth', or 'curved_poly'.
-  halfwidths_opt  (12,12)                                     # Lst of ints. The half-width of extraction aperture to use for each order. For optimum extraction, you should make this big (>12 pixels at least). There is no 'preferred' half-width in optimum extraction due to the weights.
+  halfwidths_opt  (10,10)                                     # Lst of ints. The half-width of extraction aperture to use for each order. For optimum extraction, you should make this big (>12 pixels at least). There is no 'preferred' half-width in optimum extraction due to the weights.
   
   # Step 4: 1D spectral cleaning and aligning
   outlier_sigma   3.5                                         # Float. Sigma at which to reject spectral outliers in time. Outliers are replaced with median of timeseries. Enter False to skip this step.
@@ -214,7 +214,7 @@ You are now ready to run :code:`HUSTLE-tools`!
   cd ..
   python run_pipeline.py
 
-Most of the pipeline will run hands-free. However, in Stage 0 you will be presented with the direct photometric image taken as part of these observations and asked to locate the target star in the image, which is essential to getting the wavelength solution right. In these observations, you will find the target star at :code:`x=???` and :code:`y=???`. After this step, the pipeline will operate on its own. On an average laptop, it shouldn't take more than five minutes
+Most of the pipeline will run hands-free. However, in Stage 0 you will be presented with the direct photometric image taken as part of these observations and asked to locate the target star in the image, which is essential to getting the wavelength solution right. In these observations, you will find the target star at :code:`x=974.82` and :code:`y=160.16`. After this step, the pipeline will operate on its own. On an average laptop with a good internet connection, it should take about ten minutes.
 
 4. Examine the outputs
 ----------------------
@@ -225,7 +225,7 @@ Now let's check out the products of each stage. All of our outputs will have bee
 
   1. :code:`output/specimages/` contains the G280 data frames for our observations. They have been renamed to include the orbit number and frame number within each orbit.
   2. :code:`output/directimages/` contains the F300X photometric filter image. This image was presented to you in Stage 0 to locate the target star in.
-  3. :code:`output/visitfiles/` contains files that were associated with the program ID, visit, and specific orbit, but not associated with image data.
+  3. :code:`output/visitfiles/` contains files that were associated with the program ID, visit, and specific orbit, but not associated with image data. For this dataset, no visit files were identified.
   4. :code:`output/miscfiles/` contains all other files associated with the program ID and visit.
 
 The outputs of the pipeline will be stored in :code:`output/outputs/`. Stages 0, 1, and 2 output to :code:`output/outputs/stage_0/`, :code:`output/outputs/stage_1/`, and :code:`output/outputs/stage_2/` respectively. Stages 1 and 2 can be run multiple times on the same Stage 0 output. Stage 1 can output to its own subfolder based on the :code:`output_run` variable supplied. Stage 2 can receive different Stage 1 run inputs based on the :code:`input_run` variable, and can also output to its own :code:`output_run` subfolder. For this run, we used :code:`demo` as the input and output run names, so we can find our Stage 1 and 2 outputs in :code:`output/outputs/stage_1/demo/` and :code:`output/outputs/stage_2/demo/`.
@@ -240,10 +240,10 @@ Stage 0 downloads our data and organizes it. The most important output of Stage 
 
 Stage 1 handles data reduction, and outputs a lot of diagnostic plots we can use to assess whether our reduction strategy is appropriate. Open the :code:`outputs/stage_1/demo/plots/` folder and take a look at the following plots:
 
-  1. CR_location.png plots the location of all pixels flagged as a cosmic ray in any frame in any orbit. CR_location_frameX.png shows the cosmic rays flagged in each individual frame. Both of these plots show us that our cosmic ray rejection routine successfully targeted cosmic rays without overcorrecting the data.
-  2. bkg_values_uniform.png shows us the estimated background value in each frame. bkg_before_subtraction.png and bkg_after_subtraction.png plot the first frame of the observation before and after the estimated background value was subtracted.
-  3. target_location_in_direct_image.png plots the updated position of the target star in the direct image. The plotted position matches the center of the star's PSF very well, ensuring our wavelength calibration in Stage 2 will succeed.
-  4. 0th_order_x_displacement.png and 0th_order_y_displacement.png show the position of the bright 0th order in the data frames over time. These small sub-pixel shifts in pointing can introduce systematic trends into our extracted 1D spectral time-series, but by measuring these shifts now we can correct for them later.
+  1. CR_location.png plots the location of all pixels flagged as a cosmic ray in any frame in any orbit. CR_location_frameX.png shows the cosmic rays flagged in individual frame number X. Both of these plots show us that our cosmic ray rejection routine successfully targeted cosmic rays without overcorrecting the data.
+  2. bkg_values_corners.png shows us the estimated background value in each frame. bkg_before_subtraction.png and bkg_after_subtraction.png plot the first frame of the observation before and after the estimated background value was subtracted.
+  3. target_location_in_direct_image.png plots the updated position of the target star in the direct image, and 0th_tracking_frameX.png shows the 0th order position in frame X. The plotted positions match the center of the star's PSF very well, ensuring our wavelength calibration in Stage 2 will succeed.
+  4. 0th_order_x_displacement.png and 0th_order_y_displacement.png show the position of the bright 0th order in the data frames over time. Small sub-pixel shifts in pointing can introduce systematic trends into our extracted 1D spectral time-series, but by measuring these shifts now we can correct for them later.
 
 Stage 1 also outputs a revised quicklookup.gif that we can compare to our Stage 0 gif to see how the frames have changed after reduction. We also receive a similar gif showing the data quality array, which shows the pixels in each frame that were flagged for data quality issues during reduction (e.g. cosmic rays caught by temporal rejection, hot pixels caught by spatial rejection, etc.).
 
@@ -254,8 +254,8 @@ Stage 2 extracts the 1D spectral time series from our reduced data frame, and li
 
   1. calibration_+1.png and calibration_-1.png show the :code:`grismconf` calibrated positions of the +1 and -1 order traces. If your calibration was successful, these should fall right along the middle of the brightest curves on either side of the 0th order.
   2. aperture_+1.png and aperture_-1.png likewise show the calibration solution as well as the upper and lower bounds of the the aperture for extraction. A good aperture is wide enough to encompass the trace and its wings without pulling in too much background noise.
-  3. xshifts_cc_order+1.png, xshifts_cc_order-1.png, yshifts_cc_order+1.png, and yshifts_cc_order-1.png show the displacements estimated from cross-correlating the traces. These should generally resemble the displacements measured from the 0th order in Stage 1.
-  4. 1Dspec_order+1.png and 1Dspec_order-1.png show the first frame's 1D spectrum for each order. 2Dspec_order+1.png and 2Dspec_order-1.png plot the 1D spectra in every frame over time as a 2D map. 1Dspec_order+1.gif and 1Dspec_order-1.gif plays all extracted 1D spectra for each order as a gif. All of these plots can be used to assess the quality of the extracted spectra, including looking for uncorrected cosmic rays or systematic signals.
+  3. cross_corr_order+1.png, cross_corr_order-1.png, trace_crossdisp_profiles_order+1.png, and trace_crossdisp_profiles_order-1.png show the displacements estimated from cross-correlating the traces. These can also be used to detrend systematics.
+  4. 1Dspec_order+1.png and 1Dspec_order-1.png show the first frame's 1D spectrum for each order. 2Dspec_order+1.png and 2Dspec_order-1.png plot the 1D spectra in every frame over time as a 2D map. 1Dspec_order+1.gif and 1Dspec_order-1.gif plays all extracted 1D spectra for each order as a gif. All of these plots can be used to assess the quality of the extracted spectra, including looking for uncorrected cosmic rays or systematic signals. In this dataset, a strong systematic can be seen in the -1 order at 400 nm.
   5. rawwlc_order+1.png and rawwlc_order-1.png show the white light curves obtained by summing all 1D spectra across all wavelengths. These light curves should be clean and with good signal-to-noise ratio, with minimal systematic patterns and no spurious points from e.g. cosmic rays.
 
 The 1D spectra for each order will be output to specs_+1.nc and specs_-1.nc which can be opened and manipulated with the :code:`xarray` package. These are the final science products on which you would perform your analyses.
