@@ -18,10 +18,16 @@ Then navigate into the top level of the newly-cloned repository and install:
   cd HUSTLE-tools
   pip install .
 
+Alternatively, you can :code:`pip` install a specific branch of :code:`HUSTLE-tools` from Github using this syntax:
+
+.. code-block:: bash
+
+  pip install git+https://github.com/Exo-TiC/HUSTLE-tools@branch-name
+
 Step 2: Download supporting files for :code:`grismconf`
 _______________________________________________________
 
-:code:`HUSTLE-tools` uses :code:`grismconf` (hosted on GitHub at `this link <https://github.com/npirzkal/GRISMCONF>`_ and developed by `Pirzkal & Ryan 2017 <https://www.stsci.edu/files/live/sites/www/files/home/hst/instrumentation/wfc3/documentation/instrument-science-reports-isrs/_documents/2017/WFC3-2017-01.pdf>`_) to assign wavelength solutions to G280 exposures. To use :code:`grismconf` you must download the associated `WFC3/UVIS configuration files <https://github.com/npirzkal/GRISM_WFC3>`_ and supply the absolute path to these files on your computer in the Stage 2 .hustle files. Make sure to download these if you intend to run Stage 2!
+:code:`HUSTLE-tools` uses :code:`grismconf` (hosted on GitHub at `this link <https://github.com/npirzkal/GRISMCONF>`_ and developed by `Pirzkal & Ryan 2017 <https://www.stsci.edu/files/live/sites/www/files/home/hst/instrumentation/wfc3/documentation/instrument-science-reports-isrs/_documents/2017/WFC3-2017-01.pdf>`_) to assign wavelength solutions to G280 exposures. To use :code:`grismconf` you must download the associated `WFC3/UVIS configuration files <https://github.com/npirzkal/GRISM_WFC3>`_ and supply the absolute path to either the UVIS_G280_CCD1_V2.conf file or UVIS_G280_CCD2_V2.conf file on your computer in the Stage 2 .hustle files, depending on which CCD chip your observation was collected on. Make sure to download these if you intend to run Stage 2!
 
 Step 3 (optional): Download WFC3/UVIS sky background files
 __________________________________________________________
