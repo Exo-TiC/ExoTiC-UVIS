@@ -77,9 +77,10 @@ With the configuration file created and stored in :code:`configs/stage_0_input_c
 
 Then execute this script to run Stage 0! The output in your cell should look similar to the output shown below, where we have used HST-GO 17183 (PI: Hannah Wakeford), visit 12, target WASP-127 as an example:
 
-.. code-block:: bash
 
-  '''will come back to this later :3'''
+.. include:: stage_0_output.txt
+   :literal:
+
 
 Assessing Stage 0's success
 ---------------------------
