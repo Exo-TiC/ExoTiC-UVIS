@@ -252,13 +252,13 @@ Stage 1 also outputs a revised quicklookup.gif that we can compare to our Stage 
 
 Stage 2 extracts the 1D spectral time series from our reduced data frame, and likewise produces lots of diagnostic plots for our use. Open the :code:`outputs/stage_2/demo/plots/` folder and take a look at the following plots:
 
-  1. calibration_+1.png and calibration_-1.png show the :code:`grismconf` calibrated positions of the +1 and -1 order traces. If your calibration was successful, these should fall right along the middle of the brightest curves on either side of the 0th order.
-  2. aperture_+1.png and aperture_-1.png likewise show the calibration solution as well as the upper and lower bounds of the the aperture for extraction. A good aperture is wide enough to encompass the trace and its wings without pulling in too much background noise.
+  1. calibration\_+1.png and calibration\_-1.png show the :code:`grismconf` calibrated positions of the +1 and -1 order traces. If your calibration was successful, these should fall right along the middle of the brightest curves on either side of the 0th order.
+  2. aperture\_+1.png and aperture\_-1.png likewise show the calibration solution as well as the upper and lower bounds of the the aperture for extraction. A good aperture is wide enough to encompass the trace and its wings without pulling in too much background noise.
   3. cross_corr_order+1.png, cross_corr_order-1.png, trace_crossdisp_profiles_order+1.png, and trace_crossdisp_profiles_order-1.png show the displacements estimated from cross-correlating the traces. These can also be used to detrend systematics.
   4. 1Dspec_order+1.png and 1Dspec_order-1.png show the first frame's 1D spectrum for each order. 2Dspec_order+1.png and 2Dspec_order-1.png plot the 1D spectra in every frame over time as a 2D map. 1Dspec_order+1.gif and 1Dspec_order-1.gif plays all extracted 1D spectra for each order as a gif. All of these plots can be used to assess the quality of the extracted spectra, including looking for uncorrected cosmic rays or systematic signals. In this dataset, a strong systematic can be seen in the -1 order at 400 nm.
   5. rawwlc_order+1.png and rawwlc_order-1.png show the white light curves obtained by summing all 1D spectra across all wavelengths. These light curves should be clean and with good signal-to-noise ratio, with minimal systematic patterns and no spurious points from e.g. cosmic rays.
 
-The 1D spectra for each order will be output to specs_+1.nc and specs_-1.nc which can be opened and manipulated with the :code:`xarray` package. These are the final science products on which you would perform your analyses.
+The 1D spectra for each order will be output to specs\_+1.nc and specs\_-1.nc which can be opened and manipulated with the :code:`xarray` package. These are the final science products on which you would perform your analyses.
 
 5. What next?
 ----------------------
