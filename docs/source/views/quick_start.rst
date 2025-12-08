@@ -178,7 +178,7 @@ Lastly, create :code:`configs/stage_2_input_config.hustle` and populate it with 
   # Step 1: Read in the data
   
   # Step 2: Trace configuration
-  path_to_cal     'User/path/to/grismconf/WFC3.UVIS.G280.CHIP2.V3.0.conf' # Str. The absolute path to the .conf file used by GRISMCONF for the chip your data were taken on.
+  path_to_cal     'User/path/to/grismconf/calibration.conf'   # Str. The absolute path to the .conf file used by GRISMCONF for the chip your data were taken on.
   traces_to_conf  ('+1','-1')                                 # Lst of str. The traces you want to configure and extraction from.
   refine_fit      False                                       # Bool. If True, uses Gaussian fitting to refine the trace solution.
   
