@@ -6,7 +6,7 @@ The first stage of any data reduction project is to download the data. :code:`HU
 Creating the Stage 0 configuration file
 ---------------------------------------
 
-The first step is to create the configuration file that will guide the execution of Stage 0. Create a folder to store the configuration file in, e.g. :code:`configs/`. Then create :code:`configs/stage_0_input_config.hustle` and populate it with the following:
+The first step is to create the configuration file that will guide the execution of Stage 0. Create a folder to store the configuration file in, e.g. :code:`configs/`. Then create :code:`configs/stage_0_input_config.hustle` and populate it with the following template:
 
 .. code-block:: bash
 
@@ -75,7 +75,7 @@ With the configuration file created and stored in :code:`configs/stage_0_input_c
   
   run_pipeline(config_files_dir, stages)
 
-Then execute this script to run Stage 0! The output in your cell should look similar to the output shown below, where we have used HST-GO 15288 (PI: David Sing), visit 01, target HAT-P-41B as an example:
+Then execute this script to run Stage 0! The output in your cell should look similar to the output shown below, where we have used HST-GO 17183 (PI: Hannah Wakeford), visit 12, target WASP-127 as an example:
 
 .. code-block:: bash
 
