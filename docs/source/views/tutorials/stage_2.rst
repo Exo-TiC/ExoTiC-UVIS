@@ -8,7 +8,7 @@ Now that the data are clean, we want to extract the 1D spectral time series from
 Creating the Stage 2 configuration file
 ---------------------------------------
 
-The first step is to create the configuration file that will guide the execution of Stage 2. Create a folder to store the configuration file in, e.g. :code:`configs/`. Then create :code:`configs/stage_2_input_config.hustle` and populate it with the following:
+The first step is to create the configuration file that will guide the execution of Stage 2. Create a folder to store the configuration file in, e.g. :code:`configs/`. Then create :code:`configs/stage_2_input_config.hustle` and populate it with the following template:
 
 .. code-block:: bash
 
@@ -100,7 +100,7 @@ Even after all of the cleaning processes run in Stage 1, outliers may still find
 Running Stage 2
 ---------------
 
-With the configuration file created and stored in :code:`configs/stage_2_input_config.hustle`, create a simple .py or .ipynb script with the following contents:
+Now that you understand what each variable does, edit your config file as you like. With the configuration file created and stored in :code:`configs/stage_2_input_config.hustle`, create a simple .py or .ipynb script with the following contents:
 
 .. code-block:: bash
 
@@ -111,7 +111,7 @@ With the configuration file created and stored in :code:`configs/stage_2_input_c
   
   run_pipeline(config_files_dir, stages)
 
-Then execute this script to run Stage 2! The output in your cell should look similar to the output shown below, where we have used HST-GO 15288 (PI: David Sing), visit 01, target HAT-P-41B as an example:
+Then execute this script to run Stage 2! The output in your cell should look similar to the output shown below, where we have used HST-GO 17183 (PI: Hannah Wakeford), visit 12, target WASP-127 as an example:
 
 .. include:: stage_2_output.txt
    :literal:
@@ -122,7 +122,7 @@ Assessing Stage 2's success
 Stage 2 is also a fairly customizable stage and has many diagnostics to look over. You will know if Stage 2 succeeded if:
 
   1. The calibration and aperture plots accurately located the correct traces and the apertures encompass the entirety of the orders you have chosen to extract from.
-  2. The extracted 1D spectral time series are consistent with the source spectrum expected (e.g. if your target is an A star, you can see Balmer lines in the spectrum), and the 1D spectrum gif shows no cosmic ray spikes, drift over time, or reduction process artifacts (e.g. rapid variations or dramatic changes in flux in certain channels which can arise from hot/cold/dead pixels, an up-and-down jitteriness that might be the result of bad background subtraction).
+  2. The extracted 1D spectral time series are consistent with the source spectrum expected (e.g. if your target is an A star, you should be able to see Balmer absorption lines in the spectrum centered at the appropriate wavelengths), and the 1D spectrum gif shows no cosmic ray spikes, drift over time, or reduction process artifacts (e.g. rapid variations or dramatic changes in flux in certain channels which can arise from hot/cold/dead pixels, an up-and-down jitteriness that might be the result of bad background subtraction, etc.).
   3. The extracted orders are reasonably consistent with each other, where their wavelength ranges overlap. Some minor differences should be expected due to order throughput variations, but the overall shape and features should be comparable.
   4. The cross-correlation dispersion and cross-dispersion shifts are reasonably consistent with the x-y shifts measured in the 0th order and background stars (if available) in Stage 1.
   5. The extracted raw white light curves for each order clearly show the transit with the depth and scatter that you expect.
