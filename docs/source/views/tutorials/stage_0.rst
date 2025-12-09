@@ -64,7 +64,7 @@ If you want to save a "quicklook" gif that presents all of the data frames in su
 Running Stage 0
 ---------------
 
-With the configuration file created and stored in :code:`configs/stage_0_input_config.hustle`, create a simple .py or .ipynb script with the following contents:
+Now that you understand what each variable does, edit your config file as you like. With the configuration file created and stored in :code:`configs/stage_0_input_config.hustle`, create a simple .py or .ipynb script with the following contents:
 
 .. code-block:: bash
 
