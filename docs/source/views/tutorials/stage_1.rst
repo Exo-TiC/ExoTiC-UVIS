@@ -8,7 +8,7 @@ With the data in hand, it is time to clean the data of cosmic rays, hot pixels, 
 Creating the Stage 1 configuration file
 ---------------------------------------
 
-The first step is to create the configuration file that will guide the execution of Stage 1. Create a folder to store the configuration file in, e.g. :code:`configs/`. Then create :code:`configs/stage_1_input_config.hustle` and populate it with the following:
+The first step is to create the configuration file that will guide the execution of Stage 1. Create a folder to store the configuration file in, e.g. :code:`configs/`. Then create :code:`configs/stage_1_input_config.hustle` and populate it with the following template:
 
 .. code-block:: bash
 
@@ -172,7 +172,7 @@ If you want to save your cleaned images out to an xarray .nc file (necessary for
 Running Stage 1
 ---------------
 
-With the configuration file created and stored in :code:`configs/stage_1_input_config.hustle`, create a simple .py or .ipynb script with the following contents:
+Now that you understand what each variable does, edit your config file as you like. With the configuration file created and stored in :code:`configs/stage_1_input_config.hustle`, create a simple .py or .ipynb script with the following contents:
 
 .. code-block:: bash
 
@@ -183,7 +183,7 @@ With the configuration file created and stored in :code:`configs/stage_1_input_c
   
   run_pipeline(config_files_dir, stages)
 
-Then execute this script to run Stage 1! The output in your cell should look similar to the output shown below, where we have used HST-GO 15288 (PI: David Sing), visit 01, target HAT-P-41B as an example:
+Then execute this script to run Stage 1! The output in your cell should look similar to the output shown below, where we have used HST-GO 17183 (PI: Hannah Wakeford), visit 12, target WASP-127 as an example:
 
 .. include:: stage_1_output.txt
    :literal:
@@ -193,8 +193,8 @@ Assessing Stage 1's success
 ---------------------------
 Stage 1 is the most customizable stage and has a lot of diagnostics to look over. You will know if Stage 1 succeeded if:
 
-  1. Maps of pixels flagged by temporal and spatial outlier rejection routines (e.g. CR_location.png, LED_location_of_all_corrected_pixels.png) show largely random spatial distributions with no obvious correlation to the trace.
+  1. Maps of pixels flagged by temporal and spatial outlier rejection routines (e.g. CR_location.png, LED_location_of_all_corrected_pixels.png) show largely random spatial distributions with no obvious correlation to the trace. Do not worry if methods like LED targeted the 0th order bloom (large vertical spike in the middle); as long as the traces were preserved, the extraction should be reliable.
   2. The plot of estimated background values over time (bkg_values_{name of method you used}.png) shows reasonable background values consistent with the typical value of pixels away from the trace, and the plot showing the median background pixel values before and after correction (bkg_correction_{name of method you used}.png) shows that the post-corrected values are consistent with 0 e-.
   3. Measured 0th-order displacements are reasonable (should be order pixels to sub-pixels, not tens of pixels), and if available, the background star displacements are reasonably consistent with each other and the 0th-order displacements.
-  4. The quicklookup.gif created by this stage shows a clear transit, a smooth background signal, no flickering or other odd visual patterns, and no obvious cosmic rays.
+  4. The quicklookup.gif created by this stage shows a clear transit, a smooth background signal, no flickering or other odd visual patterns, and no obvious cosmic rays left over after cleaning.
   5. Additionally, the quicklookupDQ.gif created by this stage shows a spatially random distribution of flagged pixels - at no point should you be able to see the shape of the trace in this gif, and if you do see it, you have overcorrected the data!
