@@ -41,5 +41,6 @@ halfwidths_opt  (12,12)                                     # Lst of ints. The h
 # Step 4: 1D spectral cleaning and aligning
 outlier_sigma   3.5                                         # Float. Sigma at which to reject spectral outliers in time. Outliers are replaced with median of timeseries. Enter False to skip this step.
 align           True                                        # Bool. If True, uses cross-correlation to align spectra to keep wavelength solution consistent.
+apply_align     True                                        # Bool. If False while Align is True, then the wavelength shifts will be measured but the spectra will not be shifted. Useful for diagnosing align efficacy.
 
 # ENDPARSE
