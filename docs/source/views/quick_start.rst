@@ -1,5 +1,6 @@
 Quick start
 ===========
+Prefer Jupyter notebooks? A .ipynb of this quick start guide is also available on `GitHub <https://github.com/Exo-TiC/HUSTLE-tools/blob/main/tutorials/HUSTLE_tools_quickstart.ipynb>`_!
 
 Ready to get going with :code:`HUSTLE-tools`? This quick start guide will help you understand the basics of running :code:`HUSTLE-tools` on your G280 data. More detailed instructions for each stage can be found in the `Tutorials <https://hustle-tools.readthedocs.io/en/latest/views/tutorials.html>`_ page.
 

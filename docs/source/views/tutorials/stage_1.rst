@@ -1,5 +1,6 @@
 Stage 1: Reduction
 ======================
+Prefer Jupyter notebooks? A .ipynb of this tutorial is also available on `GitHub <https://github.com/Exo-TiC/HUSTLE-tools/blob/main/tutorials/HUSTLE_tools_stage1.ipynb>`_!
 
 **NOTE: Make sure you ran Stage 0: Data Handling before attempting this stage!**
   

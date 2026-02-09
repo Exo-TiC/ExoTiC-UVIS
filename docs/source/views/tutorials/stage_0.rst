@@ -1,9 +1,10 @@
 Stage 0: Data Handling
 ======================
+Prefer Jupyter notebooks? A .ipynb of this tutorial is also available on `GitHub <https://github.com/Exo-TiC/HUSTLE-tools/blob/main/tutorials/HUSTLE_tools_stage0.ipynb>`_!
 
 The first stage of any data reduction project is to download the data. :code:`HUSTLE-tools` Stage 0 handles downloading and organizing the data for your program ID, visit number, and target of interest. The only engagement required from you is to supply the .hustle configuration file and identify the target star in the direct image. This tutorial will walk you through this process.
 
-Creating the Stage 0 configuration file
+1. Creating the Stage 0 configuration file
 ---------------------------------------
 
 The first step is to create the configuration file that will guide the execution of Stage 0. Create a folder to store the configuration file in, e.g. :code:`configs/`. Then create :code:`configs/stage_0_input_config.hustle` and populate it with the following template:

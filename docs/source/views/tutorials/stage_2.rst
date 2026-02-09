@@ -1,5 +1,6 @@
 Stage 2: Extraction
 ======================
+Prefer Jupyter notebooks? A .ipynb of this tutorial is also available on `GitHub <https://github.com/Exo-TiC/HUSTLE-tools/blob/main/tutorials/HUSTLE_tools_stage2.ipynb>`_!
 
 **NOTE: Make sure you ran Stage 0: Data Handling and Stage 1: Reduction before attempting this stage!**
   
@@ -16,8 +17,8 @@ The first step is to create the configuration file that will guide the execution
   
   # Setup for Stage 2
   toplevel_dir    'output'                                    # Directory where your current project files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data as well as the outputs folder.
-  input_run       'run_1'                                     # Str. This is the name of the Stage 1 run you want to load.
-  output_run      'run_1'                                     # Str. This is the name to save the current run to. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).
+  input_run       'run1'                                      # Str. This is the name of the Stage 1 run you want to load.
+  output_run      'run1'                                      # Str. This is the name to save the current run to. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).
   verbose         2                                           # Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.
   show_plots      2                                           # Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.
   save_plots      2                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
