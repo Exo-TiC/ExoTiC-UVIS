@@ -3,6 +3,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import medfilt2d
+from scipy.ndimage import maximum_filter
 
 from hustle_tools.plotting import plot_exposure, plot_flags_per_time
 
@@ -58,6 +59,12 @@ def correct_hst_flags(obs, flags=[4,16,4096], replace=True,
                 if target_flag >= 4096:
                     # Needs to be corrected with time median.
                     images[i] = np.where(dq>0,np.median(images,axis=0),images[i])
+                elif target_flag == 256:
+                    # Saturated pixel. Needs to be zero in all time,
+                    # and needs to be bloomed.
+                    dq = maximum_filter(dq,size=7)
+                    for k in range(images.shape[0]):
+                        images[k] = np.where(dq>0,0,images[k])
                 else:
                     # Needs to be corrected with spatial median.
                     images[i] = np.where(dq>0,medfilt2d(images[i],kernel_size=7),images[i])
