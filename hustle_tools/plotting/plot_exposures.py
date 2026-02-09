@@ -20,23 +20,17 @@ def plot_exposure(images, line_data = None, scatter_data = None,
 
     Args:
         images (np.array): images from the obs.images.
-        line_data (list, optional): list of lists of x, y values denoting
-        lines you want to draw on the plot. Defaults to None.
-        scatter_data (list, optional): list of x, y points you want to
-        scatter on the plot. Defaults to None.
-        extent (tuple of float, optional): if not None, defines bounds
-        of array you want to plot. Defaults to None.
+        line_data (list, optional): list of lists of x, y values denoting lines you want to draw on the plot. Defaults to None.
+        scatter_data (list, optional): list of x, y points you want to scatter on the plot. Defaults to None.
+        extent (tuple of float, optional): if not None, defines bounds of array you want to plot. Defaults to None.
         title (str, optional): title for the plot. Defaults to None.
         min (int, optional): darkest point for the colormap. Defaults to 1e-3.
         max (int, optional): brightest point for the colormap. Defaults to 1e4.
-        mark_size (int, optional): size of scatter points, if scatter_data
-        is not None. Defaults to 30.
-        show_plot (bool, optional): whether to interrupt execution to show
-        the user the plot. Defaults to False.
+        mark_size (int, optional): size of scatter points, if scatter_data is not None. Defaults to 30.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
         save_plot (bool, optional): whether to save this plot. Defaults to False.
         filename (list of str, optional): name for each plot file. Defaults to None.
-        output_dir (str, optional): where to save the plots to, if save_plots is
-        True. Defaults to None.
+        output_dir (str, optional): where to save the plots to, if save_plots is True. Defaults to None.
     """
     
     for i, data in enumerate(images): 

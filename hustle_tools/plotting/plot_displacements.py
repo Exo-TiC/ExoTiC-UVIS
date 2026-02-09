@@ -24,12 +24,9 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos,
         mean_loc (np.array): mean absolute location of each star.
         mean_pos (np.array): mean relative position of each star.
         stars_pos (np.array): relative position of each star over time.
-        show_plot (bool, optional): whether to interrupt execution to
-        show the user the plot. Defaults to False.
-        save_plot (bool, optional): whether to save the plot to a file.
-        Defaults to False.
-        output_dir (str, optional): output directory where the plot will be
-        saved. Defaults to None.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save the plot to a file. Defaults to False.
+        output_dir (str, optional): output directory where the plot will be saved. Defaults to None.
     """
 
     # first just plot the example frame and where the stars we tracked are
@@ -88,12 +85,9 @@ def plot_0th_order(exp_time, xs, ys,
         exp_times (np.array): BJD exposure times for each frame.
         xs (np.array): 0th order x positions.
         ys (np.array): 0th order y positions.
-        show_plot (bool, optional): whether to interrupt execution to
-        show the user the plot. Defaults to False.
-        save_plot (bool, optional): whether to save the plot to a file.
-        Defaults to False.
-        output_dir (str, optional): output directory where the plot will be
-        saved. Defaults to None.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save the plot to a file. Defaults to False.
+        output_dir (str, optional): output directory where the plot will be saved. Defaults to None.
     """
 
     # initialize figure and plot x motion of 0th order

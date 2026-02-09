@@ -24,12 +24,10 @@ def get_images(data_dir,
 
     Args:
         data_dir (str): directory where the images you want to load are.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
 
     Returns:
-        np.array,np.array,np.array,np.array: images, exposure times,
-        flux of the whole images, and flux from the section.
+        np.array,np.array,np.array,np.array: images, exposure times, flux of the whole images, and flux from the section.
     """
 
     # initialize image and exposure time arrays
@@ -80,12 +78,10 @@ def parse_xarr(obs,
 
     Args:
         obs (xarray): xarray containing the reduced images.
-        verbose (int, optional): how detailed you want the printed statements to be.
-        Defaults to 0.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
 
     Returns:
-        np.array,np.array,np.array,np.array: images, exposure times,
-        flux of the whole images, and flux from the section.
+        np.array,np.array,np.array,np.array: images, exposure times, flux of the whole images, and flux from the section.
     """
 
     # initialize flux arrays
@@ -132,10 +128,8 @@ def create_gif(exp_times, images, total_flux, partial_flux, section,
         partial_flux (np.array): flux summed from the section of each 2D image.
         section (lst of int): the subsection of image you measured flux in.
         output_dir (str): where to save the gif to.
-        show_fig (bool, optional): whether to show the figure or not.
-        Defaults to False.
-        save_fig (bool, optional): wether to save the figure or not.
-        Defaults to False.
+        show_fig (bool, optional): whether to show the figure or not. Defaults to False.
+        save_fig (bool, optional): wether to save the figure or not. Defaults to False.
     """
 
     # avoid zero and negative values for log plot
@@ -222,10 +216,8 @@ def create_dq_gif(exp_times, images, dq, section,
         dq (np.array): Array of 2D images showing pixels flagged for DQ.
         section (lst of int): the subsection of image you measured flux in.
         output_dir (str): where to save the gif to.
-        show_fig (bool, optional): whether to show the figure or not.
-        Defaults to False.
-        save_fig (bool, optional): wether to save the figure or not.
-        Defaults to False.
+        show_fig (bool, optional): whether to show the figure or not. Defaults to False.
+        save_fig (bool, optional): wether to save the figure or not. Defaults to False.
     """
 
     # create animation
@@ -311,16 +303,11 @@ def quicklookup(data_dir,
     """Wrapper for quicklookup functions.
 
     Args:
-        data_dir (str or xarray): directory where the images you want to load
-        are, or axarray containing the data already reduced.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to display.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save. 
-        Defaults to 0.
-        output_dir (str, optional): directory where the gif should be saved,
-        if save_plots >= 1. Defaults to None.
+        data_dir (str or xarray): directory where the images you want to load are, or axarray containing the data already reduced.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to display. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): directory where the gif should be saved, if save_plots >= 1. Defaults to None.
     """
 
     # get images and exposure times

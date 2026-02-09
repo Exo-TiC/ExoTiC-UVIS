@@ -17,20 +17,16 @@ def plot_corners(image, corners,
                  min = 1e-3, max = 1e4,
                  show_plot = False, save_plot = False, 
                  output_dir = None):
-    """Function to plot exposure with rectangles to indicate the corners used
-    for background subtraction.
+    """Function to plot exposure with rectangles to indicate the corners used for background subtraction.
 
     Args:
         image (np.array): 2D image from the obs xarray.
-        corners (lst of lsts): x, y bounds of each rectangle used to define
-        the corners from which the background is measured.
+        corners (lst of lsts): x, y bounds of each rectangle used to define the corners from which the background is measured.
         min (int, optional): darkest point for the colormap. Defaults to 1e-3.
         max (int, optional): brightest point for the colormap. Defaults to 1e4.
-        show_plot (bool, optional): whether to interrupt execution to show
-        the user the plot. Defaults to False.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
         save_plot (bool, optional): whether to save this plot. Defaults to False.
-        output_dir (str, optional): output directory where the plot will be
-        saved. Defaults to None.
+        output_dir (str, optional): output directory where the plot will be saved. Defaults to None.
     """
     
     image = image.copy()
@@ -75,14 +71,10 @@ def plot_bkgvals(exp_times, bkg_vals, method,
     Args:
         exp_times (np.array): BJD exposure times for each frame.
         bkg_vals (np.array): 1D or 2D array of measured background values.
-        method (str): The method used for background subtraction, useful to
-        distinguish each plot file from each other.
-        output_dir (str, optional): output directory where the plot will be
-        saved. Defaults to None.
-        save_plot (bool, optional): whether to save the plot to a file.
-        Defaults to False.
-        show_plot (bool, optional): whether to interrupt execution to
-        show the user the plot. Defaults to False.
+        method (str): The method used for background subtraction, useful to distinguish each plot file from each other.
+        output_dir (str, optional): output directory where the plot will be saved. Defaults to None.
+        save_plot (bool, optional): whether to save the plot to a file. Defaults to False.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
     """
 
     # initialize figure
@@ -128,14 +120,10 @@ def plot_mode_v_params(exp_times, modes, params,
     Args:
         exp_times (np.array): BJD exposure times for each frame.
         modes (np.array): measured mode of each frame, used for comparison.
-        params (np.array): Pagul+ sky image scaling parameter. Ideally, the
-        mode and scaling parameters should not be too different.
-        output_dir (str, optional): output directory where the plot will be
-        saved. Defaults to None.
-        save_plot (bool, optional): whether to save the plot to a file.
-        Defaults to False.
-        show_plot (bool, optional): whether to interrupt execution to
-        show the user the plot. Defaults to False.
+        params (np.array): Pagul+ sky image scaling parameter. Ideally, the mode and scaling parameters should not be too different.
+        output_dir (str, optional): output directory where the plot will be saved. Defaults to None.
+        save_plot (bool, optional): whether to save the plot to a file. Defaults to False.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
     """
 
     # initialize figure
@@ -170,21 +158,15 @@ def plot_histogram(bin_cents, array, mode, median, exp_num,
 
     Args:
         bin_cents (array-like): centers of each bin.
-        array (array-like): flattened image data for which the histogram
-        was computed.
+        array (array-like): flattened image data for which the histogram was computed.
         mode (float): mode of the array without any fit or trim.
         median (float): median of the array without any fit or trim.
         exp_num (float): exposure number.
-        gaussian_center (float, optional): if not False, center of the Gaussian
-        fit to plot. Defaults to False.
-        gaussian_fit (array-like, optional): if not None, the Gaussian fit
-        to plot. Defaults to None.
-        show_plots (bool, optional): whether to show this plot.
-        Defaults to False.
-        save_plots (bool, optional): whether to save this plot.
-        Defaults to False.
-        output_dir (str, optional): where to save the plot to, if save_plot
-        is True. Defaults to None.
+        gaussian_center (float, optional): if not False, center of the Gaussian fit to plot. Defaults to False.
+        gaussian_fit (array-like, optional): if not None, the Gaussian fit to plot. Defaults to None.
+        show_plots (bool, optional): whether to show this plot. Defaults to False.
+        save_plots (bool, optional): whether to save this plot. Defaults to False.
+        output_dir (str, optional): where to save the plot to, if save_plot is True. Defaults to None.
     """
 
     plt.figure(figsize = (10, 7))

@@ -22,12 +22,9 @@ def plot_profile_fit(y_vals, profile, gaussian_fit, cal_center, fit_center,
         gaussian_fit (array-like): fitted profiles as a function of y.
         cal_center (float): calculated center of the pulled profiles.
         fit_center (float): fitted center of the fitted profiles.
-        show_plot (bool, optional): whether to show this plot.
-        Defaults to False.
-        save_plot (bool, optional): whether to save this plot.
-        Defaults to False.
-        output_dir (str, optional): where this plot is being saved to,
-        if save_plot is True. Defaults to None.
+        show_plot (bool, optional): whether to show this plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot. Defaults to False.
+        output_dir (str, optional): where this plot is being saved to, if save_plot is True. Defaults to None.
     """
 
     plt.figure(figsize = (10, 7))
@@ -65,16 +62,11 @@ def plot_fitted_positions(trace_x, trace_y, trace, exp_num, fitted_trace = None,
         trace_y (array-like): GRISMCONF solution to the rows.
         trace (array-like): _description_
         exp_num (int): which frame this is, for plot title and filename.
-        fitted_trace (array-like, optional): a polynomial fit to the trace
-        center, may or may not be performed. Defaults to None.
-        show_plot (bool, optional): whether to interrupt execution to show the
-        user the plot. Defaults to False.
-        save_plot (bool, optional): whether to save this plot to a file.
-        Defaults to False.
-        filename (str, optional): name to give this file, if saving.
-        Defaults to None.
-        output_dir (str, optional): where to save the file, if saving.
-        Defaults to None.
+        fitted_trace (array-like, optional): a polynomial fit to the trace center, may or may not be performed. Defaults to None.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot to a file. Defaults to False.
+        filename (str, optional): name to give this file, if saving. Defaults to None.
+        output_dir (str, optional): where to save the file, if saving. Defaults to None.
     """
 
     # plot the computed positions and compare to calibration trace

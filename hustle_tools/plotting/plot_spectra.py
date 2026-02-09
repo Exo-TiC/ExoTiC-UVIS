@@ -21,16 +21,11 @@ def plot_one_spectrum(wavelengths, spectrum, order="+1",
     Args:
         wavelengths (np.array): wavelength solution for given order.
         spectrum (np.array): 1D extracted spectrum.
-        order (str, optional): which order this is, for plot title.
-        Defaults to "+1".
-        show_plot (bool, optional): whether to interrupt execution to
-        show the user the plot. Defaults to False.
-        save_plot (bool, optional): whether to save this plot to a file.
-        Defaults to False.
-        filename (str, optional): name to give this file, if saving.
-        Defaults to None.
-        output_dir (str, optional): where to save the file, if saving.
-        Defaults to None.
+        order (str, optional): which order this is, for plot title. Defaults to "+1".
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot to a file. Defaults to False.
+        filename (str, optional): name to give this file, if saving. Defaults to None.
+        output_dir (str, optional): where to save the file, if saving. Defaults to None.
     """
     # define order colors
     colors = {"+1":'indianred',"-1":'dodgerblue',
@@ -71,16 +66,11 @@ def plot_spec_gif(wav, spec, order="+1",
     Args:
         wav (np.array): wavelength solution for given orders.
         spec (np.array): 1D extracted spectra.
-        order (str, optional): which order we are plotting, for plot title.
-        Defaults to "+1".
-        show_plot (bool, optional): whether to interrupt execution to
-        show the user the plot. Defaults to False.
-        save_plot (bool, optional): whether to save this plot to a file.
-        Defaults to False.
-        filename (str, optional): name to give this file, if saving.
-        Defaults to None.
-        output_dir (str, optional): where to save the file, if saving.
-        Defaults to None.
+        order (str, optional): which order we are plotting, for plot title. Defaults to "+1".
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot to a file. Defaults to False.
+        filename (str, optional): name to give this file, if saving. Defaults to None.
+        output_dir (str, optional): where to save the file, if saving. Defaults to None.
     """
 
     # define order colors
@@ -150,14 +140,10 @@ def plot_2d_spectra(wav, spec, order="+1",
     Args:
         wav (np.array): wavelength solution for given orders.
         spec (np.array): 1D extracted spectra.
-        show_plot (bool, optional): whether to interrupt execution to
-        show the user the plot. Defaults to False.
-        save_plot (bool, optional): whether to save this plot to a file.
-        Defaults to False.
-        filename (str, optional): name to give this file, if saving.
-        Defaults to None.
-        output_dir (str, optional): where to save the file, if saving.
-        Defaults to None.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot to a file. Defaults to False.
+        filename (str, optional): name to give this file, if saving. Defaults to None.
+        output_dir (str, optional): where to save the file, if saving. Defaults to None.
     """
     
     # normalize spectra
