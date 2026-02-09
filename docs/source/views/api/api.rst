@@ -105,3 +105,75 @@ Extraction
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+Plotting Backend
+'''''''''''''''''
+
+Plotting Background Subtraction
+----------------------------
+.. automodule:: hustle_tools.plotting.plot_bkgsubtraction
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Plotting Displacements
+----------------------------
+.. automodule:: hustle_tools.plotting.plot_displacements
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Plotting Exposures
+----------------------------
+.. automodule:: hustle_tools.plotting.plot_exposures
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Plotting Quicklooks
+----------------------------
+.. automodule:: hustle_tools.plotting.plot_quicklook
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Plotting Spectra
+----------------------------
+.. automodule:: hustle_tools.plotting.plot_spectra
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Plotting Time Series
+----------------------------
+.. automodule:: hustle_tools.plotting.plot_timeseries
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Plotting Traces
+----------------------------
+.. automodule:: hustle_tools.plotting.plot_traces
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Configuration File Backend
+'''''''''''''''''
+
+Config Parser
+----------------------------
+.. automodule:: hustle_tools.read_and_write_config.parser
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Config Writer
+----------------------------
+.. automodule:: hustle_tools.read_and_write_config.writer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
