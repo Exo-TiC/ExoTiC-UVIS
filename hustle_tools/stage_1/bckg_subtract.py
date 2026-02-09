@@ -13,37 +13,22 @@ from hustle_tools.plotting import plot_exposure, plot_corners, plot_bkgvals, plo
 def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
                            smooth_fits=True, smooth_parameter=3.0, median_on_columns=True,
                            verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
-    """Scales the supplied Pagul et al. G280 sky image to each frame and
-    subtracts the scaled image as background.
+    """Scales the supplied Pagul et al. G280 sky image to each frame and subtracts the scaled image as background.
 
     Args:
         obs (xarray): obs.images contains the data to be corrected.
-        pagul_path (str): path to your chosen Pagul et al. sky image. There
-        are a few options from different years, chips, calibrations, etc.
-        masking_parameter (float, optional): how aggressively to mask the
-        source. Values of 0.001 or less recommended. A good value should make
-        the Pagul et al. scaling parameters similar to the frame mode.
-        Defaults to 0.001.
-        smooth_fits (bool, optional): whether to smooth the scaling parameters
-        in time. Helps prevent background "flickering" in event of minor bckg
-        bimodality. Defaults to True.
-        smooth_parameter (float, optional): if smooth_fits is True, sigma
-        for smoothing. Defaults to 3.0.
-        median_on_columns (bool, optional): if True, take the median value of
-        the Pagul et al. sky image along columns. Approximately eliminates
-        contamination from poorly-sampled parts of sky. Defaults to True.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        pagul_path (str): path to your chosen Pagul et al. sky image. There are a few options from different years, chips, calibrations, etc.
+        masking_parameter (float, optional): how aggressively to mask the source. Values of 0.001 or less recommended. A good value should make the Pagul et al. scaling parameters similar to the frame mode. Defaults to 0.001.
+        smooth_fits (bool, optional): whether to smooth the scaling parameters in time. Helps prevent background "flickering" in event of minor bckg bimodality. Defaults to True.
+        smooth_parameter (float, optional): if smooth_fits is True, sigma for smoothing. Defaults to 3.0.
+        median_on_columns (bool, optional): if True, take the median value of the Pagul et al. sky image along columns. Approximately eliminates contamination from poorly-sampled parts of sky. Defaults to True.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        xarray: obs with sky-corrected images and with bkg values saved to
-        ['bkg_vals'] keyword.
+        xarray: obs with sky-corrected images and with bkg values saved to ['bkg_vals'] keyword.
     """
 
     # copy images
@@ -155,27 +140,16 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0,
 
     Args:
         array (np.array): 2D image array.
-        hist_min (float): lower bound of values to consider when building
-        the histogram.
-        hist_max (float): upper bound of values to consider when building
-        the histogram.
+        hist_min (float): lower bound of values to consider when building the histogram.
+        hist_max (float): upper bound of values to consider when building the histogram.
         hist_bins (int): number of bins to use for the calculation.
-        fit (str or None, optional): type of fit to apply to the histogram.
-        Options are 'Gaussian' (fits a 1D Gaussian to the histogram),
-        'median' (takes the median of the histogram), or can be left as
-        None to use just the histogram's mode. Defaults to None.
-        ind (int, optional): index of this array, used for naming the plot.
-        Defaults to 0.
-        method (str, optional): method used to calculate background value.
-        Options are 'full-frame' or 'corners'. Defaults to None.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plot (bool, optional): whether to show this plot.
-        Defaults to False.
-        save_plot (bool, optional): whether to save this plot.
-        Defaults to False.
-        output_dir (str, optional): where to save the plot to, if save_plot
-        is True. Defaults to None.
+        fit (str or None, optional): type of fit to apply to the histogram. Options are 'Gaussian' (fits a 1D Gaussian to the histogram), 'median' (takes the median of the histogram), or can be left as None to use just the histogram's mode. Defaults to None.
+        ind (int, optional): index of this array, used for naming the plot. Defaults to 0.
+        method (str, optional): method used to calculate background value. Options are 'full-frame' or 'corners'. Defaults to None.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plot (bool, optional): whether to show this plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot. Defaults to False.
+        output_dir (str, optional): where to save the plot to, if save_plot is True. Defaults to None.
 
     Returns:
         float: background value for this array.
@@ -233,33 +207,22 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0,
 def uniform_value_bkg_subtraction(obs, fit = None, bounds = None,
                                   hist_min = -20, hist_max = 50, hist_bins = 1000,
                                   verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
-    """ Function to compute a uniform background value per frame, using either
-     the full frame or using subsets of the image.
+    """ Function to compute a uniform background value per frame, using either the full frame or using subsets of the image.
 
     Args:
         obs (xarray): obs.images contains the data to be corrected.
-        fit (str or None, optional): type of fit to apply to the histogram.
-        Options are 'Gaussian' (fits a 1D Gaussian to the histogram),
-        'median' (takes the median of the histogram), or can be left as
-        None to use just the histogram's mode. Defaults to None.
-        bounds (list of int, optional): bounds from which to draw the corners, if
-        using corners. Use None to draw from the full frame. Defaults to None.
+        fit (str or None, optional): type of fit to apply to the histogram. Options are 'Gaussian' (fits a 1D Gaussian to the histogram), 'median' (takes the median of the histogram), or can be left as None to use just the histogram's mode. Defaults to None.
+        bounds (list of int, optional): bounds from which to draw the corners, if using corners. Use None to draw from the full frame. Defaults to None.
         hist_min (int, optional): lower bound for bckg values. Defaults to -20.
         hist_max (int, optional): upper bound for bckg values. Defaults to 50.
-        hist_bins (int, optional): number of bins for calculating the mode.
-        Cannot exceed number of pixels available. Defaults to 1000.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        hist_bins (int, optional): number of bins for calculating the mode. Cannot exceed number of pixels available. Defaults to 1000.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        xarray: obs with sky-corrected images and with bkg values saved to
-        ['bkg_vals'] keyword.
+        xarray: obs with sky-corrected images and with bkg values saved to ['bkg_vals'] keyword.
     """
 
     # copy images
@@ -333,26 +296,17 @@ def column_by_column_subtraction(obs, rows=np.array([i for i in range(10)]), sig
 
     Args:
         obs (xarray): obs.images contains the data to be corrected.
-        rows (array-like, optional): indices of rows to treat as the background.
-        Ignored if mask_trace is True. Defaults to [i for i in range(10)].
-        sigma (int, optional): used to clean outliers from the background.
-        Defaults to 3.
-        mask_trace (bool, optional): whether to fit a mask to the trace so
-        that it does not affect the computed bckg value. Defaults to True.
-        width (int, optional): if mask_trace is True, how far from the trace
-        up and down to mask out. Defaults to 100.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        rows (array-like, optional): indices of rows to treat as the background. Ignored if mask_trace is True. Defaults to [i for i in range(10)].
+        sigma (int, optional): used to clean outliers from the background. Defaults to 3.
+        mask_trace (bool, optional): whether to fit a mask to the trace so that it does not affect the computed bckg value. Defaults to True.
+        width (int, optional): if mask_trace is True, how far from the trace up and down to mask out. Defaults to 100.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        xarray: obs with sky-corrected images and with bkg images saved to
-        ['bkg_vals'] keyword.
+        xarray: obs with sky-corrected images and with bkg images saved to ['bkg_vals'] keyword.
     """
 
     # copy images

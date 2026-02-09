@@ -7,26 +7,19 @@ from hustle_tools.plotting import plot_exposure, plot_flags_per_time
 
 def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
                               verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
-    """Iterates a fixed number of times using a different sigma at each
-    iteration to reject cosmic rays.
+    """Iterates a fixed number of times using a different sigma at each iteration to reject cosmic rays.
 
     Args:
         obs (xarray): obs.images DataSet contains the images.
-        sigmas (list, optional): sigma to use for each iteration. len(sigmas)
-        is the number of iterations that will be run. Defaults to [10,10].
-        replacement (int, optional): if None, replace outlier pixels with
-        median in time. If int, replace with median of int values either side
-        in time. Defaults to None.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
+        sigmas (list, optional): sigma to use for each iteration. len(sigmas) is the number of iterations that will be run. Defaults to [10,10].
+        replacement (int, optional): if None, replace outlier pixels with median in time. If int, replace with median of int values either side in time. Defaults to None.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
         show_plots (int, optional): how many plots you want to show. Defaults to 0.
         save_plots (int, optional): how many plots you want to save. Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        xarray: obs with .images cleaned of CRs and with .data_quality updated
-        to indicate where CRs were found.
+        xarray: obs with .images cleaned of CRs and with .data_quality updated to indicate where CRs were found.
     """
     # Copy images and define hit map.
     images = obs.images.data.copy()
@@ -121,13 +114,11 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
 
 
 def array1D_clip(array, threshold = 3.5):
-    """Function to detect and replace outliers in a 1D array above or below
-    a certain sigma threshold imposed.
+    """Function to detect and replace outliers in a 1D array above or below a certain sigma threshold imposed.
 
     Args:
         array (np.array): pixel time series to be cleaned for outliers.
-        threshold (float, optional): threshold at which to call a value
-        an outlier. Defaults to 3.5.
+        threshold (float, optional): threshold at which to call a value an outlier. Defaults to 3.5.
 
     Returns:
         np.array: cleaned time series and mask marking where outliers were found.
@@ -161,18 +152,14 @@ def free_iteration_rejection(obs, threshold = 3.5,
 
     Args:
         obs (xarray): obs.images DataSet contains the images.
-        threshold (float, optional): sigma at which to reject outliers until
-        no more are found at this level. Defaults to 3.5.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
+        threshold (float, optional): sigma at which to reject outliers until no more are found at this level. Defaults to 3.5.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
         show_plots (int, optional): how many plots you want to show. Defaults to 0.
         save_plots (int, optional): how many plots you want to save. Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        xarray: obs with .images cleaned of CRs and with .data_quality updated
-        to indicate where CRs were found.
+        xarray: obs with .images cleaned of CRs and with .data_quality updated to indicate where CRs were found.
     """
     
     # copy images and define hit map

@@ -13,12 +13,9 @@ def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose
 
     Args:
         data_dir (str): folder where the spec and direct image subfolders are.
-        skip_first_fm (bool, optional): whether to remove all first frames from
-        each orbit. Defaults to False.
-        skip_first_or (bool, optional): whether to remove the first orbit from
-        the dataset. Defaults to False.
-        verbose (int, optional): How detailed the print statements should be
-        on a scale of 0-2. Defaults to 2.
+        skip_first_fm (bool, optional): whether to remove all first frames from each orbit. Defaults to False.
+        skip_first_or (bool, optional): whether to remove the first orbit from the dataset. Defaults to False.
+        verbose (int, optional): How detailed the print statements should be on a scale of 0-2. Defaults to 2.
 
     Returns:
         xarray: images and all associated data needed for reduction.
@@ -114,8 +111,7 @@ def save_data_S1(obs, output_dir, filename = 'clean_obs'):
     Args:
         obs (xarray): reduced observations as an xarray.
         output_dir (str): folder where the outputs are saved to.
-        filename (str, optional): name to give to the cleaned files.
-        Defaults to 'clean_obs'.
+        filename (str, optional): name to give to the cleaned files. Defaults to 'clean_obs'.
     """
     
     obs.to_netcdf(os.path.join(output_dir, f'{filename}.nc'))

@@ -13,16 +13,11 @@ def refine_location(obs, window=20,
 
     Args:
         obs (xarray): obs.direct_image contains the direct image of the source.
-        window (int, optional): how far around the source to draw the window
-        for centroiding. Defaults to 20.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        window (int, optional): how far around the source to draw the window for centroiding. Defaults to 20.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
     """
 
     if verbose >= 1:
@@ -69,16 +64,11 @@ def track_bkgstars(obs, bkg_stars, window = 15,
     Args:
         obs (xarray): obs.images contains the images of the stars.
         bkg_stars (list of list): estimated positions of stars to track.
-        window (int, optional): how far around the star to draw the window
-        for centroiding. Defaults to 15.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        window (int, optional): how far around the star to draw the window for centroiding. Defaults to 15.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         np.array, np.array: relative and average positions of each star in time.
@@ -148,16 +138,11 @@ def track_0thOrder(obs, guess,
 
     Args:
         obs (xarray): obs.images contains the images.
-        guess (lst of float): initial x, y offset guess for the
-        0th order's location.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        guess (lst of float): initial x, y offset guess for the 0th order's location.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         lst of float: location of the direct image in x, y floats.

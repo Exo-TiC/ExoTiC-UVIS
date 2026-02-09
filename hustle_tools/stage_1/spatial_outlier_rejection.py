@@ -15,25 +15,14 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=11, sigma=10, bounds_set=[[2
 
     Args:
         obs (xarray): obs.images contains the dataset we are cleaning.
-        type (str): options are "1D_smooth" (to use row-wise scipy
-        median-filtering),  "2D_smooth" (to use scipy 2D median-filtering),
-        and "polyfit" (to fit row-wise polynomials).
-        kernel (int or tup, optional): the size of the kernel used to compute
-        the median-filtered image. If using 1D_smooth, should be an odd int. If
-        using 2D_smooth, should be a tuple of two odd ints. Defaults to 11.
-        sigma (float, optional): threshold at which to remove an outlier.
-        Defaults to 10.
-        bounds_set (array-like, optional): whether to only perform spatial
-        smoothing on a subset of the array, for time-saving. If None, corrects
-        for the full frame. Defaults to [[260, 370, 640, 1100],].
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        type (str): options are "1D_smooth" (to use row-wise scipy median-filtering),  "2D_smooth" (to use scipy 2D median-filtering), and "polyfit" (to fit row-wise polynomials).
+        kernel (int or tup, optional): the size of the kernel used to compute the median-filtered image. If using 1D_smooth, should be an odd int. If using 2D_smooth, should be a tuple of two odd ints. Defaults to 11.
+        sigma (float, optional): threshold at which to remove an outlier. Defaults to 10.
+        bounds_set (array-like, optional): whether to only perform spatial smoothing on a subset of the array, for time-saving. If None, corrects for the full frame. Defaults to [[260, 370, 640, 1100],].
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         xarray: obs with images cleaned and data quality flags updated.
@@ -113,19 +102,15 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=11, sigma=10, bounds_set=[[2
 
 
 def spatial_2D_smooth(sub_image, kernel=(5,5), sigma=10):
-    """Uses scipy.signal.medfil2d to correct spatial outliers.
-    Adapted from routine developed by Trevor Foote (tof2@cornell.edu).
+    """Uses scipy.signal.medfil2d to correct spatial outliers. Adapted from routine developed by Trevor Foote (tof2@cornell.edu).
 
     Args:
         sub_image (array-like): a frame to clean of outliers.
-        kernel (tuple, optional): tuple of two odd ints which define the
-        kernel used for smoothing. Defaults to (5,5).
-        sigma (float, optional): threshold at which to remove an outlier.
-        Defaults to 10.
+        kernel (tuple, optional): tuple of two odd ints which define the kernel used for smoothing. Defaults to (5,5).
+        sigma (float, optional): threshold at which to remove an outlier. Defaults to 10.
 
     Returns:
-        array-like, array-like, array-like, array-like: the median-filtered
-        image, cleaned image, and maps of where pixels were hit in x and y.
+        array-like, array-like, array-like, array-like: the median-filtered image, cleaned image, and maps of where pixels were hit in x and y.
     """
 
     # build the median-filtered model
@@ -151,35 +136,22 @@ def spatial_2D_smooth(sub_image, kernel=(5,5), sigma=10):
 
 def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=False, contrast_factor=5,
                              verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
-    """Uses Laplacian Edge Detection (van Dokkum 2001) to detect cosmic rays
-    and hot/cold pixels.
+    """Uses Laplacian Edge Detection (van Dokkum 2001) to detect cosmic rays and hot/cold pixels.
 
     Args:
         obs (xarray): obs.images DataSet contains the images.
-        sigma (float, optional): sigma to use for detecting bad pixels and
-        replacing them. Defaults to 10.
-        factor (int, optional): subsampling factor, minimum value 2 to work.
-        Higher values increase computation time but don't tend to improve
-        the routine much, so best left at 2. Defaults to 2.
-        n (int, optional): how many iterations you want to run. Useful for
-        catching large blobs of bad pixels, as LED detects edges and not
-        interiors. Defaults to 2.
-        build_fine_structure (bool, optional): whether to build a fine structure
-        model to protect the trace against LED. Defaults to False.
-        contrast_factor (int, optional): the threshold for rejection when a fine
-        structure model is in use. Defaults to 5.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        sigma (float, optional): sigma to use for detecting bad pixels and replacing them. Defaults to 10.
+        factor (int, optional): subsampling factor, minimum value 2 to work. Higher values increase computation time but don't tend to improve the routine much, so best left at 2. Defaults to 2.
+        n (int, optional): how many iterations you want to run. Useful for catching large blobs of bad pixels, as LED detects edges and not interiors. Defaults to 2.
+        build_fine_structure (bool, optional): whether to build a fine structure model to protect the trace against LED. Defaults to False.
+        contrast_factor (int, optional): the threshold for rejection when a fine structure model is in use. Defaults to 5.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        xarray: obs with the .data cleaned of bad pixels and the .data_quality
-        updated to reflect where bad pixels were found.
+        xarray: obs with the .data cleaned of bad pixels and the .data_quality updated to reflect where bad pixels were found.
     """
 
     # Define the Laplacian kernel.
@@ -323,17 +295,14 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
 
 
 def build_noise_model(data_frame, readnoise):
-    """Builds a noise model for the given data frame, following van Dokkum
-    2001 methods.
+    """Builds a noise model for the given data frame, following van Dokkum 2001 methods.
 
     Args:
-        data_frame (np.array): frame from the images DataSet, used to build
-        the noise model.
+        data_frame (np.array): frame from the images DataSet, used to build the noise model.
         readnoise (float): readnoise estimated to be in the data frame.
 
     Returns:
-        np.array: 2D array same size as the data frame, a noise model describing
-        noise in the frame.
+        np.array: 2D array same size as the data frame, a noise model describing noise in the frame.
     """
 
     noise_model = np.sqrt(median_filter(np.abs(data_frame),size=5)+readnoise**2)
@@ -345,10 +314,8 @@ def subsample_frame(data_frame, factor=2):
     """Subsamples the input frame by the given subsampling factor.
 
     Args:
-        data_frame (np.array): Frame from the images DataSet, used to build
-        the noise model.
-        factor (int, optional): Factor by which to subsample the array which
-        must be >= 2. Defaults to 2.
+        data_frame (np.array): Frame from the images DataSet, used to build the noise model.
+        factor (int, optional): Factor by which to subsample the array which must be >= 2. Defaults to 2.
 
     Returns:
         np.array: 2D array same shape as data frame, subsampled by factor.
