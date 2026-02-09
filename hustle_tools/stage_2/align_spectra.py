@@ -9,24 +9,19 @@ from scipy import signal
 
 def cross_corr(spec, temp_spec, order='+1', i=0, trim = 1, fit_window = 5, subpix_width = 0.01,
                show_plots = 0, save_plots = 0, output_dir = None):
-    """Function to perform cross-correlation of two arrays.
-    Based on ExoTic-JEDI align_spectra.py code
+    """Function to perform cross-correlation of two arrays. Based on ExoTic-JEDI align_spectra.py code
 
     Args:
         spec (np.array): spectra that need to be aligned over time.
         temp_spec (np.array): template spectrum used to measure position shifts.
         order (str): for labelling plots correctly.
         i (float): for labelling plots correctly.
-        trim (int, optional): how many indices to take out from beginning and
-        end of each spectrum. Improves cross-correlation when 0s are at ends.
-        Defaults to 1.
+        trim (int, optional): how many indices to take out from beginning and end of each spectrum. Improves cross-correlation when 0s are at ends. Defaults to 1.
         fit_window (int, optional): used for measuring shifts. Defaults to 5.
-        subpix_width (float, optional): how finely to interpolate the spectra
-        when measuring the shifts. Defaults to 0.01.
+        subpix_width (float, optional): how finely to interpolate the spectra when measuring the shifts. Defaults to 0.01.
         show_plots (int, optional): how many plots you want to show. Defaults to 0.
         save_plots (int, optional): how many plots you want to save. Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         np.array: cross-dispersion shifts
@@ -97,14 +92,11 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
         specs_err (np.array): array of 1D spectral uncertainties.
         order (str): for labelling plots correctly.
         trace_x (np.array): x positions of the trace solution.
-        align (bool, optional): whether to apply the alignment to the spectra.
-        Defaults to False.
-        verbose (int, optional): How detailed you want the printed statements
-        to be. Defaults to 0.
+        align (bool, optional): whether to apply the alignment to the spectra. Defaults to False.
+        verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
         show_plots (int, optional): How many plots you want to show. Defaults to 0.
         save_plots (int, optional): How many plots you want to save. Defaults to 0.
-        output_dir (str, optional): Where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        output_dir (str, optional): Where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         xarray: aligned obs spectra.
@@ -200,14 +192,11 @@ def align_profiles(obs, trace_x, traces_y, order, width = 25,
         trace_x (np.array): dispersion solution of the profiles.
         traces_y (np.array): cross-dispersion solution of the profiles.
         order (str): which order we are aligning, for plot naming.
-        width (int, optional): how far from the trace center to measure.
-        Defaults to 25.
-        verbose (int, optional): How detailed you want the printed statements
-        to be. Defaults to 0.
+        width (int, optional): how far from the trace center to measure. Defaults to 25.
+        verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
         show_plots (int, optional): How many plots you want to show. Defaults to 0.
         save_plots (int, optional): How many plots you want to save. Defaults to 0.
-        output_dir (str, optional): Where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        output_dir (str, optional): Where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         np.array: cross-dispersion shifts over time.

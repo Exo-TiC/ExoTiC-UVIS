@@ -56,19 +56,16 @@ def remove_zeroth_order(obs, mode = 'radial_profile', zero_pos = [1158, 300],
 
     Args:
         obs (xarray): images to remove the 0th order from.
-        mode (str, optional): type of profile to model the 0th with.
-        Defaults to 'radial_profile'.
+        mode (str, optional): type of profile to model the 0th with. Defaults to 'radial_profile'.
         zero_pos (list, optional): _description_. Defaults to [1158, 300].
         rmin (int, optional): _description_. Defaults to 100.
         rmax (int, optional): _description_. Defaults to 300.
         rwidth (int, optional): _description_. Defaults to 3.
         fit_profile (bool, optional): _description_. Defaults to False.
-        verbose (int, optional): How detailed you want the printed statements
-        to be. Defaults to 0.
+        verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
         show_plots (int, optional): How many plots you want to show. Defaults to 0.
         save_plots (int, optional): How many plots you want to save. Defaults to 0.
-        output_dir (str, optional): Where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        output_dir (str, optional): Where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         array-like: obs corrected and a model of the 0th order in each frame.

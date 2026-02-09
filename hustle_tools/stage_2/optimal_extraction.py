@@ -23,24 +23,16 @@ def spatial_profile_smooth(image_org, kernel = 11, threshold = 5., std_window = 
 
     Args:
         image_org (array-like): original images to be modelled and cleaned.
-        kernel (int, optional): odd int which defines the size of the row filter.
-        Defaults to 11.
-        threshold (float, optional): threshold at which to kick outliers.
-        Defaults to 5..
-        std_window (int, optional): window over which to calculate the
-        standard deviation of the row. Defaults to 20.
-        median_window (int, optional): window over which to calculate
-        the median of the row. Defaults to 7.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        kernel (int, optional): odd int which defines the size of the row filter. Defaults to 11.
+        threshold (float, optional): threshold at which to kick outliers. Defaults to 5..
+        std_window (int, optional): window over which to calculate the standard deviation of the row. Defaults to 20.
+        median_window (int, optional): window over which to calculate the median of the row. Defaults to 7.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        array-like, array-like, array-like, array-like: the spatial profile,
-        cleaned image, and maps of where pixels were hit in x and y.
+        array-like, array-like, array-like, array-like: the spatial profile, cleaned image, and maps of where pixels were hit in x and y.
     """
     
     # copy image and initialize
@@ -121,17 +113,13 @@ def spatial_profile_smooth(image_org, kernel = 11, threshold = 5., std_window = 
 
 
 def spatial_profile_median(images, show_plots=0, save_plots=0, output_dir=None):
-    """Uses the entire time series of data to compute a median image,
-    normalized and then used as the spatial profile.
+    """Uses the entire time series of data to compute a median image, normalized and then used as the spatial profile.
 
     Args:
         images (array-like): full time series of observation.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         array-like: spatial profile for optimal extraction.
@@ -225,8 +213,7 @@ def window_profile(image, init_pix, fin_pix, pol_degree = 6,
 
 def spatial_profile(exp_ind, image_org, window = 40, threshold = 4., normalize = False,
                     show_plots=0, save_plots=0, output_dir=0):
-    """Builds a spatial profile using row-wise polynomial fits for every
-    row in the image. Used in the "polyfit" method of profile building.
+    """Builds a spatial profile using row-wise polynomial fits for every row in the image. Used in the "polyfit" method of profile building.
 
     Args:
         exp_ind (int): index of the exposure.
@@ -293,8 +280,7 @@ def spatial_profile(exp_ind, image_org, window = 40, threshold = 4., normalize =
 def spatial_profile_curved_poly(exp_ind, sub_image_org, image, tx_main, ty_main, low_val, up_val, init_spec = None, 
                                 fit_thresh = 4., fit_degree = 5, window = 50, correct_thresh = None,
                                 show_plots=0, save_plots=0, output_dir=0):
-    """Builds a spatial profile using curved polynomial fits.
-    Used in the "curved_poly" method of profile building.
+    """Builds a spatial profile using curved polynomial fits. Used in the "curved_poly" method of profile building.
 
     Args:
         exp_ind (int): index of the exposure.
@@ -309,12 +295,9 @@ def spatial_profile_curved_poly(exp_ind, sub_image_org, image, tx_main, ty_main,
         fit_degree (int, optional): _description_. Defaults to 5.
         window (int, optional): _description_. Defaults to 50.
         correct_thresh (_type_, optional): _description_. Defaults to None.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         _type_: _description_
@@ -438,30 +421,21 @@ def spatial_profile_curved_poly(exp_ind, sub_image_org, image, tx_main, ty_main,
 def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_type = 'polyfit', 
                        iterate = False, zero_bkg = None,
                        verbose=0, show_plots=0, save_plots=0, output_dir=None):
-    """Performs an optimal extraction with a spatial profile of choice following
-    the methods of Horne 1986.
+    """Performs an optimal extraction with a spatial profile of choice following the methods of Horne 1986.
 
     Args:
         obs (xarray): dataset from which we will extract the 1D spectra.
         trace_x (array-like): x column solutions of the trace to extract.
         traces_y (arary-like): y row solutions of the trace to extract.
-        width (int, optional): aperture halfwidth for extraction. For optimal,
-        ideally use a very large window since the weighting will take care of
-        the rest. Defaults to 25.
+        width (int, optional): aperture halfwidth for extraction. For optimal, ideally use a very large window since the weighting will take care of the rest. Defaults to 25.
         thresh (float, optional): _description_. Defaults to 17..
-        prof_type (str, optional): the type of profile to use for optimal
-        extraction. Options are 'median', 'polyfit', 'smooth', 'curved_poly',
-        or 'curved_smooth'. Defaults to 'polyfit'.
+        prof_type (str, optional): the type of profile to use for optimal extraction. Options are 'median', 'polyfit', 'smooth', 'curved_poly', or 'curved_smooth'. Defaults to 'polyfit'.
         iterate (bool, optional): _description_. Defaults to False.
         zero_bkg (_type_, optional): _description_. Defaults to None.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         array-like, array-like: optimally-extracted 1D spectra and uncertainties.

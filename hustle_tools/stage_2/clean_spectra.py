@@ -8,8 +8,7 @@ def clean_spectra(spec, sigma,
     Args:
         spec (np.array): spectrum to clean.
         sigma (float): threshold at which to reject a value as an outlier.
-        verbose (int, optional): How detailed you want the printed statements
-        to be. Defaults to 0.
+        verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
 
     Returns:
         np.array: input spectrum cleaned of final outliers.

@@ -15,18 +15,15 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
 
     Args:
         obs (xarray): obs.images contains the data.
-        halfwidth (int): "halfwidth" of the extraction aperture, which spans
-        from A-hw to A+hw where A is the index of the central row.
+        halfwidth (int): "halfwidth" of the extraction aperture, which spans from A-hw to A+hw where A is the index of the central row.
         trace_x (np.array): x positions of the pixels in the trace solution.
         trace_y (np.array): y positions of the pixels in the trace solution.
         order (str): for labelling plots correctly.
         masks (list): x, y, radii of objects in the aperture you want to mask.
-        verbose (int, optional): How detailed you want the printed statements
-        to be. Defaults to 0.
+        verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
         show_plots (int, optional): How many plots you want to show. Defaults to 0.
         save_plots (int, optional): How many plots you want to save. Defaults to 0.
-        output_dir (str, optional): Where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        output_dir (str, optional): Where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         np.array,np.array: 1D spectrum and errors.
@@ -92,13 +89,11 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
 
 
 def get_trace(frame, halfwidth, xs, ys):
-    """Short function to pull a trace region from a frame using the given
-    solution and halfwidth.
+    """Short function to pull a trace region from a frame using the given solution and halfwidth.
 
     Args:
         frame (np.array): one frame from obs.images Dataset.
-        halfwidth (int): halfwidth of extraction. Pulls pixels from A-hw to
-        A+hw where A is the central row index.
+        halfwidth (int): halfwidth of extraction. Pulls pixels from A-hw to A+hw where A is the central row index.
         xs (np.array): x positions of the pixels in the trace solution.
         ys (np.array): y positions of the pixels in the trace solution.
 
@@ -115,8 +110,7 @@ def get_trace(frame, halfwidth, xs, ys):
 
 
 def box(trace):
-    """The simplest extraction method, this routine sums the trace along
-    columns without any weighting.
+    """The simplest extraction method, this routine sums the trace along columns without any weighting.
 
     Args:
         trace (np.array): one frame in time showing the trace at integration k.
@@ -129,8 +123,7 @@ def box(trace):
 
 def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10],[-10,-1]),
                               verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
-    """Extracts multiple standard white light curves and determines the half-width
-    that minimizes scatter out of transit/eclipse.
+    """Extracts multiple standard white light curves and determines the half-width that minimizes scatter out of transit/eclipse.
 
     Args:
         obs (xarray): obs.images DataSet contains the images.
@@ -138,14 +131,11 @@ def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10
         trace_x (np.array): x positions of the pixels in the trace solutions.
         trace_y (np.array): y positions of the pixels in the trace solutions.
         wavs (np.array): wavelength solution for each image.
-        indices (tuple, optional): indices that define the out-of-transit/eclipse
-        flux, for which scatter is measured. Defaults to ([0,10],[-10,-1]).
-        verbose (int, optional): How detailed you want the printed statements
-        to be. Defaults to 0.
+        indices (tuple, optional): indices that define the out-of-transit/eclipse flux, for which scatter is measured. Defaults to ([0,10],[-10,-1]).
+        verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
         show_plots (int, optional): How many plots you want to show. Defaults to 0.
         save_plots (int, optional): How many plots you want to save. Defaults to 0.
-        output_dir (str, optional): Where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        output_dir (str, optional): Where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         int: half-width integer that minimizes scatter.
@@ -201,14 +191,12 @@ def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10
 
 
 def est_errs(time, flx, kick_outliers=True):
-    """Simple function for estimating the scatter in the
-    out-of-transit/eclipse flux.
+    """Simple function for estimating the scatter in the out-of-transit/eclipse flux.
 
     Args:
         time (np.array): timestamps for exposures.
         flx (np.array): oot/ooe flux.
-        kick_outliers (bool, optional): Whether to remove outliers like CRs
-        from the array to get more accurate scatter estimation. Defaults to True.
+        kick_outliers (bool, optional): Whether to remove outliers like CRs from the array to get more accurate scatter estimation. Defaults to True.
 
     Returns:
         np.array: residuals from the rampslope fit to the oot/ooe flux.
@@ -227,8 +215,7 @@ def residuals_(fit,x,flx,kick_outliers=False):
         fit (np.array): guess of parameters for the fit.
         x (np.array): time.
         flx (np.array): flux.
-        kick_outliers (bool, optional):Whether to remove outliers like CRs
-        from the array to get more accurate scatter estimation. Defaults to True.
+        kick_outliers (bool, optional):Whether to remove outliers like CRs from the array to get more accurate scatter estimation. Defaults to True.
 
     Returns:
          np.array: residuals of the fit.
