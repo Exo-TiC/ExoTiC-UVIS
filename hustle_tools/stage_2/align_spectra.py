@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from scipy import signal
 
+from hustle_tools.plotting.plot_spectra import plot_many_spectra
+
 
 def cross_corr(spec, temp_spec, order='+1', i=0, trim = 1, fit_window = 5, subpix_width = 0.01,
                show_plots = 0, save_plots = 0, output_dir = None):
@@ -87,7 +89,7 @@ def cross_corr(spec, temp_spec, order='+1', i=0, trim = 1, fit_window = 5, subpi
     return parab_vtx + trim
 
 
-def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
+def align_spectra(obs, specs, specs_err, order, trace_x, wavelengths, align = False,
                   verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Aligns 1D spectra and uncertainties using cross-correlation.
 
@@ -97,6 +99,7 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
         specs_err (np.array): array of 1D spectral uncertainties.
         order (str): for labelling plots correctly.
         trace_x (np.array): x positions of the trace solution.
+        wavelengths (np.array): used to find acceptable indices.
         align (bool, optional): whether to apply the alignment to the spectra.
         Defaults to False.
         verbose (int, optional): How detailed you want the printed statements
@@ -115,7 +118,7 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
     align_specs_err = []
     x_shifts = []
     # align only on the intended wavelengths of analysis
-    ok = (trace_x>2000) & (trace_x<8000)
+    ok = (wavelengths>2000) & (wavelengths<8000) # TO DO: make this variable
     temp_spec = np.median(specs[:,ok], axis = 0)
 
     
@@ -163,6 +166,16 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
             plt.show(block=True)
         
         plt.close() # save memory
+
+        # Plot the most shifted spectrum relative to the first
+        max_idx = np.argmax(np.abs(x_shifts))
+        if verbose == 2:
+            print("Index of greatest shift: ",max_idx,"with shift:",x_shifts[max_idx])
+        plot_many_spectra(wavelengths, [specs[max_idx],align_specs[max_idx]],
+                          order="+1", labels=("Raw","Aligned"),
+                          show_plot = (show_plots>0), save_plot = (save_plots>0),
+                          filename = 'alignment_order{}'.format(order),
+                          output_dir = output_dir)
 
         '''
         colors = plt.cm.rainbow(np.linspace(0, 1, 25))
