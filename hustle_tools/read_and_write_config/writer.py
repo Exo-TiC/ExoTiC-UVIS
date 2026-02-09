@@ -298,7 +298,8 @@ def Stage2_info():
                        "Step 4b":["aperture_type",
                                   "halfwidths_opt",],
                        "Step 5":["outlier_sigma",
-                                 "align",],
+                                 "align",
+                                 "apply_align",],
                        }
     
     subsection_comments = {"Setup":["# Directory where your current project files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data as well as the outputs folder.",
@@ -327,7 +328,8 @@ def Stage2_info():
                            "Step 4b":["# Str. Type of aperture to draw. Options are 'median', 'polyfit', 'smooth', 'curved_poly', or 'curved_smooth'.",
                                       "# Lst of ints. The half-width of extraction aperture to use for each order. For optimum extraction, you should make this big (>12 pixels at least). There is no 'preferred' half-width in optimum extraction due to the weights.",],
                            "Step 5":["# Float. Sigma at which to reject spectral outliers in time. Outliers are replaced with median of timeseries. Enter False to skip this step.",
-                                     "# Bool. If True, uses cross-correlation to align spectra to keep wavelength solution consistent.",],
+                                     "# Bool. If True, uses cross-correlation to align spectra to keep wavelength solution consistent.",
+                                     "# Bool. If False while Align is True, then the wavelength shifts will be measured but the spectra will not be shifted. Useful for diagnosing align efficacy.",],
                            }
     return header, subsection_headers, subsection_keys, subsection_comments
 
