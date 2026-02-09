@@ -160,7 +160,7 @@ def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10
         # Get the 1D spectra.
         oneD_spec, oneD_err = standard_extraction(obs, hw, trace_x, trace_y)
         # Bin into a median-normalized white light curve on valid wavelength range.
-        ok = (wavs>2000) & (wavs<8000)
+        ok = (wavs>2000) & (wavs<8000) # TO DO: make this variable
         WLC = np.nansum(oneD_spec[:,ok],axis=1)
         WLC /= np.nanmedian(WLC)
         # Truncate to just the range of out-of-transit/eclipse for each set of indices.

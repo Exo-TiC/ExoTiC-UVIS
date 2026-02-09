@@ -216,7 +216,7 @@ def get_calibration_trace(order, x0, y0, path_to_cal):
     # Compute wavelength of each of the pixels
     wavs = C.DISPL(order,x0,y0,ts)
 
-    # Restrict attention to just where 200 nm < wavs < 800 nm.
+    # Restrict attention to just where 200 nm < wavs < 800 nm. TO DO: make this variable
     dxs = dxs[np.logical_and(wavs>=2000, wavs<=8000)]
     dys = dys[np.logical_and(wavs>=2000, wavs<=8000)]
     wavs = wavs[np.logical_and(wavs>=2000, wavs<=8000)]
@@ -372,7 +372,7 @@ def sens_correct(spec, spec_err, wav, fs):
         for the sensitivity of the detector.
     """
     # apply sens correction function 'fs' to the data
-    ok = (wav>2000) & (wav<8000)
+    ok = (wav>2000) & (wav<8000) # TO DO: make this variable
     for k in range(spec.shape[0]):
         spec[k,:]/=fs[ok]
         spec_err[k,:]/=fs[ok]
