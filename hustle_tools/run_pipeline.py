@@ -52,10 +52,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
     """Wrapper for all Stages of the HUSTLE-tools pipeline.
 
     Args:
-        config_files_dir (str): folder which contains the .hustle files needed
-        to run the stages you want to run.
-        stages (tuple, optional): the stages that you want to run.
-        Defaults to (0, 1, 2, 3, 4, 5).
+        config_files_dir (str): folder which contains the .hustle files needed to run the stages you want to run.
+        stages (tuple, optional): the stages that you want to run. Defaults to (0, 1, 2, 3, 4, 5).
     """
     ######## Run Stage 0 ########
     if 0 in stages:
