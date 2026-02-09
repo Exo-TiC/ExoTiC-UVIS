@@ -8,19 +8,13 @@ def get_files_from_mast(programID, target_name, visit_number, outdir, token=None
     program, target, and visit number.
 
     Args:
-        programID (str): ID of the observing program you want to query data
-        from. On MAST, referred to as "proposal_ID".
-        target_name (str): Name of the target object you want to query data
-        from. On MAST, referred to as "target_name".
+        programID (str): ID of the observing program you want to query data from. On MAST, referred to as "proposal_ID".
+        target_name (str): Name of the target object you want to query data from. On MAST, referred to as "target_name".
         visit_number (str): The visit number you want to download, e.g. "01", "02", etc.
         outdir (str): The directory you want the files downloaded to.
-        token (str, optional): A MAST authentication token, if you are downloading
-        proprietary data. Defaults to None.
-        extensions (lst of str, optional): File extensions you want to download.
-        If None, take all file extensions. Otherwise, take only the files specified.
-        Defaults to None.
-        verbose (int, optional): From 0 to 2, how much detail you want the
-        output logs to have. Defaults to 2.
+        token (str, optional): A MAST authentication token, if you are downloading proprietary data. Defaults to None.
+        extensions (lst of str, optional): File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified. Defaults to None.
+        verbose (int, optional): From 0 to 2, how much detail you want the output logs to have. Defaults to 2.
     """
     data_products = query_MAST(programID, target_name, extensions, verbose)
     download_from_MAST(data_products, visit_number, outdir, token, verbose)
@@ -30,15 +24,10 @@ def query_MAST(programID, target_name, extensions, verbose=2):
     """Queries MAST database to find list of data products related to your observations.
 
     Args:
-        programID (str): ID of the observing program you want to query data
-        from. On MAST, referred to as "proposal_ID".
-        target_name (str): Name of the target object you want to query data
-        from. On MAST, referred to as "target_name".
-        extensions (lst of str, optional): File extensions you want to download.
-        If None, take all file extensions. Otherwise, take only the files specified.
-        Defaults to None.
-        verbose (int, optional): From 0 to 2, how much detail you want the
-        output logs to have. Defaults to 2.
+        programID (str): ID of the observing program you want to query data from. On MAST, referred to as "proposal_ID".
+        target_name (str): Name of the target object you want to query data from. On MAST, referred to as "target_name".
+        extensions (lst of str, optional): File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified. Defaults to None.
+        verbose (int, optional): From 0 to 2, how much detail you want the output logs to have. Defaults to 2.
 
     Returns:
         lst of str: Filenames to request to download from MAST.
@@ -67,10 +56,8 @@ def download_from_MAST(data_products, visit_number, outdir, token=None, verbose=
         data_products (_type_): output of queryMAST.py.
         visit_number (str): The visit number you want to download, e.g. "01", "02", etc.
         outdir (str): The directory you want the files downloaded to.
-        token (str, optional): A MAST authentication token, if you are downloading
-        proprietary data. Defaults to None.
-        verbose (int, optional): From 0 to 2, how much detail you want the
-        output logs to have. Defaults to 2.
+        token (str, optional): A MAST authentication token, if you are downloading proprietary data. Defaults to None.
+        verbose (int, optional): From 0 to 2, how much detail you want the output logs to have. Defaults to 2.
     """
     # Creates the output directory if it does not already exist.
     if not os.path.exists(outdir):

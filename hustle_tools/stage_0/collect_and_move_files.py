@@ -6,16 +6,13 @@ from astropy.io import fits
 
 
 def collect_and_move_files(visit_number, fromdir, outdir, verbose=2):
-    """Collects, renames, and moves the spec, direct, visit-related,
-    and misc files to the right directories.
+    """Collects, renames, and moves the spec, direct, visit-related, and misc files to the right directories.
 
     Args:
         visit_number (str): The visit number that we want to look at.
-        fromdir (str): The directory where the orbitNframeN,
-        orbitNdirectN, and misc files are kept.
+        fromdir (str): The directory where the orbitNframeN, orbitNdirectN, and misc files are kept.
         outdir (str): Where the files will be moved to.
-        verbose (int, optional): From 0 to 2, how much detail you want the
-        output logs to have. Defaults to 2.
+        verbose (int, optional): From 0 to 2, how much detail you want the output logs to have. Defaults to 2.
     """
     # Create the output directory.
     if not os.path.exists(outdir):
@@ -66,16 +63,12 @@ def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files, verb
     """Opens each file and checks exposure time starts to find orbits.
 
     Args:
-        spec_flt (lst of str): The filepaths to the spectroscopic flt images.
-        Used to find orbits.
-        spec_spt (lst of str): The filepaths to the spectroscopic spt images
-        corresponding to the flt images.
+        spec_flt (lst of str): The filepaths to the spectroscopic flt images. Used to find orbits.
+        spec_spt (lst of str): The filepaths to the spectroscopic spt images corresponding to the flt images.
         direct_flt (lst of str): The filepaths to the direct flt images.
-        direct_spt (lst of str): The filepaths to the direct spt images
-        corresponding to the flt images.
+        direct_spt (lst of str): The filepaths to the direct spt images corresponding to the flt images.
         misc_files (lst of str): The filepaths to the miscellanous files.
-        verbose (int, optional): From 0 to 2, how much detail you want
-        the output logs to have. Defaults to 2.
+        verbose (int, optional): From 0 to 2, how much detail you want the output logs to have. Defaults to 2.
     """
     # First, sort all files by exposure time and get corresponding file prefix names.
     starts = []

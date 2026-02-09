@@ -7,14 +7,11 @@ import matplotlib.pyplot as plt
 
 
 def locate_target(direct_image,test=False):
-    """Uses the direct image and user feedback to locate the
-    target, necessary for trace calibration and source
-    tracking in later stages.
+    """Uses the direct image and user feedback to locate the target, necessary for trace calibration and source tracking in later stages.
 
     Args:
         direct_image (str): Path to the direct image.
-        test (bool, optional): Whether you are running in testing mode.
-        Only used for validation on github. Defaults to False.
+        test (bool, optional): Whether you are running in testing mode. Only used for validation on github. Defaults to False.
 
     Returns:
         float, float: Location of the direct image in x, y floats.
@@ -151,8 +148,7 @@ def locate_target(direct_image,test=False):
     return xs, ys
 
 def check_spt_subarray(direct_spt,spec_spts):
-    """Checks the subarray corner info for the direct and spec spt files
-    and alerts the user to discrepancies.
+    """Checks the subarray corner info for the direct and spec spt files and alerts the user to discrepancies.
 
     Args:
         direct_spt (str): Path to the direct spt.
