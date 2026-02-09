@@ -66,8 +66,8 @@ First, use your favorite text editor to create :code:`configs/stage_0_input_conf
   filesfrom_dir   None                                        # None or str. If you downloaded data in Step 1, leave this as None. If you have pre-downloaded data, please place all of it in filesfrom_dir. Don't sort it into sub-folders; HUSTLE-tools won't be able to find them if they are inside sub-folders!
   
   # Step 3: Locating the target star
-  do_locate       True                                        # Bool. Whether to perform this step.
-  location        None                                        # None or tuple of float. Prior to running Stage 0, this will be None. After running Stage 0, a copy of this .hustle file will be made with this information included.
+  do_locate       False                                       # Bool. Whether to perform this step.
+  location        [974.8154860553503, 160.15959552212985]     # None or tuple of float. Prior to running Stage 0, this will be None. After running Stage 0, a copy of this .hustle file will be made with this information included.
   
   # Step 4: Quality quicklook
   do_quicklook    True                                        # Bool. Whether to perform this step.
@@ -85,7 +85,7 @@ Next, create :code:`configs/stage_1_input_config.hustle` and populate it with th
   output_run      'demo'                                      # Str. This is the name to save the current run to. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).
   verbose         2                                           # Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.
   show_plots      0                                           # Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.
-  save_plots      2                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
+  save_plots      1                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
   
   # Step 1: Read in the data
   skip_first_fm   True                                        # Bool. If True, ignores all first frames in each orbit.
@@ -207,14 +207,14 @@ Lastly, create :code:`configs/stage_2_input_config.hustle` and populate it with 
 3. Run :code:`HUSTLE-tools`
 --------------------------
 
-You are now ready to run :code:`HUSTLE-tools`!
+You are now ready to run :code:`HUSTLE-tools`! Run the following command line script to start processing your dataset:
 
 .. code-block::
 
   cd ~/User/hustle-tools_demo/
   python run_pipeline.py
 
-Most of the pipeline will run hands-free. However, in Stage 0 you will be presented with the direct photometric image taken as part of these observations and asked to locate the target star in the image, which is essential to getting the wavelength solution right. In these observations, you will find the target star at :code:`x=974.82` and :code:`y=160.16`. After this step, the pipeline will operate on its own. On an average laptop with a good internet connection, it should take about ten minutes.
+Once started, the pipeline will operate hands-free. On an average laptop with good wi-fi (~100 Mbps), it should take about 10 minutes for this notebook to process.
 
 4. Examine the outputs
 ----------------------
@@ -228,7 +228,7 @@ Now let's check out the products of each stage. All of our outputs will have bee
   3. :code:`output/visitfiles/` contains files that were associated with the program ID, visit, and specific orbit, but not associated with image data. For this dataset, no visit files were identified.
   4. :code:`output/miscfiles/` contains all other files associated with the program ID and visit.
 
-The outputs of the pipeline will be stored in :code:`output/outputs/`. Stages 0, 1, and 2 output to :code:`output/outputs/stage_0/`, :code:`output/outputs/stage_1/`, and :code:`output/outputs/stage_2/` respectively. Stages 1 and 2 can be run multiple times on the same Stage 0 output. Stage 1 can output to its own subfolder based on the :code:`output_run` variable supplied. Stage 2 can receive different Stage 1 run inputs based on the :code:`input_run` variable, and can also output to its own :code:`output_run` subfolder. For this run, we used :code:`demo` as the input and output run names, so we can find our Stage 1 and 2 outputs in :code:`output/outputs/stage_1/demo/` and :code:`output/outputs/stage_2/demo/`.
+The outputs of the pipeline will be stored in :code:`output/outputs/`. Output plots will also be rendered in a terminal or Jupyter notebook if :code:`show_plots` is set to 1 or 2. Stages 0, 1, and 2 output to :code:`output/outputs/stage_0/`, :code:`output/outputs/stage_1/`, and :code:`output/outputs/stage_2/` respectively. Stages 1 and 2 can be run multiple times on the same Stage 0 output. Stage 1 can output to its own subfolder based on the :code:`output_run` variable supplied. Stage 2 can receive different Stage 1 run inputs based on the :code:`input_run` variable, and can also output to its own :code:`output_run` subfolder. For this run, we used :code:`demo` as the input and output run names, so we can find our Stage 1 and 2 outputs in :code:`output/outputs/stage_1/demo/` and :code:`output/outputs/stage_2/demo/`.
 
 4.1. The outputs of Stage 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -238,7 +238,7 @@ Stage 0 downloads our data and organizes it. The most important output of Stage 
 4.2. The outputs of Stage 1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Stage 1 handles data reduction, and outputs a lot of diagnostic plots we can use to assess whether our reduction strategy is appropriate. Open the :code:`outputs/stage_1/demo/plots/` folder and take a look at the following plots:
+Stage 1 handles data reduction, and outputs a lot of diagnostic plots we can use to assess whether our reduction strategy is appropriate. Open the :code:`outputs/stage_1/demo/plots/` folder or inspect your terminal/notebook outputs and take a look at the following plots:
 
   1. CR_location.png plots the location of all pixels flagged as a cosmic ray in any frame in any orbit. CR_location_frameX.png shows the cosmic rays flagged in individual frame number X. Both of these plots show us that our cosmic ray rejection routine successfully targeted cosmic rays without overcorrecting the data.
   2. bkg_values_corners.png shows us the estimated background value in each frame. bkg_before_subtraction.png and bkg_after_subtraction.png plot the first frame of the observation before and after the estimated background value was subtracted.
@@ -250,7 +250,7 @@ Stage 1 also outputs a revised quicklookup.gif that we can compare to our Stage 
 4.3. The outputs of Stage 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Stage 2 extracts the 1D spectral time series from our reduced data frame, and likewise produces lots of diagnostic plots for our use. Open the :code:`outputs/stage_2/demo/plots/` folder and take a look at the following plots:
+Stage 2 extracts the 1D spectral time series from our reduced data frame, and likewise produces lots of diagnostic plots for our use. Open the :code:`outputs/stage_2/demo/plots/` folder or inspect your terminal/notebook outputs and take a look at the following plots:
 
   1. calibration\_+1.png and calibration\_-1.png show the :code:`grismconf` calibrated positions of the +1 and -1 order traces. If your calibration was successful, these should fall right along the middle of the brightest curves on either side of the 0th order.
   2. aperture\_+1.png and aperture\_-1.png likewise show the calibration solution as well as the upper and lower bounds of the the aperture for extraction. A good aperture is wide enough to encompass the trace and its wings without pulling in too much background noise.
