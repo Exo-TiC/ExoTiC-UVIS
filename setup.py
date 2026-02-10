@@ -8,8 +8,7 @@ setup(
     url='https://github.com/Exo-TiC/HUSTLE-tools',
     license='MIT',
     packages=['hustle_tools','hustle_tools.read_and_write_config','hustle_tools.plotting',
-              'hustle_tools.stage_0','hustle_tools.stage_1','hustle_tools.stage_2',
-              'hustle_tools.stage_3',],
+              'hustle_tools.stage_0','hustle_tools.stage_1','hustle_tools.stage_2',],
     description='HST UVIS reduction pipeline',
     long_description="Pipeline for analysis of Hubble Space Telescope "
                      "WFC3-UVIS G280 spectroscopic observations.",
