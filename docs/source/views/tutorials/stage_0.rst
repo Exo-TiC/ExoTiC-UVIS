@@ -14,30 +14,31 @@ The first step is to create the configuration file that will guide the execution
   # HUSTLE-tools config file for launching Stage 0: Data Handling
 
   # Setup for Stage 0
-  toplevel_dir    'output'                                    # Directory where you want your files to be stored after Stage 0 has run. This is where /specimages, /directimages, /visitfiles, and /miscfiles will be stored.
+  toplevel_dir    './files'                                   # Directory where you want your files to be stored after Stage 0 has run. This is where /specimages, /directimages, /visitfiles, and /miscfiles will be stored.
   verbose         2                                           # Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.
   show_plots      2                                           # Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.
   save_plots      2                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
-  
+
   # Step 1: Download files from MAST
   do_download     True                                        # Bool. Whether to perform this step.
   programID       '12345'                                     # ID of the observing program you want to query data from. On MAST, referred to as "proposal_ID".
-  target_name     'PLANET-NAME'                               # Name of the target object you want to query data from. On MAST, referred to as "target_name".
+  target_name     'PLANET-B'                                  # Name of the target object you want to query data from. On MAST, referred to as "target_name".
   token           None                                        # str or None. If you are downloading proprietary data, please visit https://auth.mast.stsci.edu/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access to obtain an authentication token and enter it as a '' string here.
-  extensions      ['_flt.fits','_spt.fits']                   # lst of str or None. File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified. _flt.fits, _spt.fits recommended as minimum working case.
-  
+  extensions      ['_flt.fits', '_jit.fits']                  # lst of str or None. File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified. _flt.fits are required. _jit.fits are recommended if you want to use jitter decorrelation to detrend systematics.
+
   # Step 2: Organizing files
   do_organize     True                                        # Bool. Whether to perform this step.
-  visit_number    '01'                                        # The visit number you want to operate on.
+  visit_number    '00'                                        # The visit number you want to operate on.
   filesfrom_dir   None                                        # None or str. If you downloaded data in Step 1, leave this as None. If you have pre-downloaded data, please place all of it in filesfrom_dir. Don't sort it into sub-folders; HUSTLE-tools won't be able to find them if they are inside sub-folders!
-  
+
   # Step 3: Locating the target star
   do_locate       True                                        # Bool. Whether to perform this step.
   location        None                                        # None or tuple of float. Prior to running Stage 0, this will be None. After running Stage 0, a copy of this .hustle file will be made with this information included.
-  
+
   # Step 4: Quality quicklook
   do_quicklook    True                                        # Bool. Whether to perform this step.
-  
+  traces_included ('+1',)                                     # List of str. Which traces are included in the white light curve plot included in the quicklook.
+
   # ENDPARSE
 
 Let's break down each of these steps to make sure we understand what we can tune in this stage.
@@ -60,7 +61,7 @@ Set :code:`do_locate` to True to prompt the pipeline to present the direct image
 
 Step 4: Quality quicklook
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-If you want to save a "quicklook" gif that presents all of the data frames in succession as well as simple diagnostics of the image and trace flux, simply set :code:`do_quicklook` to True.
+If you want to save a "quicklook" gif that presents all of the data frames in succession as well as simple diagnostics of the image and trace flux, simply set :code:`do_quicklook` to True. You can use the :code:`traces_included` variable to include flux from the +1 trace, the -1 trace, or both.
 
 Running Stage 0
 ---------------
@@ -87,6 +88,6 @@ Assessing Stage 0's success
 ---------------------------
 Stage 0 is the simplest stage that has very few diagnostics to look over. You will know if Stage 0 succeeded if:
 
-  1. The :code:`toplevel_dir` folder has been created and populated with the :code:`specimages`, :code:`directimages`, :code:`visitfiles`, :code:`miscfiles`, and :code:`outputs` subfolders.
+  1. The :code:`toplevel_dir` folder has been created and populated with the :code:`specimages`, :code:`directimages`, :code:`jitterfiles`, :code:`visitfiles`, :code:`miscfiles`, and :code:`outputs` subfolders.
   2. The :code:`toplevel_dir/outputs/stage_0` folder contains an updated copy of the .hustle configuration folder with the :code:`location` variable changed from None to a tuple of floats.
   3. The quicklookup.gif created by this stage, or the .fits files downloaded to the :code:`toplevel_dir/specimages` directory, clearly show your target star and contain all of the orbits and total number of frames you expected.

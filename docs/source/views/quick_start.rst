@@ -53,26 +53,27 @@ First, use your favorite text editor to create :code:`configs/stage_0_input_conf
   verbose         2                                           # Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.
   show_plots      0                                           # Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.
   save_plots      2                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
-  
+
   # Step 1: Download files from MAST
   do_download     True                                        # Bool. Whether to perform this step.
   programID       '17183'                                     # ID of the observing program you want to query data from. On MAST, referred to as "proposal_ID".
   target_name     'WASP-127'                                  # Name of the target object you want to query data from. On MAST, referred to as "target_name".
   token           None                                        # str or None. If you are downloading proprietary data, please visit https://auth.mast.stsci.edu/token?suggested_name=Astroquery&suggested_scope=mast:exclusive_access to obtain an authentication token and enter it as a '' string here.
-  extensions      ['_flt.fits','_spt.fits']                   # lst of str or None. File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified. _flt.fits, _spt.fits recommended as minimum working case.
-  
+  extensions      ['_flt.fits', '_jit.fits']                  # lst of str or None. File extensions you want to download. If None, take all file extensions. Otherwise, take only the files specified. _flt.fits are required. _jit.fits are recommended if you want to use jitter decorrelation to detrend systematics.
+
   # Step 2: Organizing files
   do_organize     True                                        # Bool. Whether to perform this step.
   visit_number    '12'                                        # The visit number you want to operate on.
   filesfrom_dir   None                                        # None or str. If you downloaded data in Step 1, leave this as None. If you have pre-downloaded data, please place all of it in filesfrom_dir. Don't sort it into sub-folders; HUSTLE-tools won't be able to find them if they are inside sub-folders!
-  
+
   # Step 3: Locating the target star
   do_locate       False                                       # Bool. Whether to perform this step.
   location        [974.8154860553503, 160.15959552212985]     # None or tuple of float. Prior to running Stage 0, this will be None. After running Stage 0, a copy of this .hustle file will be made with this information included.
-  
+
   # Step 4: Quality quicklook
   do_quicklook    True                                        # Bool. Whether to perform this step.
-  
+  traces_included ('+1',)                                     # List of str. Which traces are included in the white light curve plot included in the quicklook.
+
   # ENDPARSE
 
 Next, create :code:`configs/stage_1_input_config.hustle` and populate it with the following script:
@@ -80,86 +81,94 @@ Next, create :code:`configs/stage_1_input_config.hustle` and populate it with th
 .. code-block:: bash
 
   # HUSTLE-tools config file for launching Stage 1: Reduction
-  
+
   # Setup for Stage 1
   toplevel_dir    'output'                                    # Directory where your Stage 0 files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data.
   output_run      'demo'                                      # Str. This is the name to save the current run to. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).
   verbose         2                                           # Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.
   show_plots      0                                           # Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.
   save_plots      1                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
-  
+
   # Step 1: Read in the data
   skip_first_fm   True                                        # Bool. If True, ignores all first frames in each orbit.
   skip_first_or   False                                       # Bool. If True, ignores all frames in the first orbit.
-  
-  # Step 2: Reject cosmic rays with time iteration
-  # Step 2a: Fixed iteration parameters
+
+  # Step 2: Correct pixels flagged by HST pipeline
+  do_hst_flags    False                                       # Bool. If True, reads in HST data quality information and corrects for chosen HST flags.
+  hst_flags       [16,4096]                                   # List of int. Which HST flags to correct. See HST WFC3/UVIS G280 handbook for flag meanings.
+  hst_replace     True                                        # Bool. If True, replaces HST-flagged pixels with spatial median (if flag<4096) or temporal median (if flag>=4096). Otherwise, adds HST-flagged pixels to badpix_map.
+
+  # Step 3: Reject cosmic rays with time iteration
+  # Step 3a: Fixed iteration parameters
   do_fixed_iter   True                                        # Bool. Whether to use fixed iteration rejection to clean the timeseries.
   fixed_sigmas    [5.0,5.0]                                   # lst of float. The sigma to reject outliers at in each iteration. The length of the list is the number of iterations.
   replacement     7                                           # int or None. If int, replaces flagged outliers with the median of values within +/-replacement indices of the outlier. If None, uses the median of the whole timeseries instead.
-  
-  # Step 2b: Free iteration parameters
+
+  # Step 3b: Free iteration parameters
   do_free_iter    False                                       # Bool. Whether to use free iteration rejection to clean the timeseries.
   free_sigma      3.5                                         # float. The sigma to reject outliers at in each iteration. Iterates over each pixel's timeseries until no outliers at this sigma level are found.
-  
-  # Step 3: Reject hot pixels with spatial detection
-  # Step 3a: Laplacian Edge Detection parameters
+
+  # Step 4: Reject hot pixels with spatial detection
+  # Step 4a: Laplacian Edge Detection parameters
   do_led          False                                       # Bool. Whether to use Laplacian Edge Detection rejection to clean the frames.
-  led_threshold   5                                           # Float. The threshold parameter at which to kick outliers in LED. The lower the number, the more values will be replaced.
+  led_threshold   10                                          # Float. The threshold parameter at which to kick outliers in LED. The lower the number, the more values will be replaced.
   led_factor      2                                           # Int. The subsampling factor. Minimum value 2. Higher values increase computation time but aren't expected to yield much improvement in rejection.
   led_n           2                                           # Int. Number of times to do LED on each frame. Enter None to continue performing LED on each frame until no outliers are found.
   fine_structure  True                                        # Bool. Whether to build a fine structure model, which can protect narrow bright features like traces from LED.
   contrast_factor 5                                           # Float. If fine_structure is True, acts as the led_threshold for the fine structure step.
-  
-  # Step 3b: Spatial smoothing parameters
+
+  # Step 4b: Spatial smoothing parameters
   do_smooth       False                                       # Bool. Whether to use spatial smoothing rejection to clean the frames.
-  smth_type       '1D_smooth'                                 # Str. Type of spatial correction to be applied. Options are  '1D_smooth', '2D_smooth', and 'polyfit'.
+  smth_type       '1D_smooth'                                 # Str. Type of spatial correction to be applied. Options are '1D_smooth' or '2D_smooth'.
   smth_kernel     11                                          # Int or tuple. The kernel to use for building the median-filtered image. If using 1D_smooth, should be an odd int. If using 2D_smooth, should be a tuple of two odd ints.
   smth_threshold  5                                           # Float. If an image pixel deviates from the median-filtered image by this threshold, kick it from the image. The lower the value, the more pixels get kicked.
   smth_bounds     [[260, 370, 640, 1100],]                    # Lst of lst of float. The regions that will be corrected for bad pixels. Each list consists of [x1,x2,y1,y2]. If None, simply corrects the full frame.
-  
-  # Step 4: Background subtraction
-  # Step 4a: uniform value background subtraction
+
+  # Step 5: Background subtraction
+  # Step 5a: uniform value background subtraction
   do_uniform      True                                        # Bool. Whether to subtract the background using one uniform value as the value for the entire frame.
   fit             'Gaussian'                                  # Str. The value to extract from the histogram. Options are None (to extract the mode), 'Gaussian' (to fit the mode with a Gaussian), or 'median' (to take the median within hist_min < v < hist_max).
   bounds          [[0,150,0,400],[450,600,0,400],[0,150,1700,2100],[450,600,1700,2100]] # Lst of lst of float. The region from which the background values will be extracted. Each list consists of [x1,x2,y1,y2]. If None, simply uses the full frame.
   hist_min        -20                                         # Float. Minimum value to consider for the background. Leave as None to use min(data).
   hist_max        50                                          # Float. Maximum value to consider for the background. Leave as None to use max(data).
   hist_bins       1000                                        # Int. Number of histogram bins for background subtraction.
-  
-  # Step 4b: Column-by-column background subtraction
+
+  # Step 5b: Column-by-column background subtraction
   do_column       False                                       # Bool. Whether to subtract the background using a column-by-column method.
   rows            [i for i in range(10)]                      # list of int. The indices defining the rows used as background.
   mask_trace      True                                        # Bool. If True, ignores rows parameter and instead masks the traces and 0th order to build a background region.
   dist_from_trace 100                                         # Int. If mask_trace is True, this is how many rows away a pixel must be from the trace to qualify as background.
   col_sigma       3                                           # float. How aggressively to mask outliers in the background region.
-  
-  # Step 4c: Pagul et al. background subtraction
+
+  # Step 5c: Pagul et al. background subtraction
   do_Pagul        False                                       # Bool. Whether to subtract the background using the scaled Pagul et al. G280 sky image.
   path_to_Pagul   './'                                        # Str. The absolute path to where the Pagul et al. G280 sky image is stored.
   mask_parameter  0.001                                       # Float. How strong the trace masking should be. Smaller values mask more of the image.
   smooth_fits     True                                        # Bool. If True, smooths the values of the Pagul et al. fit parameter in time. Helps prevent background "flickering".
   smoothing_param 2.5                                         # Float. Sigma for smoothing the fit parameter. Smaller sigma means more smoothing.
   median_columns  True                                        # Bool. If True, takes the median value of each column in the Pagul et al. sky image as the background. As the Pagul et al. 2023 image is undersampled, this helps to suppress fluctuations in the image.
-  
-  # Step 5: Displacement estimation
-  # Step 5a: Refine target location
+
+  # Step 6: Displacement estimation
+  # Step 6a: Refine target location
   do_location     True                                        # Bool. Whether the location of the target in the direct image extracted from Stage 0 should be refined by fitting.
-  
-  # Step 5b: Source center-of-mass tracking
+
+  # Step 6b: Source center-of-mass tracking
   do_0thtracking  True                                        # Bool. Whether to track frame displacements by centroiding the 0th order.           
   location        [970, 170]                                  # lst of float. Initial guess for the location of the target star. You can use this to bypass location fitting in Stage 1.
-  
-  # Step 5c: Background star tracking
+
+  # Step 6c: Background star tracking
   do_bkg_stars    False                                       # Bool. Whether to track frame displacements by centroiding background stars.
   bkg_stars_loc   [[0, 0], [0, 0]]                            # Lst of lst of float. Every list should indicate the estimated location of every background star.
-  
-  # Step 6: Quality quicklook
+  bkg_window      15                                          # Int. The width of the window to draw around the background stars. Useful to shrink this if tracking a star very near to the trace.
+
+  # Step 7: Quality quicklook
   do_quicklook    True                                        # Bool. Whether to perform this step.
-  
-  # Step 7: Save outputs
+  traces_included ('+1',)                                     # List of str. Which traces are included in the white light curve plot included in the quicklook.
+  include_hst_dq  False                                       # Bool. If True, includes HST data quality flag information in the quicklook gif.
+
+  # Step 8: Save outputs
   do_save         True                                        # Bool. If True, saves the output xarray to be used in Stage 2.
-  
+
   # ENDPARSE
 
 Lastly, create :code:`configs/stage_2_input_config.hustle` and populate it with the following script, making sure to replace the :code:`path_to_cal` variable currently supplied with the input 'User/path/to/grismconf/calibration.conf' with your own path to the :code:`grismconf` reference UVIS_G280_CCD2_V2.conf file you downloaded during :doc:`Installation <views/installation>`:
@@ -167,41 +176,49 @@ Lastly, create :code:`configs/stage_2_input_config.hustle` and populate it with 
 .. code-block:: bash
 
   # HUSTLE-tools config file for launching Stage 2: Extraction
-  
+
   # Setup for Stage 2
   toplevel_dir    'output'                                    # Directory where your current project files are stored. This folder should contain the specimages/, directimages/, etc. folders with your data as well as the outputs folder.
   input_run       'demo'                                      # Str. This is the name of the Stage 1 run you want to load.
   output_run      'demo'                                      # Str. This is the name to save the current run to. It can be anything that does not contain spaces or special characters (e.g. $, %, @, etc.).
   verbose         2                                           # Int from 0 to 2. 0 = print nothing. 1 = print some statements. 2 = print every action.
   show_plots      0                                           # Int from 0 to 2. 0 = show nothing. 1 = show some plots. 2 = show all plots.
-  save_plots      2                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
-  
+  save_plots      1                                           # Int from 0 to 2. 0 = save nothing. 1 = save some plots. 2 = save all plots.
+
   # Step 1: Read in the data
-  
+
   # Step 2: Trace configuration
   path_to_cal     'User/path/to/grismconf/calibration.conf'   # Str. The absolute path to the .conf file used by GRISMCONF for the chip your data were taken on.
   traces_to_conf  ('+1','-1')                                 # Lst of str. The traces you want to configure and extraction from.
   refine_fit      False                                       # Bool. If True, uses Gaussian fitting to refine the trace solution.
-  
-  # Step 3: 1D spectral extraction
+
+  # Step 3: Time And Relative Detrending In Space (TARDIS)
+  do_tardis       False                                       # Bool. Whether to use TARDIS to clean the timeseries. Useful for low-cadence datasets where Stage 1 cleaning methods are prone to missing trace-striking cosmic rays.
+  tardis_sigma    [5.0,3.5]                                   # list of float. The sigmas to reject outliers at. One sigma per window value is needed.
+  flux_threshold  1000                                        # float. The e-/s counts value above which this method will be used. Method fails if there is insufficient flux to detect trends with, so keep this at least as high as the median wing flux value.
+  tardis_window   [10,5]                                      # list of int. Median time-series trends will be measured using pixels +/- window columns away from target pixel.
+  tardis_replace  'tseries'                                   # str. If 'tseries', uses median time-series trends to replace outliers. If 'median', uses pixel's median value in time to replace outliers.
+
+  # Step 4: 1D spectral extraction
   method          'box'                                       # Str. Options are 'box' (draw a box around the trace and sum without weights) or 'optimal' (weight using Horne 1986 methods).
   correct_zero    False                                       # Bool. Whether to model the contaminating 0th order and subtract it from your data during extraction. Sometimes works, sometimes just adds lots of scatter.
   sens_correction False                                       # Bool. Whether to correct for the G280's changing sensitivity as a function of wavelength. Since absolute calibrated spectra aren't needed in exoplanetary sciences, you can skip this safely.
   mask_objs       []                                          # List of lists. If there are background objects in your planned aperture, mask them here. Each entry is (x,y,radius).
-  
-  # Step 3a: Box extraction parameters
+
+  # Step 4a: Box extraction parameters
   determine_hw    False                                       # Bool. If True, automatically determines preferred half-width for each order by minimizing out-of-transit/eclipse residuals.
   indices         ([0,10],[-10,-1])                           # Lst of lsts of int. If determine_hw, these are the indices used to estimate the out-of-transit/eclipse residuals.
   halfwidths_box  (10,10)                                     # Lst of ints. The half-width of extraction aperture to use for each order. Input here is ignored if 'determine_hw' is True.
-  
-  # Step 3b: Optimum extraction parameters
+
+  # Step 4b: Optimum extraction parameters
   aperture_type   'median'                                    # Str. Type of aperture to draw. Options are 'median', 'polyfit', 'smooth', or 'curved_poly'.
-  halfwidths_opt  (10,10)                                     # Lst of ints. The half-width of extraction aperture to use for each order. For optimum extraction, you should make this big (>12 pixels at least). There is no 'preferred' half-width in optimum extraction due to the weights.
-  
-  # Step 4: 1D spectral cleaning and aligning
+  halfwidths_opt  (12,12)                                     # Lst of ints. The half-width of extraction aperture to use for each order. For optimum extraction, you should make this big (>12 pixels at least). There is no 'preferred' half-width in optimum extraction due to the weights.
+
+  # Step 5: 1D spectral cleaning and aligning
   outlier_sigma   3.5                                         # Float. Sigma at which to reject spectral outliers in time. Outliers are replaced with median of timeseries. Enter False to skip this step.
   align           True                                        # Bool. If True, uses cross-correlation to align spectra to keep wavelength solution consistent.
-  
+  apply_align     True                                        # Bool. If False while Align is True, then the wavelength shifts will be measured but the spectra will not be shifted. Useful for diagnosing align efficacy.
+
   # ENDPARSE
 
 3. Run :code:`HUSTLE-tools`
@@ -224,9 +241,10 @@ If you reached the end with no errors, congratulations! You have successfully ru
 Now let's check out the products of each stage. All of our outputs will have been sent to the :code:`output` folder. The files for our observation were downloaded in Stage 0 and sorted based on the file's contents:
 
   1. :code:`output/specimages/` contains the G280 data frames for our observations. They have been renamed to include the orbit number and frame number within each orbit.
-  2. :code:`output/directimages/` contains the F300X photometric filter image. This image was presented to you in Stage 0 to locate the target star in.
-  3. :code:`output/visitfiles/` contains files that were associated with the program ID, visit, and specific orbit, but not associated with image data. For this dataset, no visit files were identified.
-  4. :code:`output/miscfiles/` contains all other files associated with the program ID and visit.
+  2. :code:`output/directimages/` contains the F300X photometric filter image, which is typically used in Stage 0 to locate the target star.
+  3. :code:`output/jitterfiles/` contains the jitter vector files for each orbit, which can be used to remove systematic trends from the observation.
+  4. :code:`output/visitfiles/` contains files that were associated with the program ID, visit, and specific orbit, but not associated with image data. For this dataset, no visit files were identified.
+  5. :code:`output/miscfiles/` contains all other files associated with the program ID and visit.
 
 The outputs of the pipeline will be stored in :code:`output/outputs/`. Output plots will also be rendered in a terminal or Jupyter notebook if :code:`show_plots` is set to 1 or 2. Stages 0, 1, and 2 output to :code:`output/outputs/stage_0/`, :code:`output/outputs/stage_1/`, and :code:`output/outputs/stage_2/` respectively. Stages 1 and 2 can be run multiple times on the same Stage 0 output. Stage 1 can output to its own subfolder based on the :code:`output_run` variable supplied. Stage 2 can receive different Stage 1 run inputs based on the :code:`input_run` variable, and can also output to its own :code:`output_run` subfolder. For this run, we used :code:`demo` as the input and output run names, so we can find our Stage 1 and 2 outputs in :code:`output/outputs/stage_1/demo/` and :code:`output/outputs/stage_2/demo/`.
 
