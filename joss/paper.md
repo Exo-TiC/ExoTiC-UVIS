@@ -1,11 +1,3 @@
-\documentclass{article}
-\usepackage{markdown}
-\begin{document}
-
-% \markdownInput{HUSTLE-tools_JOSS.md}
-
-\begin{markdown}
-
 ---
 title: 'HUSTLE-tools: a one stop shop for Hubble WFC3-UVIS/G280 spectral reduction'
 tags:
@@ -72,17 +64,13 @@ Each run for each stage is defined through a ".hustle" configuration file, where
 
 Included tutorials and example scripts ensure HUSTLE-tools can be run with minimal prior experience in pipeline development and operation. The modular and user-friendly design of HUSTLE-tools permits users to fine-tune their reduction to obtain optimal results. Users can toggle and tweak their desired processes within each stage and can easily rerun stages to explore different reduction techniques.
 
-HUSTLE-tools is built from the 'Hazelnut' pipeline presented in @Boehm2024 and the 'lluvia' pipeline presented in @Gascón2025. 
-
+HUSTLE-tools is built from the 'Hazelnut' pipeline presented in @Boehm2024 and the 'lluvia' pipeline presented in @Gascon2025. 
 
 # Acknowledgments
 We acknowledge contributions from the full HUSTLE team, and specifically testing by Ailsa Campbell. 
 V.A.B was funded through program number HST-GO-17183 provided through a grant from the STScI under NASA contract NAS5-26555.
-C.G. was funded by a La Caixa Fellowship and the Agency for Management of University and Research Grants from the Government of Catalonia (FI AGAUR).
+C.G. was funded by La Caixa Fellowship and the Agency for Management of University and Research Grants from the Government of Catalonia (FI AGAUR).
 D.G. and H.R.W were funded by UK Research and Innovation (UKRI) under the UK government’s Horizon Europe funding guarantee as part of an ERC Starter Grant [grant number EP/Y006313/1].
 This work benefited from the 2024 Exoplanet Summer Program in the Other Worlds Laboratory (OWL) at the University of California, Santa Cruz, a program funded by the Heising-Simons Foundation and NASA.
+
 # References
-
-
-\end{markdown}
-\end{document}
