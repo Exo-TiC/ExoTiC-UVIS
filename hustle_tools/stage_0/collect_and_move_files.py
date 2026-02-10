@@ -21,10 +21,10 @@ def collect_and_move_files(visit_number, fromdir, outdir, verbose=2):
         os.makedirs(outdir)
     
     # Collect and sort files from the fromdir that are in the right visit.
-    spec_flt, spec_spt, direct_flt, direct_spt, misc_files = collect_files(fromdir, visit_number, verbose)
+    spec_flt, spec_spt, direct_flt, direct_spt, jit_files, misc_files = collect_files(fromdir, visit_number, verbose)
 
     # Then sort by orbit.
-    identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files, verbose)
+    identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, jit_files, misc_files, verbose)
     
     # Now re-sort using the updated filenames.
     files = sorted(glob.glob(os.path.join(fromdir, "*")))
@@ -35,15 +35,18 @@ def collect_and_move_files(visit_number, fromdir, outdir, verbose=2):
     # Then, catch direct files (marked with dr) and only take spt and flt files.
     direct_files = [f for f in files if ("dr" in f and ".fits" in f and "hst_" not in f)]
     direct_files = [f for f in direct_files if ("flt.fits" in f or "spt.fits" in f)]
+    # Catch all jitter files.
+    jit_files = [f for f in files if ("jit" in f and ".fits" in f and "hst_" not in f)]
     # Now catch files that were at least identified with an orbit of interest.
     visit_files = [f for f in files if ("or" in f and "hst_" not in f)]
     visit_files = [f for f in visit_files if ("fm" in f or "dr" in f)]
-    visit_files = [f for f in visit_files if (f not in spec_files and f not in direct_files)]
+    visit_files = [f for f in visit_files if (f not in spec_files and f not in direct_files and f not in jit_files)]
     # Finally, filter everything else.
-    misc_files = [f for f in files if (f not in spec_files and f not in direct_files and f not in visit_files)]
+    misc_files = [f for f in files if (f not in spec_files and f not in direct_files and f not in jit_files and f not in visit_files)]
 
-    for files, target in zip((spec_files, direct_files, visit_files, misc_files),
-                             ("specimages","directimages","visitfiles","miscfiles")):
+    for files, target in zip((spec_files, direct_files, jit_files, visit_files, misc_files),
+                             ("specimages","directimages","jitterfiles","visitfiles","miscfiles")):
+
         targetdir = os.path.join(outdir,target)
         if not os.path.exists(targetdir):
             os.makedirs(targetdir)
@@ -56,10 +59,10 @@ def collect_and_move_files(visit_number, fromdir, outdir, verbose=2):
         if verbose == 2:
             print("All files listed moved into {}.".format(targetdir))
     if verbose >= 1:
-        print("All spec, direct, and misc files moved.")
+        print("All spec, direct, jitter, and misc files moved.")
 
 
-def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files, verbose=2):
+def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, jit_files, misc_files, verbose=2):
     """Opens each file and checks exposure time starts to find orbits.
 
     Args:
@@ -67,6 +70,7 @@ def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files, verb
         spec_spt (lst of str): The filepaths to the spectroscopic spt images corresponding to the flt images.
         direct_flt (lst of str): The filepaths to the direct flt images.
         direct_spt (lst of str): The filepaths to the direct spt images corresponding to the flt images.
+        jit_files (lst of str): The filepaths to the jitter files, one for each orbit.
         misc_files (lst of str): The filepaths to the miscellanous files.
         verbose (int, optional): From 0 to 2, how much detail you want the output logs to have. Defaults to 2.
     """
@@ -78,11 +82,12 @@ def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files, verb
         split_filename = str.split(filename[-1], sep='_')
         with fits.open(f) as fits_file:
             starts.append(fits_file[0].header["EXPSTART"]*86400) # turn it into seconds
-            prefixes.append(split_filename[0]) # this is the iexr##xxxx part of the filename, which can be used to find associated files
+            prefixes.append(split_filename[0]) # this is the iexr##xxx part of the filename, which can be used to find associated files
     bundle = [(i,j,) for i,j, in zip(starts,prefixes)]
     bundle = sorted(bundle, key = lambda x: x[0]) # sorted by exposure time
 
-    # Create association between iexr##xxxx and or##fm###.
+    # Create association between iexr##xxx and or##fm###.
+
     rename = {bundle[0][1]:"or01fm001"}
 
     # Now detect jumps in exposure start time, which are expected to be separated by >35 minutes.
@@ -122,11 +127,11 @@ def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files, verb
         split_filename = str.split(filename[-1], sep='_')
         with fits.open(f) as fits_file:
             starts.append(fits_file[0].header["EXPSTART"]*86400) # turn it into seconds
-            prefixes.append(split_filename[0]) # this is the iexr##xxxx part of the filename, which can be used to find associated files
+            prefixes.append(split_filename[0]) # this is the iexr##xxx part of the filename, which can be used to find associated files
     bundle = [(i,j,) for i,j, in zip(starts,prefixes)]
     bundle = sorted(bundle, key = lambda x: x[0]) # sorted by exposure time
 
-    # Create association between iexr##xxxx and or##dr###.
+    # Create association between iexr##xxx and or##dr###.
     rename = {bundle[0][1]:"or01dr001"}
 
     if len(direct_flt) == 1:
@@ -150,8 +155,28 @@ def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, misc_files, verb
             rename[bundle[i][1]] = "or{}dr{}".format(o_type,f_type)
     if verbose == 2:
         print("Detected %.0f orbits and created new filenames to update." % orbit_N)
+    # Jitter files follow the convention of iexr##NNN where NNN is a number, not a string of letters.
+    if verbose == 2:
+        print("Renaming jitter files.")
+    for i, jitter in enumerate(list(sorted(jit_files))):
+        # Get the jitter file's current name.
+        f = str.split(jitter, sep="/")
+        f_new = [i for i in f]
 
-    # Now we need to replace instances of iexr##xxxx in filenames with or##dr###.
+        # Rename it based on orbit number. There will be one per orbit!
+        o_type = str(i+1).zfill(2)
+        new_jitter_name = "or{}jt000_jit.fits".format(o_type)
+        if i == len(sorted(jit_files))-1:
+            # This is the direct image jitter.
+            new_jitter_name = "or01dr000_jit.fits"
+
+        # Replace the jitter name and move.
+        f_new[-1] = new_jitter_name
+        shutil.move(os.path.join(f[0],f[1]), os.path.join(f_new[0],f_new[1]))
+    if verbose == 2:
+        print("Relocated %.0f jitter files and created new filenames to update." % len(jit_files))
+
+    # Now we need to replace instances of iexr##xxx in filenames with or##dr###.
     if verbose == 2:
         print("Renaming spec and misc files.")
     for prefix in prefixes:
@@ -192,13 +217,18 @@ def collect_files(search_dir, visit_number, verbose=2):
     # Direct image files using F filters, split by flt and spt
     direct_flt = []
     direct_spt = []
+
+    # Jitter files, one per orbit
+    jit_files = []
+
     # Files that did not fit into any other category
     misc_files = []
 
     # Glob files
     files = sorted(glob.glob(os.path.join(search_dir, "*")))
-    
-    # Sort files into direct, spec, and misc
+  
+    # Sort files into direct, spec, jitter, and misc
+
     for f in files:
         if any(txt in f for txt in reject):
             # It's a file we do not want.
@@ -210,6 +240,12 @@ def collect_files(search_dir, visit_number, verbose=2):
             continue
         # Otherwise, we can look at it a little closer.
         with fits.open(f) as fits_file:
+            if "jit.fits" in f:
+                # jit files contain the jitter information for decorrelation
+                jit_files.append(f)
+                continue
+            # Then we must check if it has the detector key
+
             try:
                 if fits_file[0].header["DETECTOR"] != "UVIS":
                     # Wrong detector so put it in misc
@@ -247,5 +283,5 @@ def collect_files(search_dir, visit_number, verbose=2):
                 # Unrecognizd file type
                 misc_files.append(f)
     if verbose >= 1:
-        print("Collected spec, direct, and misc files.")
-    return spec_flt, spec_spt, direct_flt, direct_spt, misc_files
+        print("Collected spec, direct, jitter, and misc files.")
+    return spec_flt, spec_spt, direct_flt, direct_spt, jit_files, misc_files

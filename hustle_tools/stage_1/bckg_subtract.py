@@ -7,7 +7,7 @@ from scipy.optimize import least_squares
 from scipy.optimize import curve_fit
 from scipy.signal import medfilt, medfilt2d
 
-from hustle_tools.plotting import plot_exposure, plot_corners, plot_bkgvals, plot_mode_v_params, plot_histogram
+from hustle_tools.plotting import plot_exposure, plot_corners, plot_bkgvals, plot_mode_v_params, plot_histogram, plot_bkgcorrection
 
 
 def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
@@ -34,9 +34,17 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
     # copy images
     images = obs.images.data.copy() 
 
+    # collect pre-subtraction corner flux for reference
+    xshape, yshape = images[0,:,:].shape
+    bx1,bx2 = xshape-25,xshape-1
+    by1,by2 = yshape-500,yshape-1
+    bckg_flux_pre = np.empty(images.shape[0])
+    for i in range(images.shape[0]):
+        bckg_flux_pre[i] = np.median(images[i,bx1:bx2,by1:by2])
+
     # track scaling parameters, should be ~equal to the frame mode
     scaling_parameters = []
-    modes = []
+    modes, meds = [], []
 
     # open the Pagul et al. sky image
     with fits.open(pagul_path) as fits_file:
@@ -47,28 +55,43 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
     # get the subarr_coords
     x1,x2,y1,y2 = [int(x) for x in obs.subarr_coords.values]
 
-    # pick a bin_number that won't break image
-    d_test = obs.images[0].values
-    bin_number = int(0.50*d_test.shape[0]*d_test.shape[1])
-    
-    # iterate over all images
+    # build the frame mask using the median frame
+    med_image = np.median(images,axis=0)
+    finite = med_image[np.isfinite(med_image)]
+    bin_number = int(0.10*finite.shape[0])
+    hist, bin_edges = np.histogram(finite, bins=bin_number)
+    ind = np.argmax(hist)
+    mode = (bin_edges[ind]+bin_edges[ind+1])/2
+    sig = np.nanstd(finite)
+    masked_frame = np.ma.masked_where(med_image - mode > masking_parameter*sig, med_image)
+    pagul_mask = masked_frame.mask
+    if verbose > 0:
+        n_masked = 100*np.sum(masked_frame.mask)/(masked_frame.size)
+        print("Percentange of each frame that is masked by this parameter: {:.1f}%".format(n_masked))
+
+    # iterate over all images, applying the same mask
     for k, image in enumerate(tqdm(images, desc = 'Fitting Pagul et al. sky image... Progress:',
                                    disable=(verbose<1))):
         # first, get the coarse frame mode and standard deviation using the frame's finite values
         finite = image[np.isfinite(image)]
+        # pick a reasonable bin_number
+        bin_number = int(0.10*finite.shape[0])
         hist, bin_edges = np.histogram(finite, bins=bin_number)
         ind = np.argmax(hist)
         mode = (bin_edges[ind]+bin_edges[ind+1])/2
-        sig = np.nanstd(finite)
+        #sig = np.nanstd(finite)
 
         modes.append(mode)
+        meds.append(np.median(finite))
 
-        # next, mask any sources in the frame using the frame mode and standard deviation
-        masked_frame = np.ma.masked_where(np.abs(image - mode) > masking_parameter*sig, image)
+        # next, mask any sources in the frame using the pagul mask
+        masked_frame = np.ma.masked_array(image,mask=pagul_mask)
 
         # if true, plot the masked frame
         if (save_plots > 0 or show_plots > 0) and k == 0:
-            plot_exposure([masked_frame,], max = 50, title = 'Pagul+ Background Removal Mask', 
+            plot_mask = np.where(pagul_mask==True,1,1e-1)
+            plot_exposure([plot_mask,], title = 'Pagul+ Background Removal Mask',
+                          min = 1e-1, max = 1,
                           show_plot=(show_plots>0), save_plot=(save_plots>0),
                           output_dir=output_dir, filename = ['bkg_pagul_mask',])
     
@@ -92,25 +115,28 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
     # then remove the background
     for k, image in enumerate(tqdm(images, desc = 'Removing background... Progress:',
                                    disable=(verbose<1))):
-         image -= scaling_parameters[k]*pagul_bckg[y1:y2+1,x1:x2+1]
+         images[k] -= scaling_parameters[k]*pagul_bckg[y1:y2+1,x1:x2+1]
 
     # save background values
     obs['bkg_vals'] = xr.DataArray(data = scaling_parameters, dims = ['exp_time'])
 
-    # if true, plot calculated background values
+    # collect post-subtraction corner flux for reference
+    bckg_flux_post = np.empty(images.shape[0])
+    for i in range(images.shape[0]):
+        bckg_flux_post[i] = np.median(images[i,bx1:bx2,by1:by2])
+
+    # if true, plot calculated background values and compare to frame modes
     if save_plots > 0 or show_plots > 0:
         plot_bkgvals(obs.exp_time.data, scaling_parameters, method='pagul',
                      output_dir=output_dir, show_plot = (show_plots>0), save_plot = (save_plots>0))
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
                       show_plot=(show_plots>0), save_plot=(save_plots>0),
                       output_dir=output_dir, filename = ['bkg_before_subtraction', 'bkg_after_subtraction'])
-        
-    # if true, also plot a comparison of the
-    # scaling parameters against frame modes
-    if save_plots == 2 or show_plots == 2:
-        plot_mode_v_params(obs.exp_time.data, modes, scaling_parameters,
+        plot_mode_v_params(obs.exp_time.data, modes, meds, scaling_parameters,
                            output_dir=output_dir,
-                           show_plot=(show_plots==2), save_plot=(save_plots==2))
+                           show_plot=(show_plots>0), save_plot=(save_plots>0))
+        plot_bkgcorrection(obs.exp_time.data, bckg_flux_pre, bckg_flux_post, 'Pagul',
+                           output_dir=output_dir, show_plot = (show_plots>0), save_plot = (save_plots>0))
 
     # update the images to be corrected    
     obs.images.data = images
@@ -226,7 +252,15 @@ def uniform_value_bkg_subtraction(obs, fit = None, bounds = None,
     """
 
     # copy images
-    images = obs.images.data.copy() 
+    images = obs.images.data.copy()
+
+    # collect pre-subtraction corner flux for reference
+    xshape, yshape = images[0,:,:].shape
+    bx1,bx2 = xshape-25,xshape-1
+    by1,by2 = yshape-500,yshape-1
+    bckg_flux_pre = np.empty(images.shape[0])
+    for i in range(images.shape[0]):
+        bckg_flux_pre[i] = np.median(images[i,bx1:bx2,by1:by2]) 
 
     # initialize background values
     bkg_vals = []
@@ -271,6 +305,11 @@ def uniform_value_bkg_subtraction(obs, fit = None, bounds = None,
     # save background values
     obs['bkg_vals'] = xr.DataArray(data = bkg_vals, dims = ['exp_time'])
 
+    # collect post-subtraction corner flux for reference
+    bckg_flux_post = np.empty(images.shape[0])
+    for i in range(images.shape[0]):
+        bckg_flux_post[i] = np.median(images[i,bx1:bx2,by1:by2])
+
     # if true, plot calculated background values
     if save_plots > 0 or show_plots > 0:
         method = 'full-frame'
@@ -284,6 +323,8 @@ def uniform_value_bkg_subtraction(obs, fit = None, bounds = None,
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
                       show_plot = (show_plots>0), save_plot = (save_plots>0),
                       output_dir=output_dir, filename = ['bkg_before_subtraction', 'bkg_after_subtraction'])
+        plot_bkgcorrection(obs.exp_time.data, bckg_flux_pre, bckg_flux_post, method,
+                           output_dir=output_dir, show_plot = (show_plots>0), save_plot = (save_plots>0))
         
     obs.images.data = images
 
@@ -311,6 +352,14 @@ def column_by_column_subtraction(obs, rows=np.array([i for i in range(10)]), sig
 
     # copy images
     images = obs.images.data.copy() 
+
+    # collect pre-subtraction corner flux for reference
+    xshape, yshape = images[0,:,:].shape
+    bx1,bx2 = xshape-25,xshape-1
+    by1,by2 = yshape-500,yshape-1
+    bckg_flux_pre = np.empty(images.shape[0])
+    for i in range(images.shape[0]):
+        bckg_flux_pre[i] = np.median(images[i,bx1:bx2,by1:by2])
 
     # initialize background values
     bckgs = []
@@ -367,6 +416,11 @@ def column_by_column_subtraction(obs, rows=np.array([i for i in range(10)]), sig
     # save background values
     obs['bkg_vals'] = xr.DataArray(data = bckgs, dims = ['exp_time','columns'])
 
+    # collect post-subtraction corner flux for reference
+    bckg_flux_post = np.empty(images.shape[0])
+    for i in range(images.shape[0]):
+        bckg_flux_post[i] = np.median(images[i,bx1:bx2,by1:by2])
+
     # if true, plot calculated background values
     if save_plots > 0 or show_plots > 0:
         plot_bkgvals(obs.exp_time.data, bckgs, method='col-by-col',
@@ -374,6 +428,8 @@ def column_by_column_subtraction(obs, rows=np.array([i for i in range(10)]), sig
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
                       show_plot = (show_plots>0), save_plot = (save_plots>0),
                       output_dir=output_dir, filename = ['bkg_before_subtraction', 'bkg_after_subtraction'])
+        plot_bkgcorrection(obs.exp_time.data, bckg_flux_pre, bckg_flux_post, method='col-by-col',
+                           output_dir=output_dir, show_plot = (show_plots>0), save_plot = (save_plots>0))
 
     obs.images.data = images
 

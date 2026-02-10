@@ -57,11 +57,11 @@ def remove_zeroth_order(obs, mode = 'radial_profile', zero_pos = [1158, 300],
     Args:
         obs (xarray): images to remove the 0th order from.
         mode (str, optional): type of profile to model the 0th with. Defaults to 'radial_profile'.
-        zero_pos (list, optional): _description_. Defaults to [1158, 300].
-        rmin (int, optional): _description_. Defaults to 100.
-        rmax (int, optional): _description_. Defaults to 300.
-        rwidth (int, optional): _description_. Defaults to 3.
-        fit_profile (bool, optional): _description_. Defaults to False.
+        zero_pos (list, optional): x-y solution to the 0th order position. Defaults to [1158, 300].
+        rmin (int, optional): inner radial distance from the 0th to draw the 0th order flux from. Defaults to 100.
+        rmax (int, optional): outer radial distance from the 0th to draw the 0th order flux from. Defaults to 300.
+        rwidth (int, optional): widths of radial bins to build histogram with. Defaults to 3.
+        fit_profile (bool, optional): whether to fit an exponential to the 0th profile. Defaults to False.
         verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
         show_plots (int, optional): How many plots you want to show. Defaults to 0.
         save_plots (int, optional): How many plots you want to save. Defaults to 0.
@@ -101,17 +101,9 @@ def remove_zeroth_order(obs, mode = 'radial_profile', zero_pos = [1158, 300],
         hist_area[mask_angle & (rr < rmax) & (rr > rmin)] = 'nan'
 
         if (save_plots>0 or show_plots>0):
-            plot_exposure([hist_area], title = 'Area to build the histogram', 
+            plot_exposure([hist_area,], title = 'Area to build the histogram', 
                         show_plot=(show_plots>0), save_plot=(save_plots>0),
-                        output_dir=output_dir, filename = ['0th_order_histogram-area_max'])
-        
-        # test plots:
-        #hist_area = images[0].copy()
-        #total_mask = mask_angle & (rr < rmax) & (rr > rmin)
-        #hist_area[~total_mask] = 'nan'
-        
-        #plot_exposure([hist_area], min = 0, max = 2)
-
+                        output_dir=output_dir, filename = ['0th_order_histogram-area_max',])
       
         for j, image in enumerate(tqdm(images,
                                        desc = 'Calculating 0th order background... Process:',
@@ -147,10 +139,7 @@ def remove_zeroth_order(obs, mode = 'radial_profile', zero_pos = [1158, 300],
                             plt.figure(figsize = (10, 7))
                             plt.hist(image[mask], bins = np.linspace(-10, 60, 100), color = 'indianred', alpha = 0.7)
                             plt.plot(bin_cents, Gauss1D(bin_cents, parameters[0], parameters[1], parameters[2]), color='gray')
-                            #plt.axvline(bin_edges[np.argmax(hist)], color = 'gray', linestyle = '--')
                             plt.axvline(np.median(image[mask]), color= 'gray')
-                            #plt.axvline(np.median(image[mask]) + np.sqrt(np.median(image[mask])))
-                            #plt.axvline(np.median(image[mask]) - np.sqrt(np.median(image[mask])))
                             plt.xlabel('Photons')
                             plt.ylabel('Counts')
 
@@ -209,22 +198,24 @@ def remove_zeroth_order(obs, mode = 'radial_profile', zero_pos = [1158, 300],
                 if (j == 0) and ((show_plots>0) or (save_plots>0)):
                     plot_exposure([obs.images.data[j, :], image], title = '0th order removal example', 
                                     show_plot=(show_plots>0), save_plot=(save_plots>0),
-                                    output_dir=output_dir, filename = ['0th_order_corrected_frame0'])
+                                    output_dir=output_dir, filename = ['0th_order_before-corrected_frame0',
+                                                                       '0th_order_after-corrected_frame0'])
                     
-                    plot_exposure([zero_bkg[j]], title = '0th order model', min=np.min(fitted_profile), max=np.max(fitted_profile),
+                    plot_exposure([zero_bkg[j],], title = '0th order model', min=np.min(fitted_profile), max=np.max(fitted_profile),
                                     show_plot=(show_plots>0), save_plot=(save_plots>0),
-                                    output_dir=output_dir, filename = ['0th_order_model_frame0'])
+                                    output_dir=output_dir, filename = ['0th_order_model_frame0',])
                     
                 if ((show_plots==2) or (save_plots==2)):
                     plot_exposure([obs.images.data[j, :], image], title = '0th order removal, frame {}'.format(j), 
                                     show_plot=(show_plots==2), save_plot=(save_plots==2),
-                                    output_dir=output_dir, filename = [f'0th_order_corrected_frame{j}'])
+                                    output_dir=output_dir, filename = [f'0th_order_before-corrected_frame{j}',
+                                                                       f'0th_order_after-corrected_frame{j}'])
                     
-                    plot_exposure([zero_bkg[j]], title = '0th order model', min=np.min(fitted_profile), max=np.max(fitted_profile),
+                    plot_exposure([zero_bkg[j],], title = '0th order model', min=np.min(fitted_profile), max=np.max(fitted_profile),
                                     show_plot=(show_plots>0), save_plot=(save_plots>0),
-                                    output_dir=output_dir, filename = [f'0th_order_model_frame{j}'])
+                                    output_dir=output_dir, filename = [f'0th_order_model_frame{j}',])
                     
         profiles = np.array(profiles)
         obs.images.data = images
 
-    return zero_bkg
+    return obs, zero_bkg

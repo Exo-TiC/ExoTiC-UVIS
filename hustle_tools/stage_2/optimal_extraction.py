@@ -7,14 +7,8 @@ from scipy import interpolate
 from scipy.signal import medfilt
 
 from hustle_tools.plotting import plot_exposure
+from hustle_tools.stage_2.standard_extraction import create_circular_mask
 from hustle_tools.stage_2 import standard_extraction
-
-
-def spatial_profile_curved():
-    return 0
-
-def spatial_profile_curved_poly():
-    return 0
 
 
 def spatial_profile_smooth(image_org, kernel = 11, threshold = 5., std_window = 20, 
@@ -60,12 +54,10 @@ def spatial_profile_smooth(image_org, kernel = 11, threshold = 5., std_window = 
             res = np.ma.array(row - row_model, mask = ~row_mask)
 
             # calculate standard deviation with a window too 
-            #row_std = np.ma.std(res)
             row_std = np.zeros_like(row)
             for i, row_val in enumerate(row):
                 row_std[i] = np.std(res[np.amax((0, i-std_window)):i+std_window])
-                
-            #dev_row = np.ma.abs(res) / np.ma.std(res)
+            
             dev_row = np.ma.abs(res)/row_std
             max_dev_ind = np.ma.argmax(dev_row)
 
@@ -88,7 +80,6 @@ def spatial_profile_smooth(image_org, kernel = 11, threshold = 5., std_window = 
         # just some inside plots for sanity check
         if (show_plots == 2 or save_plots == 2):   
             plt.figure()
-            #plt.plot(image_org[j]/f_init)
             plt.plot(image[j])
             plt.plot(row_model)
 
@@ -145,7 +136,7 @@ def spatial_profile_median(images, show_plots=0, save_plots=0, output_dir=None):
 
 def window_profile(image, init_pix, fin_pix, pol_degree = 6, 
                    threshold = 6.):
-    """Uses row-wise polynomials to build 
+    """Uses row-wise polynomials to build the window profile. TBD Carlos.
 
     Args:
         image (_type_): _description_
@@ -262,17 +253,9 @@ def spatial_profile(exp_ind, image_org, window = 40, threshold = 4., normalize =
     # if true, plot spatial profile
     if (show_plots==2) or (save_plots==2):
 
-        #plot_exposure([image_org], title = 'Spatial_profile', min=1e1, max=1e4,
-        #              show_plot=1, save_plot=0,
-        #              output_dir=None, filename = ['spatial_profile'])
-
         plot_exposure([P_prof], title = f'Example of Spatial profile Exposure {exp_ind}', min=1e-4, max=1e0,
                       show_plot=(show_plots==2), save_plot=(save_plots==2),
                       output_dir=output_dir, filename = [f'spatial_profile_exp{exp_ind}'])
-        
-        #plot_exposure([image, image_org], scatter_data=[xhits, yhits], title = 'Spatial_profile', 
-        #              show_plot=1, save_plot=0,
-        #              output_dir=None, filename = ['spatial_profile'])
         
     return P_prof, image, xhits, yhits
 
@@ -382,7 +365,6 @@ def spatial_profile_curved_poly(exp_ind, sub_image_org, image, tx_main, ty_main,
     stds_image = interpolate.griddata(np.transpose(grid_points), np.ravel(stds), (np.ravel(grid_x), np.ravel(grid_y)), method = 'linear')
     stds_image = np.reshape(stds_image, (len(y_vals), len(tx_main)))
     
-    #if correct_thresh:
     # mask and replace values
     mask_cr = stds_image > correct_thresh
     sub_image_org[mask_cr] = spatial_prof[mask_cr]
@@ -392,33 +374,16 @@ def spatial_profile_curved_poly(exp_ind, sub_image_org, image, tx_main, ty_main,
     spatial_prof = spatial_prof/np.sum(spatial_prof, axis = 0)
         
     if show_plots==2 or save_plots==2:
-
-        #if correct_thresh:
-        # plot difference image
-        #utils.plot_image([sub_image_org, sub_image], min = 1., max = 4., show = False)
-        #utils.plot_image([sub_image, spatial_prof], scatter_data = [yhits, xhits], min = 1., max = 4., show = False)
-
         plot_exposure([spatial_prof], scatter_data = [yhits, xhits], #[sub_image, spatial_prof]
                         title = f'Example of Spatial profile Exposure {exp_ind}', min=1e-4, max=1e0,
                         show_plot=(show_plots==2), save_plot=(save_plots==2),
                         output_dir=output_dir, filename = [f'spatial_profile_exp{exp_ind}'])
 
-        # compute difference image
-        #diff_im = (sub_image - spatial_prof)/np.sqrt(spatial_prof) 
-
-        #plt.figure(figsize = (10, 7))
-        #plt.imshow(diff_im, origin = 'lower', vmin = 0, vmax = 10)
-        #plt.colorbar()
-   
-        #plt.figure(figsize = (10, 7))
-        #plt.imshow(stds_image, origin = 'lower', vmin = 0, vmax = 10)
-        #plt.colorbar()
-        #plt.show()
-
     return spatial_prof
 
 
-def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_type = 'polyfit', 
+def optimal_extraction(obs, trace_x, traces_y, masks = [],
+                       width = 25, thresh = 17., prof_type = 'polyfit', 
                        iterate = False, zero_bkg = None,
                        verbose=0, show_plots=0, save_plots=0, output_dir=None):
     """Performs an optimal extraction with a spatial profile of choice following the methods of Horne 1986.
@@ -427,11 +392,12 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
         obs (xarray): dataset from which we will extract the 1D spectra.
         trace_x (array-like): x column solutions of the trace to extract.
         traces_y (arary-like): y row solutions of the trace to extract.
+        masks (list, optional): x, y, radii of objects in the aperture you want to mask. Defaults to [].
         width (int, optional): aperture halfwidth for extraction. For optimal, ideally use a very large window since the weighting will take care of the rest. Defaults to 25.
         thresh (float, optional): _description_. Defaults to 17..
-        prof_type (str, optional): the type of profile to use for optimal extraction. Options are 'median', 'polyfit', 'smooth', 'curved_poly', or 'curved_smooth'. Defaults to 'polyfit'.
-        iterate (bool, optional): _description_. Defaults to False.
-        zero_bkg (_type_, optional): _description_. Defaults to None.
+        prof_type (str, optional): the type of profile to use for optimal extraction. Options are 'median', 'polyfit', 'smooth', or 'curved_poly'. Defaults to 'polyfit'.
+        iterate (bool, optional): whether to iterate over the profile to remove outliers. Defaults to False.
+        zero_bkg (np.array, optional): the 0th-order background signal, which is needed for variance estimation if it was removed earlier. Defaults to None.
         verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
         show_plots (int, optional): how many plots you want to show. Defaults to 0.
         save_plots (int, optional): how many plots you want to save. Defaults to 0.
@@ -446,6 +412,21 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
     images = obs.images.data.copy()
     errors = obs.errors.data.copy()
 
+    # mask objects if asked
+    if masks != None:
+        for k in range(images.shape[0]):
+            frame = images[k,:,:]
+            err = errors[k,:,:]
+            for mask in masks:
+                # Build a circle mask on top of the object.
+                obj_mask = create_circular_mask(frame.shape[0], frame.shape[1],
+                                                center=[mask[0],mask[1]], radius=mask[2])
+                # 0 out that data.
+                frame[obj_mask] = 0
+                err[obj_mask] = 0
+            images[k,:,:] = frame  
+            errors[k,:,:] = err
+
     # Define subarray for extraction
     margin = 5
     low_val, up_val = int(np.amin(traces_y)) - width - margin, int(np.amax(traces_y)) + width + margin
@@ -456,7 +437,7 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
 
     # get initial spectrum
     specs, specs_err = standard_extraction(obs,
-                                           halfwidth=12, # why not use the width input into this function?
+                                           halfwidth=12, # FIX: why not use the width input into this function?
                                            trace_x=trace_x,
                                            trace_y=traces_y)
 
@@ -464,16 +445,12 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
     if prof_type == 'median':
         prof = spatial_profile_median(sub_images, show_plots=show_plots, 
                                       save_plots=save_plots, output_dir=output_dir) 
-        
-    # generate random number for plotting
-    plot_ind = np.random.randint(0, np.shape(sub_images)[0])
 
     # extract optimal spectrum
     for i, sub_image in enumerate(tqdm(sub_images, desc = 'Extracting optimal spectrum... Progress')):
 
         # initialize variables and get exposure data
         opt_spec, opt_err, diff_image = [], [], []
-        sub_mask = []
         err = sub_errs[i] 
      
         # initialize spectrum
@@ -503,11 +480,6 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
             prof = spatial_profile_curved_poly(i, sub_image, image, trace_x, trace_y, low_val, up_val, init_spec = None, correct_thresh=7., window = 40,
                                                show_plots = show_plots, save_plots=save_plots, output_dir=output_dir)
         
-        elif prof_type == 'curved_smooth':
-            image = images[i]
-            prof = spatial_profile_curved(i, sub_image, image, trace_x, trace_y, low_val, up_val, init_spec = spectrum, correct_thresh = 6., smooth_window = 7, median_window = 7,
-                                          show_plots = show_plots, save_plots=save_plots, output_dir=output_dir)
-        
         if (show_plots==1 or save_plots==1) and (i == 0):
             plot_exposure([prof], title = f'Example of Spatial profile Exposure {i}', min=1e-4, max=1e0,
                     show_plot=(show_plots > 0), save_plot=(save_plots > 0),
@@ -535,7 +507,6 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
 
             # define readout variance 
             read_var = obs.read_noise.data[i]
-            #print(read_var)
 
             # define background, if true, add background from zeroth order flux
             if zero_bkg is None:
@@ -595,6 +566,5 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
         # plot masked pixels
         if iterate:
             xhits, yhits = np.where(hit_image == 1)
-            #utils.plot_image([sub_image], scatter_data=[yhits, xhits])
 
     return np.array(opt_specs), np.array(opt_specs_err)

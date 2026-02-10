@@ -2,12 +2,12 @@ Quick start
 ===========
 Prefer Jupyter notebooks? A .ipynb of this quick start guide is also available on `GitHub <https://github.com/Exo-TiC/HUSTLE-tools/blob/main/tutorials/HUSTLE_tools_quickstart.ipynb>`_!
 
-Ready to get going with :code:`HUSTLE-tools`? This quick start guide will help you understand the basics of running :code:`HUSTLE-tools` on your G280 data. More detailed instructions for each stage can be found in the `Tutorials <https://hustle-tools.readthedocs.io/en/latest/views/tutorials.html>`_ page.
+Ready to get going with :code:`HUSTLE-tools`? This quick start guide will help you understand the basics of running :code:`HUSTLE-tools` on your G280 data. More detailed instructions for each stage can be found in the :doc:`Tutorials <views/tutorials>` page.
 
 1. Install :code:`HUSTLE-tools`
 -------------------------------
 
-The first step to running :code:`HUSTLE-tools` is to make sure you have it and its dependencies installed. Follow the instructions on the `Installation <https://hustle-tools.readthedocs.io/en/latest/views/installation.html>`_ page to get your :code:`HUSTLE-tools` conda environment set up and ready to go.
+The first step to running :code:`HUSTLE-tools` is to make sure you have it and its dependencies installed. Follow the instructions on the :doc:`Installation <views/installation.html>` page to get your :code:`HUSTLE-tools` conda environment set up and ready to go.
 
 2. Set up a run directory
 -------------------------
@@ -40,7 +40,7 @@ That's it!
 2.2. Supply the configuration files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The .hustle configuration files are at the core of operating :code:`HUSTLE-tools` and they take some time to get to know. For this quick start, we've written most of the .hustle files for you, but if you want to learn more about how to tune these files for your research, check out the `Tutorials <https://hustle-tools.readthedocs.io/en/latest/views/tutorials.html>`_ tab! For now, just :code:`cd` into :code:`configs` and follow the instructions below to create the .hustle configuration files for this run.
+The .hustle configuration files are at the core of operating :code:`HUSTLE-tools` and they take some time to get to know. For this quick start, we've written most of the .hustle files for you, but if you want to learn more about how to tune these files for your research, check out the :doc:`Tutorials <views/tutorials>` tab! For now, just :code:`cd` into :code:`configs` and follow the instructions below to create the .hustle configuration files for this run.
 
 First, use your favorite text editor to create :code:`configs/stage_0_input_config.hustle` and populate it with the following script:
 
@@ -162,7 +162,7 @@ Next, create :code:`configs/stage_1_input_config.hustle` and populate it with th
   
   # ENDPARSE
 
-Lastly, create :code:`configs/stage_2_input_config.hustle` and populate it with the following script, making sure to replace the :code:`path_to_cal` variable currently supplied with the input 'User/path/to/grismconf/calibration.conf' with your own path to the :code:`grismconf` reference UVIS_G280_CCD2_V2.conf file you downloaded during `Installation <https://hustle-tools.readthedocs.io/en/latest/views/installation.html>`_:
+Lastly, create :code:`configs/stage_2_input_config.hustle` and populate it with the following script, making sure to replace the :code:`path_to_cal` variable currently supplied with the input 'User/path/to/grismconf/calibration.conf' with your own path to the :code:`grismconf` reference UVIS_G280_CCD2_V2.conf file you downloaded during :doc:`Installation <views/installation>`:
 
 .. code-block:: bash
 
@@ -186,7 +186,6 @@ Lastly, create :code:`configs/stage_2_input_config.hustle` and populate it with 
   # Step 3: 1D spectral extraction
   method          'box'                                       # Str. Options are 'box' (draw a box around the trace and sum without weights) or 'optimal' (weight using Horne 1986 methods).
   correct_zero    False                                       # Bool. Whether to model the contaminating 0th order and subtract it from your data during extraction. Sometimes works, sometimes just adds lots of scatter.
-  subtract_contam False                                       # Bool. Whether to model the contaminating orders and subtract them from your trace during extraction. Sometimes works, sometimes just adds lots of scatter.
   sens_correction False                                       # Bool. Whether to correct for the G280's changing sensitivity as a function of wavelength. Since absolute calibrated spectra aren't needed in exoplanetary sciences, you can skip this safely.
   mask_objs       []                                          # List of lists. If there are background objects in your planned aperture, mask them here. Each entry is (x,y,radius).
   
@@ -264,4 +263,4 @@ The 1D spectra for each order will be output to specs\_+1.nc and specs\_-1.nc wh
 5. What next?
 ----------------------
 
-That's it for the quick start! You are now ready to start running :code:`HUSTLE-tools` on your own data! If you want to learn more about how to adjust .hustle configuration files and operate each stage, head over to the `Tutorials <https://hustle-tools.readthedocs.io/en/latest/views/tutorials.html>`_ page!
+That's it for the quick start! You are now ready to start running :code:`HUSTLE-tools` on your own data! If you want to learn more about how to adjust .hustle configuration files and operate each stage, head over to the :doc:`Tutorials <views/tutorials>` page!

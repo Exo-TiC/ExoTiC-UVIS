@@ -6,6 +6,7 @@ from astropy.io import fits
 import xarray as xr
 
 from wfc3tools import sub2full
+from hustle_tools.stage_1.uvis_embed import get_subarr_coords
 
 
 def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose = 2):
@@ -22,7 +23,7 @@ def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose
     """
 
     # initialize data structures
-    images, errors, data_quality, subarr_coords = [], [], [], []
+    images, errors, data_quality, hst_dq, subarr_coords, orbit_Ns = [], [], [], [], [], []
     exp_time, exp_time_UT, exp_duration, read_noise = [], [], [], []
     
     # iterate over all files in specs directory
@@ -47,20 +48,25 @@ def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose
                 image = np.array(hdul[1].data)
                 error = np.array(hdul[2].data)
 
-                #print(repr(hdul[0].header))
                 exp_time.append((hdul[0].header['EXPSTART'] + hdul[0].header['EXPEND'])/2)
                 exp_time_UT.append((hdul[0].header['TIME-OBS']))
-                data_quality.append(hdul[3].data)
+                hst_dq.append(hdul[3].data)
+                data_quality.append(np.zeros_like(hdul[3].data))
                 exp_duration.append(hdul[0].header["EXPTIME"])
 
-                #run file through sub2full
-                y1,y2,x1,x2 = sub2full(os.path.join(specs_dir, filename), fullExtent=True)[0]
+                # fetch coord information straight from naxis, ltv keywords
+                y1,y2,x1,x2 = get_subarr_coords(hdul)
+
+                # pry orbit number out of filename
+                orbit_N = float(filename[2:4])
+
                 
                 # append data
                 images.append(image) 
                 errors.append(error) 
                 read_noise.append(np.median(np.sqrt(error**2 - image))) 
                 subarr_coords.append(np.array([y1,y2,x1,x2]))
+                orbit_Ns.append(orbit_N)
 
     # collapse subarr_coords
     subarr_coords = np.mean(np.array(subarr_coords),axis=0)
@@ -86,9 +92,11 @@ def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose
             images=(["exp_time", "x", "y"], images),
             errors=(["exp_time", "x", "y"], errors),
             subarr_coords=(["index"],subarr_coords),
+            orbit_numbers=(["exp_time"],orbit_Ns),
             direct_image = (["x", "y"], direct_image),
             badpix_mask = (["exp_time", "x", "y"], np.ones_like(images, dtype = 'bool')),
             data_quality = (["exp_time", "x", "y"], data_quality),
+            hst_dq = (["exp_time", "x", "y"], hst_dq),
             read_noise = (['exp_time'], read_noise)
         ),
         coords=dict(

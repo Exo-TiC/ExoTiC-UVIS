@@ -15,7 +15,7 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=11, sigma=10, bounds_set=[[2
 
     Args:
         obs (xarray): obs.images contains the dataset we are cleaning.
-        type (str): options are "1D_smooth" (to use row-wise scipy median-filtering),  "2D_smooth" (to use scipy 2D median-filtering), and "polyfit" (to fit row-wise polynomials).
+        type (str): options are "1D_smooth" (to use row-wise scipy median-filtering) or "2D_smooth" (to use scipy 2D median-filtering).
         kernel (int or tup, optional): the size of the kernel used to compute the median-filtered image. If using 1D_smooth, should be an odd int. If using 2D_smooth, should be a tuple of two odd ints. Defaults to 11.
         sigma (float, optional): threshold at which to remove an outlier. Defaults to 10.
         bounds_set (array-like, optional): whether to only perform spatial smoothing on a subset of the array, for time-saving. If None, corrects for the full frame. Defaults to [[260, 370, 640, 1100],].
@@ -61,10 +61,6 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=11, sigma=10, bounds_set=[[2
                                                                          kernel=kernel,
                                                                          sigma=sigma)
 
-            # remove outliers with other routines
-            elif type == 'polyfit':
-                print('More cleaning options')
-
             # save position of corrected outliers
             all_xhits = np.concatenate((all_xhits, xhits))
             all_yhits = np.concatenate((all_yhits, yhits))
@@ -94,9 +90,15 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=11, sigma=10, bounds_set=[[2
                                 title = f'Location of corrected pixels for Exposure {i}', mark_size = 1,
                                 show_plot=(show_plots == 2), save_plot=(save_plots == 2),
                                 output_dir=output_dir, filename = [f'spatialsmooth_location_frame{i}'])
-            
+
             # update image
+            raw_image = np.copy(image)
             image[bounds[0]:bounds[1], bounds[2]:bounds[3]] = sub_image_clean
+            dq = np.where(raw_image!=image,1,0)
+
+            # now update the obs and data quality array
+            obs.images[i] = obs.images[i].where(obs.images[i].values == image,image)
+            obs.data_quality[i] = obs.data_quality[i].where(obs.data_quality[i].values == dq,dq)
           
     return obs
 
@@ -156,6 +158,9 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
 
     # Define the Laplacian kernel.
     l = 0.25*np.array([[0,-1,0],[-1,4,-1],[0,-1,0]])
+
+    # Open a tracker for changed pixels.
+    cumulative_S = np.zeros_like(obs.images.values)
 
     # Iterate over each frame one at a time until the iteration stop condition is met by each frame.
     if verbose >= 1:
@@ -228,7 +233,11 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
 
             # Ignore the 0th order, it's a dead end of endless masking.
             xmid = int(S.shape[1]/2)
-            S[0:-1,xmid-70:xmid+70] = 0 # FIX: currently hardcoded to assume the source / 0th order is near the middle of the frame.
+            ymid = int(S.shape[0]/2)
+            S[ymid-70:ymid+70,xmid-70:xmid+70] = 0 # FIX: currently hardcoded to assume the source / 0th order is near the middle of the frame.
+
+            # Track what was flagged.
+            cumulative_S[k,:,:] += S
 
             # Report where data quality flags should be added and count pixels to be replaced.
             dq = np.where(S != 0, 1, dq)
@@ -261,7 +270,7 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
         obs.data_quality[k] = obs.data_quality[k].where(obs.data_quality[k].values == dq,dq)
 
         if (show_plots == 1 or save_plots == 1) and k == 0:
-            plot_exposure([S], min = 1e-3, max = 1, 
+            plot_exposure([cumulative_S[0,:,:]],
                           show_plot=(show_plots>=1), save_plot=(save_plots>=1), 
                           output_dir=output_dir, filename = ['LED_location_of_corrected_pixels_0'])
             
@@ -270,7 +279,7 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
                           output_dir=output_dir, filename = ['LED_after_correction_0'])
         
         elif show_plots == 2 or save_plots == 2:
-            plot_exposure([S], min = 1e-3, max = 1, 
+            plot_exposure([cumulative_S[k,:,:]],
                           show_plot=(show_plots==2), save_plot=(save_plots==2), 
                           output_dir=output_dir, filename = ['LED_location_of_corrected_pixels_{}'.format(k)])
             
@@ -280,15 +289,23 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
             
             if k == 0:
                 # Additionally plot the noise model and fine structure model, if applicable.
-                plot_exposure([noise_model], min = 1e-3, max = 1, 
+                plot_exposure([noise_model,], min = 1e-3, max = 1000, 
                               show_plot=(show_plots==2), save_plot=(save_plots==2), 
                               output_dir=output_dir, filename = ['LED_Noise_Model'])
                 
                 if build_fine_structure:
-                    plot_exposure([F], min = 1e-3, max = 1, 
+                    plot_exposure([F,], min = 1e-3, max = 1000, 
                                   show_plot=(show_plots==2), save_plot=(save_plots==2), 
                                   output_dir=output_dir, filename = ['LED_Fine_Structure_Model'])
     
+    # Make a plot of where was hit.
+    if (show_plots == 1 or save_plots == 1):
+        thits, xhits, yhits = np.where(cumulative_S != 0)
+        plot_exposure([obs.images.data[0]], scatter_data=[yhits, xhits],
+                      title = 'Location of corrected pixels', mark_size = 1,
+                      show_plot=(show_plots >= 1), save_plot=(save_plots >= 1),
+                      output_dir=output_dir, filename = [f'LED_location_of_all_corrected_pixels'])
+
     if verbose >= 1:
         print("All frames cleaned of spatial outliers by LED.")
     return obs

@@ -1,8 +1,6 @@
-import os
 from tqdm import tqdm
 
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy import optimize
 from scipy.stats import linregress
 
@@ -202,7 +200,7 @@ def get_calibration_trace(order, x0, y0, path_to_cal):
     # Compute wavelength of each of the pixels
     wavs = C.DISPL(order,x0,y0,ts)
 
-    # Restrict attention to just where 200 nm < wavs < 800 nm.
+    # Restrict attention to just where 200 nm < wavs < 800 nm. TO DO: make this variable
     dxs = dxs[np.logical_and(wavs>=2000, wavs<=8000)]
     dys = dys[np.logical_and(wavs>=2000, wavs<=8000)]
     wavs = wavs[np.logical_and(wavs>=2000, wavs<=8000)]
@@ -265,9 +263,6 @@ def fit_trace(obs, trace_x, trace_y,
     images = obs.images.data.copy()
     y_data = range(obs.dims['y'])
 
-    # generate random number for plotting
-    plot_ind = np.random.randint(0, np.shape(images)[0])
-
     # Iterate over all images.
     for i, image in enumerate(tqdm(images, desc = 'Computing trace... Progress:',
                                    disable=(verbose==0))):
@@ -323,7 +318,7 @@ def fit_trace(obs, trace_x, trace_y,
 
         # If true, plot all the traces over the image for comparison/validation.
         if save_plots > 0 or show_plots > 0:
-            if (show_plots == 2 or save_plots == 2) or i == plot_ind:
+            if (show_plots == 2 or save_plots == 2) or i == 0:
                 plot_exposure([image], line_data = [[trace_x, trace_y], [trace_x, trace]],
                             show_plot=(show_plots==2), save_plot=(save_plots==2),
                             filename=['trace_validation'],output_dir=output_dir)
@@ -351,7 +346,7 @@ def sens_correct(spec, spec_err, wav, fs):
         array-like, array-like: the spectrum and its uncertainties adjusted for the sensitivity of the detector.
     """
     # apply sens correction function 'fs' to the data
-    ok = (wav>2000) & (wav<8000)
+    ok = (wav>2000) & (wav<8000) # TO DO: make this variable
     for k in range(spec.shape[0]):
         spec[k,:]/=fs[ok]
         spec_err[k,:]/=fs[ok]

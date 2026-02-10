@@ -7,10 +7,12 @@
 
 |
 
-HUSTLE-Tools: A One-Stop Shop for WFC3/UVIS G280 Data Reduction
+HUSTLE-tools: A One-Stop Shop for WFC3/UVIS G280 Data Reduction
 ===============================================================
 
-:code:`HUSTLE-tools` is a one-stop shop Python package for extracting precise 1D spectral time series from WFC3/UVIS G280 time-series obserations. :code:`HUSTLE-tools` processes the raw \*flt.fits files of your observation with a user-friendly interface and easily-replicable reduction instructions supplied from .hustle configuration files. :code:`HUSTLE-tools` is under active development - stay tuned for future updates which will include tools for exoplanet transmission and emission spectrum fitting!
+:code:`HUSTLE-tools` is a one-stop shop Python package for extracting precise 1D spectral time series from WFC3/UVIS G280 time-series obserations. :code:`HUSTLE-tools` processes the raw \*flt.fits files of your observation with a user-friendly interface and easily-replicable reduction instructions supplied from .hustle configuration files.
+
+:code:`HUSTLE-tools` is under active development - stay tuned for future updates which will include tools for exoplanet transmission and emission spectrum fitting!
 
 .. toctree::
    :maxdepth: 2

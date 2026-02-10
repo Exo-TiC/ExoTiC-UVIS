@@ -95,10 +95,3 @@ def plot_fitted_positions(trace_x, trace_y, trace, exp_num, fitted_trace = None,
     plt.close() # save memory
 
     return
-
-
-def plot_fitted_amplitudes():
-    return
-
-def plot_fitted_widths():
-    return

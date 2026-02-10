@@ -26,7 +26,7 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
     hit_map = np.zeros_like(images)
 
     # Iterate over each sigma.
-    for j, sigma in tqdm(enumerate(sigmas),
+    for j, sigma in tqdm(enumerate(sigmas), total=len(sigmas),
                          desc='Iterating with fixed sigmas to remove CRs... Progess:',
                          disable=(verbose < 1)):
         # Get the median time frame and std as a reference.
@@ -80,12 +80,12 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
         plot_exposure([obs.images.data[0], images[0]],
                       title = 'Temporal Bad Pixel removal Example', 
                       show_plot=(show_plots >= 1), save_plot=(save_plots >= 1),
-                      output_dir=output_dir, filename = ['CR_before_correction', 'CR_after_correction'])
+                      output_dir=output_dir, filename = ['CR-fixed_before_correction', 'CR-fixed_after_correction'])
 
         plot_exposure([obs.images.data[0]], scatter_data=[yhits, xhits],
                       title = 'Location of corrected pixels', mark_size = 1,
                       show_plot=(show_plots >= 1), save_plot=(save_plots >= 1),
-                      output_dir=output_dir, filename = ['CR_location'])
+                      output_dir=output_dir, filename = ['CR-fixed_location'])
         
         counts_per_frame = [np.count_nonzero(hit_map[i,:,:]) for i in range(hit_map.shape[0])]
         plot_flags_per_time([obs.exp_time.values,], [counts_per_frame,], style='scatter',
@@ -95,7 +95,7 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
                             xmin = np.min(obs.exp_time.values), xmax = np.max(obs.exp_time.values),
                             ymin = 0.995*np.min(counts_per_frame), ymax = 1.005*np.max(counts_per_frame),
                             show_plot=(show_plots>=1),save_plot=(save_plots>=1),
-                            filename=['CR_outliers_per_frame',],output_dir=output_dir)
+                            filename=['CR-fixed_outliers_per_frame',],output_dir=output_dir)
 
     # if true, check each exposure separately
     if save_plots == 2 or show_plots == 2:
@@ -104,7 +104,7 @@ def fixed_iteration_rejection(obs, sigmas=[10,10], replacement=None,
             plot_exposure([obs.images.data[i]], scatter_data=[yhits, xhits],
                           title = 'Location of corrected pixels in frame {}'.format(i), mark_size = 1,
                           show_plot=(show_plots == 2), save_plot=(save_plots == 2),
-                          output_dir=output_dir, filename = [f'CR_location_frame{i}'])
+                          output_dir=output_dir, filename = [f'CR-fixed_location_frame{i}'])
             
     # modify original images and dq
     obs.images.data = images
@@ -179,14 +179,14 @@ def free_iteration_rejection(obs, threshold = 3.5,
         thits, xhits, yhits = np.where(hit_map == 1)
         plot_exposure([obs.images.data[0], images[0]], min = 1e0, 
                       title = 'Temporal Bad Pixel removal Example', 
-                      show_plot=(show_plots > 1), save_plot=(save_plots > 1),
+                      show_plot=(show_plots > 0), save_plot=(save_plots > 0),
                       output_dir=output_dir,
-                      filename = ['CR_before_correction', 'CR_after_correction'])
+                      filename = ['CR-free_before_correction', 'CR-free_after_correction'])
 
         plot_exposure([obs.images.data[0]], scatter_data=[yhits, xhits], min = 1e0, 
                       title = 'Location of corrected pixels', mark_size = 1,
-                      show_plot=(show_plots > 1), save_plot=(save_plots > 1),
-                      output_dir=output_dir, filename = ['CR_location'])
+                      show_plot=(show_plots > 0), save_plot=(save_plots > 0),
+                      output_dir=output_dir, filename = ['CR-free_location'])
         
         counts_per_frame = [np.count_nonzero(hit_map[i,:,:]) for i in range(hit_map.shape[0])]
         plot_flags_per_time([obs.exp_time.values,], [counts_per_frame,], style='scatter',
@@ -195,8 +195,8 @@ def free_iteration_rejection(obs, threshold = 3.5,
                             ylabel=['counts [#]',],
                             xmin = np.min(obs.exp_time.values), xmax = np.max(obs.exp_time.values),
                             ymin = 0.995*np.min(counts_per_frame), ymax = 1.005*np.max(counts_per_frame),
-                            show_plot=(show_plots>=1),save_plot=(save_plots>=1),
-                            filename=['CR_outliers_per_frame',],output_dir=output_dir)
+                            show_plot=(show_plots > 0),save_plot=(save_plots > 0),
+                            filename=['CR-free_outliers_per_frame',],output_dir=output_dir)
 
     # if true, check each exposure separately
     if save_plots == 2 or show_plots == 2:
@@ -204,11 +204,12 @@ def free_iteration_rejection(obs, threshold = 3.5,
             xhits, yhits = np.where(hit_map[i] == 1)
             plot_exposure([obs.images.data[i]], scatter_data=[yhits, xhits],
                           title = 'Location of corrected pixels in frame {}'.format(i), mark_size = 1,
-                          show_plot=(show_plots == 1), save_plot=(save_plots == 1),
-                          output_dir=output_dir, filename = [f'CR_location_frame{i}'])
+                          show_plot=(show_plots == 2), save_plot=(save_plots == 2),
+                          output_dir=output_dir, filename = [f'CR-free_location_frame{i}'])
     
-    # modify original images
+    # modify original images and dq
     obs.images.data = images
+    obs.data_quality.data = np.where(hit_map != 0, hit_map, obs.data_quality.data)
 
     # Report bad pixels.
     if verbose >= 1:

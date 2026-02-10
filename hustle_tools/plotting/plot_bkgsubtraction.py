@@ -113,13 +113,14 @@ def plot_bkgvals(exp_times, bkg_vals, method,
     return 
 
 
-def plot_mode_v_params(exp_times, modes, params,
+def plot_mode_v_params(exp_times, modes, meds, params,
                        output_dir = None, save_plot = False, show_plot = False):
     """Function to create a diagnostic plot for Pagul et al. bkg subtraction.
 
     Args:
         exp_times (np.array): BJD exposure times for each frame.
         modes (np.array): measured mode of each frame, used for comparison.
+        meds (np.array): measured median of each frame, used for comparison.
         params (np.array): Pagul+ sky image scaling parameter. Ideally, the mode and scaling parameters should not be too different.
         output_dir (str, optional): output directory where the plot will be saved. Defaults to None.
         save_plot (bool, optional): whether to save the plot to a file. Defaults to False.
@@ -128,12 +129,13 @@ def plot_mode_v_params(exp_times, modes, params,
 
     # initialize figure
     plt.figure(figsize = (10, 7))
-    # add the modes and params in different colors and markers
+    # add the modes, medians, and params in different colors and markers
     plt.scatter(exp_times, modes, marker='s', color='red',label='mode')
+    plt.scatter(exp_times, meds, marker='v', color='blue',label='median')
     plt.scatter(exp_times, params, marker='o', color='k',label='scaling parameter')
     plt.xlabel('Exposure')
     plt.ylabel('Counts')
-    plt.title('Frame mode vs scaling parameter')
+    plt.title('Frame mode/median vs scaling parameter')
     plt.legend()
     
     if save_plot:
@@ -196,3 +198,49 @@ def plot_histogram(bin_cents, array, mode, median, exp_num,
     plt.close() # save memory
 
     return
+
+def plot_bkgcorrection(exp_times, pre_bkg, post_bkg, method,
+                       output_dir = None, save_plot = False, show_plot = False):
+    """Plots the pre- and post-subtraction median background flux for the
+    upper right corner of the image.
+
+    Args:
+        exp_times (np.array): BJD exposure times for each frame.
+        pre_bkg (np.array): 1D array of measured background values.
+        post_bkg (np.array): 1D array of corrected background values.
+        method (str): The method used for background subtraction, useful to distinguish each plot file from each other.
+        output_dir (str, optional): output directory where the plot will be saved. Defaults to None.
+        save_plot (bool, optional): whether to save the plot to a file. Defaults to False.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
+    """
+
+    # initialize figure
+    plt.figure(figsize = (10, 7))
+    # plot values and also median+/-sigma
+    plt.plot(exp_times, pre_bkg, '-o', color='indianred')
+    med, sig = np.median(pre_bkg), np.std(pre_bkg)
+    plt.axhline(med,ls='--',color='indianred')
+    for mult in (-1,1):
+        plt.axhline(med+(mult*sig),ls=':',color='indianred')
+    plt.plot(exp_times, post_bkg, '-o', color='k')
+    med, sig = np.median(post_bkg), np.std(post_bkg)
+    plt.axhline(med,ls='--',color='k')
+    for mult in (-1,1):
+        plt.axhline(med+(mult*sig),ls=':',color='k')
+    plt.xlabel('Exposure')
+    plt.ylabel('Background Counts')
+    plt.title('Raw vs corrected background')
+    
+    if save_plot:
+        plot_dir = os.path.join(output_dir, 'plots') 
+        filedir = os.path.join(plot_dir, 'bkg_correction_{}.png'.format(method))
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
+        plt.savefig(filedir, bbox_inches='tight', dpi=300)
+
+    if show_plot:
+        plt.show(block=True)
+    
+    plt.close() # save memory
+
+    return 

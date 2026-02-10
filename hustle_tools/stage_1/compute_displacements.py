@@ -145,7 +145,7 @@ def track_0thOrder(obs, guess,
         output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        lst of float: location of the direct image in x, y floats.
+        lst of lst of float: location of the dispersed 0th order in x, y floats.
     """
     # update guess to actual location
     guess[0] += obs.attrs["target_posx"]
@@ -195,5 +195,9 @@ def track_0thOrder(obs, guess,
     if (show_plots > 0 or save_plots > 0):
         plot_0th_order(obs.exp_time.data,X,Y,
                        show_plot=(show_plots>0),save_plot=(save_plots>0),output_dir=output_dir)
-        
+    
+    # zip together and add to obs
+    pos = np.array([[x,y] for x,y in zip(X,Y)])
+    obs["0th_order_pos"] = (("exp_time", "xy"), pos)
+
     return X, Y

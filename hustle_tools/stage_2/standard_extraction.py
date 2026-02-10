@@ -80,7 +80,7 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
 
     # Extract 1D spectrum using the standard method.
     for k in range(traces.shape[0]):
-        err = box(err_traces[k,:,:])
+        err = np.sqrt(box(err_traces[k,:,:]**2))
         flx = box(traces[k,:,:])
         oneD_spec.append(flx)
         spec_err.append(err)
@@ -150,7 +150,7 @@ def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10
         # Get the 1D spectra.
         oneD_spec, oneD_err = standard_extraction(obs, hw, trace_x, trace_y)
         # Bin into a median-normalized white light curve on valid wavelength range.
-        ok = (wavs>2000) & (wavs<8000)
+        ok = (wavs>2000) & (wavs<8000) # TO DO: make this variable
         WLC = np.nansum(oneD_spec[:,ok],axis=1)
         WLC /= np.nanmedian(WLC)
         # Truncate to just the range of out-of-transit/eclipse for each set of indices.
@@ -215,7 +215,7 @@ def residuals_(fit,x,flx,kick_outliers=False):
         fit (np.array): guess of parameters for the fit.
         x (np.array): time.
         flx (np.array): flux.
-        kick_outliers (bool, optional):Whether to remove outliers like CRs from the array to get more accurate scatter estimation. Defaults to True.
+        kick_outliers (bool, optional): Whether to remove outliers like CRs from the array to get more accurate scatter estimation. Defaults to True.
 
     Returns:
          np.array: residuals of the fit.
