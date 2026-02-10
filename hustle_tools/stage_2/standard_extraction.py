@@ -48,7 +48,7 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
         frame = obs.images[k].values
         err = obs.errors[k].values
 
-        if masks != None:
+        if masks:
             for mask in masks:
                 # Build a circle mask on top of the object.
                 obj_mask = create_circular_mask(frame.shape[0], frame.shape[1],

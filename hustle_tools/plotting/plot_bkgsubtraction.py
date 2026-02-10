@@ -217,16 +217,17 @@ def plot_bkgcorrection(exp_times, pre_bkg, post_bkg, method,
     # initialize figure
     plt.figure(figsize = (10, 7))
     # plot values and also median+/-sigma
-    plt.plot(exp_times, pre_bkg, '-o', color='indianred')
+    plt.plot(exp_times, pre_bkg, '-o', color='indianred',label='pre-correction')
     med, sig = np.median(pre_bkg), np.std(pre_bkg)
     plt.axhline(med,ls='--',color='indianred')
     for mult in (-1,1):
         plt.axhline(med+(mult*sig),ls=':',color='indianred')
-    plt.plot(exp_times, post_bkg, '-o', color='k')
+    plt.plot(exp_times, post_bkg, '-o', color='k',label='post-correction')
     med, sig = np.median(post_bkg), np.std(post_bkg)
     plt.axhline(med,ls='--',color='k')
     for mult in (-1,1):
         plt.axhline(med+(mult*sig),ls=':',color='k')
+    plt.legend()
     plt.xlabel('Exposure')
     plt.ylabel('Background Counts')
     plt.title('Raw vs corrected background')
