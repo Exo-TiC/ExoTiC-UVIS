@@ -66,7 +66,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2)):
                                 stage0_dict['visit_number'],
                                 stage0_dict['toplevel_dir'],
                                 token=stage0_dict['token'],
-                                extensions=stage0_dict['extensions'])
+                                extensions=stage0_dict['extensions'],
+                                verbose=stage0_dict['verbose'])
     
         # collect and move files
         if stage0_dict['do_organize']:
@@ -74,7 +75,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2)):
                 stage0_dict['filesfrom_dir'] = stage0_dict['toplevel_dir'] # if the data weren't pre-downloaded, then they are here
             collect_and_move_files(stage0_dict['visit_number'], 
                                    stage0_dict['filesfrom_dir'],
-                                   stage0_dict['toplevel_dir'])
+                                   stage0_dict['toplevel_dir'],
+                                   stage0_dict['verbose'])
             
         # check if output directory exists, otherwise create output directory
         output_dir = os.path.join(stage0_dict['toplevel_dir'],'outputs')

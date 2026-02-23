@@ -39,10 +39,8 @@ def query_MAST(programID, target_name, extensions, verbose=2):
     data_products = Obs.get_product_list(obs_table)
 
     if extensions:
-        if '_flt.fits' not in extensions:
-            if verbose >= 1:
-                print("Variable 'extensions' did not include flt; adding flt extension as it is required...")
-            extensions.append('_flt.fits')
+        if verbose >= 1:
+            print("Searching for program/target files with the following extensions:",extensions)
         data_products = Obs.filter_products(data_products, extension=extensions)
         
     l = [1 for i in data_products if "hst_" not in i["productFilename"]]

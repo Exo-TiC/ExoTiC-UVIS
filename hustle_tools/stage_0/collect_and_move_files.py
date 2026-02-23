@@ -24,7 +24,7 @@ def collect_and_move_files(visit_number, fromdir, outdir, verbose=2):
     spec_flt, spec_spt, direct_flt, direct_spt, jit_files, misc_files = collect_files(fromdir, visit_number, verbose)
 
     # Then sort by orbit.
-    identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, jit_files, misc_files, verbose)
+    identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, jit_files, misc_files, outdir, verbose)
     
     # Now re-sort using the updated filenames.
     files = sorted(glob.glob(os.path.join(fromdir, "*")))
@@ -43,6 +43,8 @@ def collect_and_move_files(visit_number, fromdir, outdir, verbose=2):
     visit_files = [f for f in visit_files if (f not in spec_files and f not in direct_files and f not in jit_files)]
     # Finally, filter everything else.
     misc_files = [f for f in files if (f not in spec_files and f not in direct_files and f not in jit_files and f not in visit_files)]
+    # Remove directories!
+    misc_files = [f for f in misc_files if not os.path.isdir(f)]
 
     for files, target in zip((spec_files, direct_files, jit_files, visit_files, misc_files),
                              ("specimages","directimages","jitterfiles","visitfiles","miscfiles")):
@@ -62,7 +64,7 @@ def collect_and_move_files(visit_number, fromdir, outdir, verbose=2):
         print("All spec, direct, jitter, and misc files moved.")
 
 
-def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, jit_files, misc_files, verbose=2):
+def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, jit_files, misc_files, outdir, verbose=2):
     """Opens each file and checks exposure time starts to find orbits.
 
     Args:
@@ -72,19 +74,38 @@ def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, jit_files, misc_
         direct_spt (lst of str): The filepaths to the direct spt images corresponding to the flt images.
         jit_files (lst of str): The filepaths to the jitter files, one for each orbit.
         misc_files (lst of str): The filepaths to the miscellanous files.
+        outdir (str): Where the files will be moved to, or where the .flt files already are.
         verbose (int, optional): From 0 to 2, how much detail you want the output logs to have. Defaults to 2.
     """
     # First, sort all files by exposure time and get corresponding file prefix names.
     starts = []
     prefixes = []
     for f in spec_flt:
-        filename = str.split(f, sep="/")
-        split_filename = str.split(filename[-1], sep='_')
         with fits.open(f) as fits_file:
             starts.append(fits_file[0].header["EXPSTART"]*86400) # turn it into seconds
+            filename = fits_file[0].header["FILENAME"]
+            split_filename = str.split(filename, sep='_')
             prefixes.append(split_filename[0]) # this is the iexr##xxx part of the filename, which can be used to find associated files
     bundle = [(i,j,) for i,j, in zip(starts,prefixes)]
     bundle = sorted(bundle, key = lambda x: x[0]) # sorted by exposure time
+
+    if spec_flt == []:
+        # If the files were already downloaded, we need to go fetch them and create the associations with iexr##xxx
+        if verbose >= 1:
+            print("Spectroscopic images were already downloaded: reading off FILENAME keyword to create iexr##xxx filename associations...")
+        specimages_path = os.path.join(outdir,"specimages")
+        spec_flt = sorted(glob.glob(os.path.join(specimages_path,"*_flt.fits")))
+        if spec_flt == []:
+            # Throw an error: we need to have *flt.fits files before we can parse any other file in the program
+            raise FileNotFoundError("*flt.fits files not located; please download these first as HUSTLE-Tools requires them to parse other files for your program ID + target!")
+        for f in spec_flt:
+            with fits.open(f) as fits_file:
+                starts.append(fits_file[0].header["EXPSTART"]*86400) # turn it into seconds
+                filename = fits_file[0].header["FILENAME"]
+                split_filename = str.split(filename, sep='_')
+                prefixes.append(split_filename[0]) # this is the iexr##xxx part of the filename, which can be used to find associated files
+        bundle = [(i,j,) for i,j, in zip(starts,prefixes)]
+        bundle = sorted(bundle, key = lambda x: x[0]) # sorted by exposure time
 
     # Create association between iexr##xxx and or##fm###.
 
@@ -111,25 +132,48 @@ def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, jit_files, misc_
 
     # Now we need to replace instances of iexr##xxxx in filenames with or##fm###.
     if verbose == 2:
-        print("Renaming spec and misc files.")
+        print("Renaming spec/misc files.")
     for prefix in prefixes:
         for files in (spec_flt, spec_spt, misc_files):
             relevant_files = [f for f in files if prefix in f]
             for f in relevant_files:
                 f_new = str.replace(f, prefix, rename[prefix])
-                shutil.move(f, f_new)
+                if not os.path.exists(f_new):
+                    shutil.move(f, f_new)
+                else:
+                    if verbose == 2:
+                        print(f"{f_new} has already been downloaded; removing excess copy of file.")
+                    os.rmdir(f)
     
     # Direct images do not follow this convention. So we do it all again.
     starts = []
     prefixes = []
     for f in direct_flt:
-        filename = str.split(f, sep="/")
-        split_filename = str.split(filename[-1], sep='_')
         with fits.open(f) as fits_file:
             starts.append(fits_file[0].header["EXPSTART"]*86400) # turn it into seconds
+            filename = fits_file[0].header["FILENAME"]
+            split_filename = str.split(filename, sep='_')
             prefixes.append(split_filename[0]) # this is the iexr##xxx part of the filename, which can be used to find associated files
     bundle = [(i,j,) for i,j, in zip(starts,prefixes)]
     bundle = sorted(bundle, key = lambda x: x[0]) # sorted by exposure time
+
+    if direct_flt == []:
+        # If the files were already downloaded, we need to go fetch them and create the associations with iexr##xxx
+        if verbose >= 1:
+            print("Direct images were already downloaded: reading off FILENAME keyword to create iexr##xxx filename associations...")
+        directimages_path = os.path.join(outdir,"directimages")
+        direct_flt = sorted(glob.glob(os.path.join(directimages_path,"*_flt.fits")))
+        if direct_flt == []:
+            # Throw an error: we need to have *flt.fits files before we can parse any other file in the program
+            raise FileNotFoundError("*flt.fits files not located; please download these first as HUSTLE-Tools requires them to parse other files for your program ID + target!")
+        for f in direct_flt:
+            with fits.open(f) as fits_file:
+                starts.append(fits_file[0].header["EXPSTART"]*86400) # turn it into seconds
+                filename = fits_file[0].header["FILENAME"]
+                split_filename = str.split(filename, sep='_')
+                prefixes.append(split_filename[0]) # this is the iexr##xxx part of the filename, which can be used to find associated files
+        bundle = [(i,j,) for i,j, in zip(starts,prefixes)]
+        bundle = sorted(bundle, key = lambda x: x[0]) # sorted by exposure time
 
     # Create association between iexr##xxx and or##dr###.
     rename = {bundle[0][1]:"or01dr001"}
@@ -178,13 +222,18 @@ def identify_orbits(spec_flt, spec_spt, direct_flt, direct_spt, jit_files, misc_
 
     # Now we need to replace instances of iexr##xxx in filenames with or##dr###.
     if verbose == 2:
-        print("Renaming spec and misc files.")
+        print("Renaming direct/misc files.")
     for prefix in prefixes:
         for files in (direct_flt, direct_spt, misc_files):
             relevant_files = [f for f in files if prefix in f]
             for f in relevant_files:
                 f_new = str.replace(f, prefix, rename[prefix])
-                shutil.move(f, f_new)
+                if not os.path.exists(f_new):
+                    shutil.move(f, f_new)
+                else:
+                    if verbose == 2:
+                        print(f"{f_new} has already been downloaded; removing excess copy of file.")
+                    os.rmdir(f)
     
     if verbose >= 1:
         print("Renamed all files to follow or##fm### (for spec frames) or or##dr### (for direct frames) convention.")
@@ -230,6 +279,10 @@ def collect_files(search_dir, visit_number, verbose=2):
     # Sort files into direct, spec, jitter, and misc
 
     for f in files:
+        if os.path.isdir(f):
+            if verbose == 2:
+                print(f"{f} is a directory; shutil will not move it.")
+            continue
         if any(txt in f for txt in reject):
             # It's a file we do not want.
             misc_files.append(f)
@@ -282,6 +335,13 @@ def collect_files(search_dir, visit_number, verbose=2):
             else:
                 # Unrecognizd file type
                 misc_files.append(f)
-    if verbose >= 1:
+    if verbose == 1:
         print("Collected spec, direct, jitter, and misc files.")
+    if verbose == 2:
+        print("Collected {} spec_flt files.".format(len(spec_flt)))
+        print("Collected {} spec_spt files.".format(len(spec_spt)))
+        print("Collected {} direct_flt files.".format(len(direct_flt)))
+        print("Collected {} direct_spt files.".format(len(direct_spt)))
+        print("Collected {} jit_files files.".format(len(jit_files)))
+        print("Collected {} misc_files files.".format(len(misc_files)))
     return spec_flt, spec_spt, direct_flt, direct_spt, jit_files, misc_files
