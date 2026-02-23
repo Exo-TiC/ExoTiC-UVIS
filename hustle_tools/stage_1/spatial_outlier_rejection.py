@@ -54,7 +54,8 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=11, sigma=10, bounds_set=[[2
                                                                               threshold = sigma,
                                                                               kernel = kernel,
                                                                               show_plots=show_plots,
-                                                                              save_plots=save_plots)           
+                                                                              save_plots=save_plots,
+                                                                              output_dir=output_dir)
             # remove outliers with 2D smoothing 
             elif type == '2D_smooth':
                 Pprof, sub_image_clean, xhits, yhits = spatial_2D_smooth(sub_image,
