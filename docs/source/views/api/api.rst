@@ -79,6 +79,13 @@ Trace Fitting
     :undoc-members:
     :show-inheritance:
 
+Time And Relative Detrending In Space (TARDIS)
+----------------------------
+.. automodule:: hustle_tools.stage_2.tardis
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Extraction
 ----------------------------
 .. automodule:: hustle_tools.stage_2.standard_extraction

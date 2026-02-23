@@ -41,7 +41,7 @@ def plot_one_spectrum(wavelengths, spectrum, order="+1",
     # initialize plot and plot data that's in the okay range
     plt.figure(figsize = (10, 7))
     plt.plot(wavelengths[ok], spectrum[ok], color=colors[order])
-    plt.xlabel('Wavelength (nm)')
+    plt.xlabel(r'Wavelength ($\AA$)')
     plt.ylabel('Extracted Counts')
     plt.title('Median extracted order {} spectrum'.format(order))
     
@@ -90,7 +90,7 @@ def plot_many_spectra(wavelengths, spectra, order="+1", labels=None,
         else:
             plt.plot(wavelengths[ok], spectra[i][ok], alpha=0.5,
                      color=colors[i])
-    plt.xlabel('Wavelength (nm)')
+    plt.xlabel(r'Wavelength ($\AA$)')
     plt.ylabel('Extracted Counts')
     plt.legend(loc='upper right')
     plt.title('Overplotted spectra for order {}'.format(order))
@@ -142,8 +142,9 @@ def plot_spec_gif(wav, spec, order="+1",
     leg = ax.legend(loc='upper right')
     ax.set_xlim(2000,8000)
     ax.set_ylim(0, np.nanmax(spec[:,ok]))
-    ax.set_xlabel('wavelength [AA]')
-    ax.set_ylabel('counts [a.u.]')
+    ax.set_xlabel(r'Wavelength ($\AA$)')
+    ax.set_ylabel('Extracted Counts')
+    ax.set_title('1D spectra .gif for order {}'.format(order))
 
     # initialize 
     def init():
@@ -174,7 +175,8 @@ def plot_spec_gif(wav, spec, order="+1",
         if not os.path.exists(plot_dir):
             os.makedirs(plot_dir)
 
-        animation.save(os.path.join(plot_dir, f'{filename}.gif'), writer = 'ffmpeg', fps = 10)
+        animation.save(os.path.join(plot_dir, f'{filename}.gif'), dpi=300,
+                       writer = 'ffmpeg', fps = 10)
 
     if show_plot:
         plt.show(block = True)
@@ -209,8 +211,8 @@ def plot_2d_spectra(wav, spec, order="+1",
                extent = [wav[0], wav[-1], 0, spec.shape[0]])
     plt.colorbar()
     plt.ylabel('Integration number')
-    plt.xlabel('Wavelength (microns)')
-    plt.title(f'2D spectral map Order {order}')
+    plt.xlabel(r'Wavelength ($\AA$)')
+    plt.title(f'2D spectral map for order {order}')
 
     if save_plot:
         plot_dir = os.path.join(output_dir, 'plots') 

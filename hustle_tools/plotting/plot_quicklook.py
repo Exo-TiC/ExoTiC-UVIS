@@ -177,7 +177,6 @@ def create_gif(exp_times, images, total_flux, partial_flux, sections,
     ax2 = fig.add_subplot(gs[1, 0])
     ax2.set_title('Total Image Flux', size = 10)
     sum_flux_line, = ax2.plot(exp_times, total_flux, '.', color = 'indianred')
-    #sum_flux_line,  = ax2.plot([], [], '.', color = 'indianred')
     ax2.set_xlabel('Time of Exposure (BJD TDB)')
     ax2.set_ylabel('Counts (e-)')
 
@@ -247,7 +246,6 @@ def create_dq_gif(exp_times, images, dq, sections,
     # create animation
     fig = plt.figure(figsize = (10, 7))
     gs = fig.add_gridspec(2, 2)
-    #fig.subplots_adjust(left=0.1, bottom=0.1, right=0.95, top=0.95, wspace=None, hspace = None)
   
     # initialize exposure subplot and add exposure
     ax1 = fig.add_subplot(gs[0, :])
@@ -267,7 +265,6 @@ def create_dq_gif(exp_times, images, dq, sections,
     for k in range(dq.shape[0]):
         dq_flags_per_frame[k] = np.count_nonzero(dq[k,:,:])
     sum_flux_line, = ax2.plot(exp_times, dq_flags_per_frame, '.', color = 'indianred')
-    #sum_flux_line,  = ax2.plot([], [], '.', color = 'indianred')
     ax2.set_xlabel('Time of Exposure (BJD TDB)')
     ax2.set_ylabel('Flags (N)')
 
