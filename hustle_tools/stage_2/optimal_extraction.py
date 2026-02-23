@@ -76,24 +76,6 @@ def spatial_profile_smooth(image_org, kernel = 11, threshold = 5., std_window = 
                         image[j, ind] = row_model[ind]
                         xhits.append(ind)
                         yhits.append(j)
-
-        # just some inside plots for sanity check
-        if (show_plots == 2 or save_plots == 2):   
-            plt.figure()
-            plt.plot(image[j])
-            plt.plot(row_model)
-
-            if save_plots == 2:
-                plot_dir = os.path.join(output_dir,'plots')
-                if not os.path.exists(plot_dir):
-                    os.makedirs(plot_dir)
-                plt.savefig(os.path.join(plot_dir, 'spatialprofile_smooth.png'),
-                            dpi=300,bbox_inches='tight')
-            
-            if show_plots == 2:
-                plt.show(block=True)
-            
-            plt.close() # save memory
     
     # normalize spatial profile
     P_prof = np.array(P_prof)

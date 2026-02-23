@@ -211,7 +211,7 @@ def remove_zeroth_order(obs, mode = 'radial_profile', zero_pos = [1158, 300],
                                     output_dir=output_dir, filename = [f'0th_order_before-corrected_frame{j}',
                                                                        f'0th_order_after-corrected_frame{j}'])
                     
-                    plot_exposure([zero_bkg[j],], title = '0th order model', min=np.min(fitted_profile), max=np.max(fitted_profile),
+                    plot_exposure([zero_bkg[j],], title = '0th order model', min=max(np.min(fitted_profile),0.001), max=np.max(fitted_profile),
                                     show_plot=(show_plots>0), save_plot=(save_plots>0),
                                     output_dir=output_dir, filename = [f'0th_order_model_frame{j}',])
                     

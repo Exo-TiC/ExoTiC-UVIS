@@ -248,6 +248,17 @@ def rampslope(x,a,b,c,d):
 
 
 def create_circular_mask(h, w, center=None, radius=None):
+    """Simple function to draw a circular mask on the trace.
+
+    Args:
+        h (int): the x shape of the array.
+        w (int): the y shape of the array.
+        center (int, optional): x,y center of the circle to draw. Defaults to None.
+        radius (int, optional): the radius of the circle to draw. Defaults to None.
+
+    Returns:
+        np.array: a mask which covers a circle on the array.
+    """
     if center is None: # use the middle of the image
         center = (int(w/2), int(h/2))
     if radius is None: # use the smallest distance between the center and image walls
