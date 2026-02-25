@@ -62,11 +62,6 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=11, sigma=10, bounds_set=[[2
                                                                          kernel=kernel,
                                                                          sigma=sigma)
 
-            # remove outliers with other routines
-            elif type == 'polyfit':
-                # FIX (Issue #41): we'll add this routine in a future update, stay tuned!
-                print('More cleaning options will be added in the future (see Issue #41)')
-
             # save position of corrected outliers
             all_xhits = np.concatenate((all_xhits, xhits))
             all_yhits = np.concatenate((all_yhits, yhits))
@@ -75,25 +70,25 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=11, sigma=10, bounds_set=[[2
             if save_plots > 0 or show_plots > 0:
                 if (show_plots > 0 or save_plots > 0) and i == 0:
                     plot_exposure([sub_image, sub_image_clean], min = 1e0, 
-                                title = f'Spatial Bad Pixel Removal, Exposure #{i}', 
+                                title = f'Spatial Bad Pixel removal Exposure {i}', 
                                 show_plot=(show_plots > 0), save_plot=(save_plots > 0),
                                 output_dir=output_dir,
                                 filename = [f'spatialsmooth_before_correction_frame{i}', f'spatialsmooth_after_correction_frame{i}'])
 
                     plot_exposure([sub_image], scatter_data=[xhits, yhits], min = 1e0, 
-                                title = f'Location Of Corrected Pixels, Exposure #{i}', mark_size = 1,
+                                title = f'Location of corrected pixels for Exposure {i}', mark_size = 1,
                                 show_plot=(show_plots > 0), save_plot=(save_plots > 0),
                                 output_dir=output_dir, filename = [f'spatialsmooth_location_frame{i}'])
                 
                 elif (show_plots == 2 or save_plots == 2):
                     plot_exposure([sub_image, sub_image_clean], min = 1e0, 
-                                title = f'Spatial Bad Pixel Removal, Exposure #{i}', 
+                                title = f'Spatial Bad Pixel removal Exposure {i}', 
                                 show_plot=(show_plots == 2), save_plot=(save_plots == 2),
                                 output_dir=output_dir,
                                 filename = [f'spatialsmooth_before_correction_frame{i}', f'spatialsmooth_after_correction_frame{i}'])
 
                     plot_exposure([sub_image], scatter_data=[xhits, yhits], min = 1e0, 
-                                title = f'Location Of Corrected Pixels, Exposure #{i}', mark_size = 1,
+                                title = f'Location of corrected pixels for Exposure {i}', mark_size = 1,
                                 show_plot=(show_plots == 2), save_plot=(save_plots == 2),
                                 output_dir=output_dir, filename = [f'spatialsmooth_location_frame{i}'])
 
@@ -208,9 +203,7 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
                 F = build_fine_structure_model(data_frame)
 
             # Subsample the array.
-            subsample, original_shape, factor = subsample_frame(data_frame,
-                                                                factor=factor,
-                                                                verbose=verbose)
+            subsample, original_shape = subsample_frame(data_frame, factor=factor)
             
             # Convolve subsample with laplacian.
             lap_img = np.convolve(l.flatten(),subsample.flatten(),mode='same').reshape(subsample.shape)
@@ -335,7 +328,7 @@ def build_noise_model(data_frame, readnoise):
     return noise_model
 
 
-def subsample_frame(data_frame, factor=2, verbose = 0):
+def subsample_frame(data_frame, factor=2):
     """Subsamples the input frame by the given subsampling factor.
 
     Args:
@@ -343,13 +336,10 @@ def subsample_frame(data_frame, factor=2, verbose = 0):
         factor (int, optional): Factor by which to subsample the array which must be >= 2. Defaults to 2.
 
     Returns:
-        array-like, array-like, int: 2D array same shape as data frame,
-        subsampled by factor. Also returns img original shape and the factor
-        for subsampling, which may have gotten updated.
+        np.array: 2D array same shape as data frame, subsampled by factor.
     """
     if factor < 2:
-        if verbose > 0:
-            print("Subsampling factor must be at least 2, forcing factor to 2...")
+        print("Subsampling factor must be at least 2, forcing factor to 2...")
         factor = 2 # Force factor 2 or more
     factor = int(factor) # Force integer
     
@@ -364,18 +354,18 @@ def subsample_frame(data_frame, factor=2, verbose = 0):
                 subsample[i,j] = data_frame[int((i+1)/2),int((j+1)/2)]
             except IndexError:
                 subsample[i,j] = 0
-    return subsample, original_shape, factor
+    return subsample, original_shape
 
 
 def resample_frame(data_frame, original_shape):
     """Resamples a subsampled array back to the original shape.
 
     Args:
-        data_frame (array-like): subsampled frame from the images DataSet.
+        data_frame (np.array): subsampled frame from the images DataSet.
         original_shape (tuple of int): original shape of the subsampled array.
 
     Returns:
-        array-like: 2D array with original shape resampled from the data frame.
+        np.array: 2D array with original shape resampled from the data frame.
     """
     resample = np.empty(original_shape)
     for i in range(original_shape[0]):
@@ -391,10 +381,10 @@ def build_fine_structure_model(data_frame):
     """Builds a fine structure model for the data frame.
 
     Args:
-        data_frame (array-like): Native resolution data.
+        data_frame (np.array): Native resolution data.
 
     Returns:
-        array-like: 2D array of fine structure model.
+        np.array: 2D array of fine structure model.
     """
     F = median_filter(data_frame, size=3) - median_filter(median_filter(data_frame, size=3), size=7)
     F[F <= 0] = np.mean(F) # really want to avoid nans

@@ -107,7 +107,7 @@ def plot_many_spectra(wavelengths, spectra, order="+1", labels=None,
 
     plt.close() # save memory
 
-    return
+    return 
 
 
 def plot_spec_gif(wav, spec, order="+1",
@@ -224,47 +224,5 @@ def plot_2d_spectra(wav, spec, order="+1",
         plt.show(block=True)
 
     plt.close() # save memory
-
-    return 
-
-
-def plot_best_aperture(tested_hws, reses,  
-                       show_plot = False, save_plot = False,
-                        filename = None, output_dir = None):
-    """Plots the light curve scatter as a function of the extraction half-width aperture
-
-    Args:
-        tested_hws (np.array): half-width apertures tested
-        reses (np.array): residuals for each half-width aperture
-        show_plot (bool, optional): whether to save this plot to a file.
-        Defaults to False.
-        save_plot (bool, optional): whether to save this plot to a file.
-        Defaults to False.
-        filename (str, optional): name to give this file, if saving.
-        Defaults to None.
-        output_dir (str, optional): where to save the file, if saving.
-        Defaults to None.
-    """
-
-    # plot rms of each aperture
-    plt.figure(figsize=(10, 7))
-    plt.scatter(tested_hws, [1e6*i for i in reses], color='indianred')
-    plt.axvline(tested_hws[np.argmin(reses)], color='gray', 
-                linestyle='--', label='Lowest rms aperture')
-    plt.xlabel('Half-width (pixels)')
-    plt.ylabel('Residuals (ppm)')
-    plt.legend()
-
-    if save_plot > 0:
-        plot_dir = os.path.join(output_dir,'plots')
-        if not os.path.exists(plot_dir):
-            os.makedirs(plot_dir)
-        filedir = os.path.join(plot_dir, f"{filename}.png")
-        plt.savefig(filedir, dpi=300,bbox_inches='tight')
-
-    if show_plot > 0:
-        plt.show(block=True)
-    
-    plt.close()
 
     return 

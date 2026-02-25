@@ -157,7 +157,6 @@ def create_gif(exp_times, images, total_flux, partial_flux, sections,
     images = np.copy(images)
 
     # avoid zero and negative values for log plot
-    images = org_images.copy()
     images[images <= 0] = 1e-7
 
     # create animation
@@ -185,8 +184,8 @@ def create_gif(exp_times, images, total_flux, partial_flux, sections,
     ax3 = fig.add_subplot(gs[1, 1])
     ax3.set_title('Boxed Region(s) Flux', size = 10)
     transit_line, = ax3.plot(exp_times, partial_flux, '.', color = 'indianred')
-    ax3.set_xlabel('Time Of Exposure (MJD)')
-    ax3.set_ylabel('Counts (counts)')
+    ax3.set_xlabel('Time of Exposure (BJD TDB)')
+    ax3.set_ylabel('Counts (e-)')
     
 
     # initialize 
@@ -210,8 +209,7 @@ def create_gif(exp_times, images, total_flux, partial_flux, sections,
         return sum_flux_line, transit_line
         
     # create and plot animation
-    animation = FuncAnimation(fig, animation_func, init_func = init,
-                              frames = np.shape(images)[0], interval = 20)
+    animation = FuncAnimation(fig, animation_func, init_func = init, frames = np.shape(images)[0], interval = 20)
     plt.tight_layout()
     if show_fig:
         plt.show(block = True)
@@ -257,12 +255,12 @@ def create_dq_gif(exp_times, images, dq, sections,
         rect = patches.Rectangle((section[2], section[0]), section[3] - section[2], section[1] - section[0], linewidth=1, edgecolor='r', facecolor='none')
         ax1.add_patch(rect)
     ax1.add_patch(rect)
-    ax1.set_xlabel('Detector X-Pixel')
-    ax1.set_ylabel('Detector Y-Pixel')
+    ax1.set_xlabel('Detector x pixel')
+    ax1.set_ylabel('Detector y pixel')
 
     # initialize total Dq flags per frame subplot
     ax2 = fig.add_subplot(gs[1, 0])
-    ax2.set_title('Flags Per Frame', size = 10)
+    ax2.set_title('Flags per frame', size = 10)
     dq_flags_per_frame = np.empty_like(exp_times)
     for k in range(dq.shape[0]):
         dq_flags_per_frame[k] = np.count_nonzero(dq[k,:,:])
@@ -278,8 +276,8 @@ def create_dq_gif(exp_times, images, dq, sections,
     for k in range(dq.shape[0]):
         dq_flags_per_box[k] = np.count_nonzero(dq[k,section[0]:section[1],section[2]:section[3]])
     transit_line, = ax3.plot(exp_times, dq_flags_per_box, '.', color = 'indianred')
-    ax3.set_xlabel('Time Of Exposure (MJD)')
-    ax3.set_ylabel('Flags (#)')
+    ax3.set_xlabel('Time of Exposure (BJD TDB)')
+    ax3.set_ylabel('Flags (N)')
     
 
     # initialize 
@@ -303,8 +301,7 @@ def create_dq_gif(exp_times, images, dq, sections,
         return sum_flux_line, transit_line
         
     # create and plot animation
-    animation = FuncAnimation(fig, animation_func, init_func = init,
-                              frames = np.shape(images)[0], interval = 20)
+    animation = FuncAnimation(fig, animation_func, init_func = init, frames = np.shape(images)[0], interval = 20)
     plt.tight_layout()
     if show_fig:
         plt.show(block = True)

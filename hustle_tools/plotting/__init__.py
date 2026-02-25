@@ -13,6 +13,8 @@ __all__ = [
     "plot_spec_gif",
     "plot_profile_fit",
     "plot_fitted_positions",
+    "plot_fitted_amplitudes",
+    "plot_fitted_widths",
     "plot_histogram",
     "plot_2d_spectra",
     "plot_raw_whitelightcurve",

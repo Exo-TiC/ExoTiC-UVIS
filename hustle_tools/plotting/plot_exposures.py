@@ -42,8 +42,8 @@ def plot_exposure(images, line_data = None, scatter_data = None,
         plt.imshow(image, origin = 'lower', norm='log', 
                    vmin = min, vmax = max, 
                    cmap = 'gist_gray', extent = extent)
-        plt.xlabel('Detector X-pixel')
-        plt.ylabel('Detector Y-pixel')
+        plt.xlabel('Detector x-pixel')
+        plt.ylabel('Detector y-pixel')
         plt.colorbar()
 
         if line_data:

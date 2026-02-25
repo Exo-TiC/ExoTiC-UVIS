@@ -50,7 +50,7 @@ def refine_location(obs, window=20,
     if show_plots > 0 or save_plots > 0:
         plot_exposure([image], 
                       scatter_data = [[obs.attrs['target_posx']], [obs.attrs['target_posy']]],
-                      title = 'Computed Direct Image Target Location',
+                      title = 'Computed direct image target location',
                       show_plot=show_plots, save_plot=save_plots, 
                       output_dir=output_dir, filename = [f'target_location_in_direct_image']) 
     
@@ -59,7 +59,7 @@ def refine_location(obs, window=20,
 
 def track_bkgstars(obs, bkg_stars, window = 15,
                    verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
-    """Function to compute the x & y displacement of a given background star
+    """Function to compute the x & y displacement of a given background star.
 
     Args:
         obs (xarray): obs.images contains the images of the stars.
@@ -71,7 +71,7 @@ def track_bkgstars(obs, bkg_stars, window = 15,
         output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        array-like, array-like: relative and average positions of each star in time.
+        np.array, np.array: relative and average positions of each star in time.
     """
 
     # intialize and copy images
@@ -107,7 +107,7 @@ def track_bkgstars(obs, bkg_stars, window = 15,
         if (show_plots==2 or save_plots==2):
             # save or show a plot of this star
             plot_exposure([images[0]], scatter_data = [x0 + x1, y0 + y1],
-                          title = 'Position Of Star #{}'.format(i),
+                          title = 'Position of star #{}'.format(i),
                           show_plot = (show_plots==2), save_plot = (save_plots==2), 
                           filename = ['bkg_star_no{}'.format(i)],
                           output_dir = output_dir)
@@ -172,12 +172,12 @@ def track_0thOrder(obs, guess,
         if (show_plots > 0 or save_plots > 0):
             if k == 0:
                 plot_exposure([window],scatter_data=[[xs,],[ys],],
-                              title='Tracked 0th In Frame {}'.format(k),
+                              title='Tracked 0th in frame {}'.format(k),
                               show_plot=(show_plots>0),save_plot=(save_plots>0),
                               filename=['0th_tracking_frame{}'.format(k)],output_dir=output_dir)
             elif (show_plots == 2 or save_plots == 2):
                 plot_exposure([window],scatter_data=[[xs,],[ys],],
-                              title='Tracked 0th In Frame {}'.format(k),
+                              title='Tracked 0th in frame {}'.format(k),
                               show_plot=(show_plots==2),save_plot=(save_plots==2),
                               filename=['0th_tracking_frame{}'.format(k)],output_dir=output_dir)
 

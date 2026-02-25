@@ -28,6 +28,7 @@ def plot_profile_fit(y_vals, profile, gaussian_fit, cal_center, fit_center,
         save_plot (bool, optional): whether to save this plot. Defaults to False.
         output_dir (str, optional): where this plot is being saved to, if save_plot is True. Defaults to None.
     """
+
     plt.figure(figsize = (10, 7))
     plt.plot(y_vals, profile, color = 'indianred')
     plt.plot(y_vals, gaussian_fit, linestyle = '--', linewidth = 1.2, color = 'gray')
@@ -35,9 +36,9 @@ def plot_profile_fit(y_vals, profile, gaussian_fit, cal_center, fit_center,
     plt.axvline(fit_center - 12, linestyle = '--', color = 'gray', linewidth = 0.7)
     plt.axvline(fit_center + 12, linestyle = '--', color = 'gray', linewidth = 0.7)
     plt.axvline(cal_center, color = 'black', linestyle = '-.', alpha = 0.8)
-    plt.ylabel('Counts (counts)')
-    plt.xlabel('Detector Pixel Position (pixel)')
-    plt.title(f'Example Of Profile Fitted To Trace Column {column}')
+    plt.ylabel('Counts')
+    plt.xlabel('Detector Pixel Position')
+    plt.title(f'Example of Profile fitted to Trace Column {column}')
 
     if save_plot:
         plot_dir = os.path.join(output_dir, 'plots') 
@@ -61,8 +62,7 @@ def plot_fitted_positions(trace_x, trace_y, trace, exp_num, fitted_trace = None,
     Args:
         trace_x (array-like): GRISMCONF solution to the columns.
         trace_y (array-like): GRISMCONF solution to the rows.
-        trace (array-like): computed solution to the rows, to be compared to
-        the GRISMCONF solution.
+        trace (array-like): computed solution to the rows, to be compared to the GRISMCONF solution.
         exp_num (int): which frame this is, for plot title and filename.
         fitted_trace (array-like, optional): a polynomial fit to the trace center, may or may not be performed. Defaults to None.
         show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
@@ -70,6 +70,7 @@ def plot_fitted_positions(trace_x, trace_y, trace, exp_num, fitted_trace = None,
         filename (str, optional): name to give this file, if saving. Defaults to None.
         output_dir (str, optional): where to save the file, if saving. Defaults to None.
     """
+
     # plot the computed positions and compare to calibration trace
     plt.figure(figsize=(10, 7))
     plt.plot(trace_x, trace, 'o', alpha = 0.4, color='indianred', label='Profile centers')
@@ -78,9 +79,9 @@ def plot_fitted_positions(trace_x, trace_y, trace, exp_num, fitted_trace = None,
     if fitted_trace is not None:
         plt.plot(trace_x, fitted_trace, '-', color='black', label='Polynomial fit to centers')
 
-    plt.xlabel('X-Pixel position (pixels)')
-    plt.ylabel('Y-Pixel position (pixels)')
-    plt.title(f'Trace Positions, Exposure #{exp_num}')
+    plt.xlabel('X pixel position')
+    plt.ylabel('Y pixel position')
+    plt.title(f'Trace positions Exposure {exp_num}')
     plt.legend()
 
     if save_plot:

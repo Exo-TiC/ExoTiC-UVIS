@@ -14,5 +14,5 @@ We recommend that you **fork** the repository and submit your requests according
 
 Code of conduct
 ---------------
-This package follows the Contributor Covenant `Code of Conduct <https://github.com/Exo-TiC/ExoTiC-UVIS/blob/main/CODE_OF_CONDUCT.md>`_
+This package follows the Contributor Covenant `Code of Conduct <https://github.com/Exo-TiC/HUSTLE-tools/blob/main/CODE_OF_CONDUCT.md>`_
 to provide a welcoming community to everybody.
