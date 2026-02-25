@@ -6,6 +6,7 @@ from astropy.io import fits
 import xarray as xr
 
 from wfc3tools import sub2full
+from hustle_tools.stage_1.uvis_embed import get_subarr_coords
 
 
 def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose = 2):
@@ -13,19 +14,16 @@ def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose
 
     Args:
         data_dir (str): folder where the spec and direct image subfolders are.
-        skip_first_fm (bool, optional): whether to remove all first frames from
-        each orbit. Defaults to False.
-        skip_first_or (bool, optional): whether to remove the first orbit from
-        the dataset. Defaults to False.
-        verbose (int, optional): How detailed the print statements should be
-        on a scale of 0-2. Defaults to 2.
+        skip_first_fm (bool, optional): whether to remove all first frames from each orbit. Defaults to False.
+        skip_first_or (bool, optional): whether to remove the first orbit from the dataset. Defaults to False.
+        verbose (int, optional): How detailed the print statements should be on a scale of 0-2. Defaults to 2.
 
     Returns:
         xarray: images and all associated data needed for reduction.
     """
 
     # initialize data structures
-    images, errors, data_quality, subarr_coords, orbit_Ns = [], [], [], [], []
+    images, errors, data_quality, hst_dq, subarr_coords, orbit_Ns = [], [], [], [], [], []
     exp_time, exp_time_UT, exp_duration, read_noise = [], [], [], []
     
     # iterate over all files in specs directory
@@ -50,14 +48,14 @@ def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose
                 image = np.array(hdul[1].data)
                 error = np.array(hdul[2].data)
 
-                #print(repr(hdul[0].header))
                 exp_time.append((hdul[0].header['EXPSTART'] + hdul[0].header['EXPEND'])/2)
                 exp_time_UT.append((hdul[0].header['TIME-OBS']))
-                data_quality.append(hdul[3].data)
+                hst_dq.append(hdul[3].data)
+                data_quality.append(np.zeros_like(hdul[3].data))
                 exp_duration.append(hdul[0].header["EXPTIME"])
 
-                #run file through sub2full
-                y1,y2,x1,x2 = sub2full(os.path.join(specs_dir, filename), fullExtent=True)[0]
+                # fetch coord information straight from naxis, ltv keywords
+                y1,y2,x1,x2 = get_subarr_coords(hdul)
 
                 # pry orbit number out of filename
                 orbit_N = float(filename[2:4])
@@ -69,7 +67,6 @@ def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose
                 read_noise.append(np.median(np.sqrt(error**2 - image))) 
                 subarr_coords.append(np.array([y1,y2,x1,x2]))
                 orbit_Ns.append(orbit_N)
-
 
     # collapse subarr_coords
     subarr_coords = np.mean(np.array(subarr_coords),axis=0)
@@ -96,10 +93,10 @@ def load_data_S1(data_dir, skip_first_fm = False, skip_first_or = False, verbose
             errors=(["exp_time", "x", "y"], errors),
             subarr_coords=(["index"],subarr_coords),
             orbit_numbers=(["exp_time"],orbit_Ns),
-
             direct_image = (["x", "y"], direct_image),
             badpix_mask = (["exp_time", "x", "y"], np.ones_like(images, dtype = 'bool')),
             data_quality = (["exp_time", "x", "y"], data_quality),
+            hst_dq = (["exp_time", "x", "y"], hst_dq),
             read_noise = (['exp_time'], read_noise)
         ),
         coords=dict(
@@ -122,8 +119,7 @@ def save_data_S1(obs, output_dir, filename = 'clean_obs'):
     Args:
         obs (xarray): reduced observations as an xarray.
         output_dir (str): folder where the outputs are saved to.
-        filename (str, optional): name to give to the cleaned files.
-        Defaults to 'clean_obs'.
+        filename (str, optional): name to give to the cleaned files. Defaults to 'clean_obs'.
     """
     
     obs.to_netcdf(os.path.join(output_dir, f'{filename}.nc'))

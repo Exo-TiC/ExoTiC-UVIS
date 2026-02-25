@@ -14,7 +14,7 @@ setup(
                      "WFC3-UVIS G280 spectroscopic observations.",
     python_requires='>=3.8.0',
     install_requires=['scipy>=1.8.0', 'numpy', 'xarray', 'astroquery', 'astropy',
-                      'photutils', 'matplotlib', 'tqdm', 'grismconf', 'wfc3tools','jwst',],
+                      'photutils<=1.13.0', 'matplotlib', 'tqdm', 'grismconf', 'wfc3tools','jwst',],
     classifiers=[
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',

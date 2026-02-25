@@ -1,24 +1,186 @@
 API
 ===
 
-TBD.
-
 Primary Interface
------------------
+'''''''''''''''''
 
-Words here.
+hustle_tools.run_pipeline
+----------------------------
+.. automodule:: hustle_tools.run_pipeline
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
-.. toctree::
-    :maxdepth: 2
 
-    hustle_tools
+Stage 0: Data Handling
+'''''''''''''''''
 
-Stage 0
--------
+Get Files From MAST
+----------------------------
+.. automodule:: hustle_tools.stage_0.get_files_from_mast
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
-Words here.
+Collect And Move Files
+----------------------------
+.. automodule:: hustle_tools.stage_0.collect_and_move_files
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
-.. toctree::
-    :maxdepth: 2
+Locate Target
+----------------------------
+.. automodule:: hustle_tools.stage_0.locate_target
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
-    hustle_tools.stage_0
+
+Stage 1: Reduction
+'''''''''''''''''
+
+Temporal Outlier Rejection
+----------------------------
+.. automodule:: hustle_tools.stage_1.temporal_outlier_rejection
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Spatial Outlier Rejection
+----------------------------
+.. automodule:: hustle_tools.stage_1.spatial_outlier_rejection
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Background Subtraction
+----------------------------
+.. automodule:: hustle_tools.stage_1.bckg_subtract
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Displacement Estimation
+----------------------------
+.. automodule:: hustle_tools.stage_1.compute_displacements
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Stage 2: Extraction
+'''''''''''''''''
+
+Trace Fitting
+----------------------------
+.. automodule:: hustle_tools.stage_2.trace_fitting
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Time And Relative Detrending In Space (TARDIS)
+----------------------------
+.. automodule:: hustle_tools.stage_2.tardis
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Extraction
+----------------------------
+.. automodule:: hustle_tools.stage_2.standard_extraction
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+.. automodule:: hustle_tools.stage_2.optimal_extraction
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+1D Spectral Alignment
+----------------------------
+.. automodule:: hustle_tools.stage_2.align_spectra
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+1D Spectral Cleaning
+----------------------------
+.. automodule:: hustle_tools.stage_2.clean_spectra
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Plotting Backend
+'''''''''''''''''
+
+Plotting Background Subtraction
+----------------------------
+.. automodule:: hustle_tools.plotting.plot_bkgsubtraction
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Plotting Displacements
+----------------------------
+.. automodule:: hustle_tools.plotting.plot_displacements
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Plotting Exposures
+----------------------------
+.. automodule:: hustle_tools.plotting.plot_exposures
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Plotting Quicklooks
+----------------------------
+.. automodule:: hustle_tools.plotting.plot_quicklook
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Plotting Spectra
+----------------------------
+.. automodule:: hustle_tools.plotting.plot_spectra
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Plotting Time Series
+----------------------------
+.. automodule:: hustle_tools.plotting.plot_timeseries
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Plotting Traces
+----------------------------
+.. automodule:: hustle_tools.plotting.plot_traces
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Configuration File Backend
+'''''''''''''''''
+
+Config Parser
+----------------------------
+.. automodule:: hustle_tools.read_and_write_config.parser
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Config Writer
+----------------------------
+.. automodule:: hustle_tools.read_and_write_config.writer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

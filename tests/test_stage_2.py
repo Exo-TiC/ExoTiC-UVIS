@@ -184,7 +184,8 @@ class TestStage2(unittest.TestCase):
                                                                        np.array(spec),
                                                                        np.array(spec_err),
                                                                        order="+1",
-                                                                       trace_x=np.array(wavs),
+                                                                       trace_x=trace_x,
+                                                                       wavelengths=wavs,
                                                                        align=True,
                                                                        verbose=2)
         # I will tolerate a 1/10 pixel shift at most, given how small the

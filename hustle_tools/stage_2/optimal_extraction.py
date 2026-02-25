@@ -7,6 +7,7 @@ from scipy import interpolate
 from scipy.signal import medfilt
 
 from hustle_tools.plotting import plot_exposure
+from hustle_tools.stage_2.standard_extraction import create_circular_mask
 from hustle_tools.stage_2 import standard_extraction
 
 
@@ -16,24 +17,16 @@ def spatial_profile_smooth(image_org, kernel = 11, threshold = 5., std_window = 
 
     Args:
         image_org (array-like): original images to be modelled and cleaned.
-        kernel (int, optional): odd int which defines the size of the row filter.
-        Defaults to 11.
-        threshold (float, optional): threshold at which to kick outliers.
-        Defaults to 5..
-        std_window (int, optional): window over which to calculate the
-        standard deviation of the row. Defaults to 20.
-        median_window (int, optional): window over which to calculate
-        the median of the row. Defaults to 7.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        kernel (int, optional): odd int which defines the size of the row filter. Defaults to 11.
+        threshold (float, optional): threshold at which to kick outliers. Defaults to 5..
+        std_window (int, optional): window over which to calculate the standard deviation of the row. Defaults to 20.
+        median_window (int, optional): window over which to calculate the median of the row. Defaults to 7.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        array-like, array-like, array-like, array-like: the spatial profile,
-        cleaned image, and maps of where pixels were hit in x and y.
+        array-like, array-like, array-like, array-like: the spatial profile, cleaned image, and maps of where pixels were hit in x and y.
     """
     
     # copy image and initialize
@@ -61,12 +54,10 @@ def spatial_profile_smooth(image_org, kernel = 11, threshold = 5., std_window = 
             res = np.ma.array(row - row_model, mask = ~row_mask)
 
             # calculate standard deviation with a window too 
-            #row_std = np.ma.std(res)
             row_std = np.zeros_like(row)
             for i, row_val in enumerate(row):
                 row_std[i] = np.std(res[np.amax((0, i-std_window)):i+std_window])
-                
-            #dev_row = np.ma.abs(res) / np.ma.std(res)
+            
             dev_row = np.ma.abs(res)/row_std
             max_dev_ind = np.ma.argmax(dev_row)
 
@@ -85,7 +76,6 @@ def spatial_profile_smooth(image_org, kernel = 11, threshold = 5., std_window = 
                         image[j, ind] = row_model[ind]
                         xhits.append(ind)
                         yhits.append(j)
-
     
     # normalize spatial profile
     P_prof = np.array(P_prof)
@@ -96,17 +86,13 @@ def spatial_profile_smooth(image_org, kernel = 11, threshold = 5., std_window = 
 
 
 def spatial_profile_median(images, show_plots=0, save_plots=0, output_dir=None):
-    """Uses the entire time series of data to compute a median image,
-    normalized and then used as the spatial profile.
+    """Uses the entire time series of data to compute a median image, normalized and then used as the spatial profile.
 
     Args:
         images (array-like): full time series of observation.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         array-like: spatial profile for optimal extraction.
@@ -132,7 +118,7 @@ def spatial_profile_median(images, show_plots=0, save_plots=0, output_dir=None):
 
 def window_profile(image, init_pix, fin_pix, pol_degree = 6, 
                    threshold = 6.):
-    """Uses row-wise polynomials to build 
+    """Uses row-wise polynomials to build the window profile. TBD Carlos.
 
     Args:
         image (_type_): _description_
@@ -168,7 +154,8 @@ def window_profile(image, init_pix, fin_pix, pol_degree = 6,
             # create residuals arrays and calculation deviation
             res = np.ma.array(D_row - row_fit, mask = ~row_mask)
             dev_row = res / np.ma.std(res)
-           
+            #dev_row = np.ma.abs(res) / np.ma.std(res)
+
             # location max deviation pixel
             max_dev_ind = np.ma.argmax(dev_row)
 
@@ -199,8 +186,7 @@ def window_profile(image, init_pix, fin_pix, pol_degree = 6,
 
 def spatial_profile(exp_ind, image_org, window = 40, threshold = 4., normalize = False,
                     show_plots=0, save_plots=0, output_dir=0):
-    """Builds a spatial profile using row-wise polynomial fits for every
-    row in the image. Used in the "polyfit" method of profile building.
+    """Builds a spatial profile using row-wise polynomial fits for every row in the image. Used in the "polyfit" method of profile building.
 
     Args:
         exp_ind (int): index of the exposure.
@@ -248,10 +234,10 @@ def spatial_profile(exp_ind, image_org, window = 40, threshold = 4., normalize =
     
     # if true, plot spatial profile
     if (show_plots==2) or (save_plots==2):
-        plot_exposure([P_prof], title = f'Example of Spatial Profile, Exposure #{exp_ind}', min=1e-4, max=1e0,
+
+        plot_exposure([P_prof], title = f'Example of Spatial profile Exposure {exp_ind}', min=1e-4, max=1e0,
                       show_plot=(show_plots==2), save_plot=(save_plots==2),
                       output_dir=output_dir, filename = [f'spatial_profile_exp{exp_ind}'])
-        
         
     return P_prof, image, xhits, yhits
 
@@ -259,8 +245,7 @@ def spatial_profile(exp_ind, image_org, window = 40, threshold = 4., normalize =
 def spatial_profile_curved_poly(exp_ind, sub_image_org, image, tx_main, ty_main, low_val, up_val, init_spec = None, 
                                 fit_thresh = 4., fit_degree = 5, window = 50, correct_thresh = None,
                                 show_plots=0, save_plots=0, output_dir=0):
-    """Builds a spatial profile using curved polynomial fits.
-    Used in the "curved_poly" method of profile building.
+    """Builds a spatial profile using curved polynomial fits. Used in the "curved_poly" method of profile building.
 
     Args:
         exp_ind (int): index of the exposure.
@@ -271,19 +256,16 @@ def spatial_profile_curved_poly(exp_ind, sub_image_org, image, tx_main, ty_main,
         low_val (_type_): _description_
         up_val (_type_): _description_
         init_spec (_type_, optional): _description_. Defaults to None.
-        fit_thresh (float, optional): _description_. Defaults to 4..
+        fit_thresh (_type_, optional): _description_. Defaults to 4..
         fit_degree (int, optional): _description_. Defaults to 5.
         window (int, optional): _description_. Defaults to 50.
         correct_thresh (_type_, optional): _description_. Defaults to None.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        array-like: the spatial profile for optimal extraction.
+        _type_: _description_
     """
 
     # copy image data and extract y values
@@ -333,7 +315,7 @@ def spatial_profile_curved_poly(exp_ind, sub_image_org, image, tx_main, ty_main,
 
         # create window profile
         curve_image_copy = curve_image.copy()
-        P_win, xhit, yhit, stds_win = window_profile(curve_image_copy, init_pix, fin_pix, threshold = fit_thresh, pol_degree = fit_degree)
+        P_win, xhit, yhit, stds_win = window_profile(curve_image_copy, init_pix, fin_pix, threshold = fit_thresh, pol_degree = fit_degree) # curve image is being modified here
 
         # normalize
         P_prof[:, init_pix:fin_pix] = P_win
@@ -379,37 +361,29 @@ def spatial_profile_curved_poly(exp_ind, sub_image_org, image, tx_main, ty_main,
                         show_plot=(show_plots==2), save_plot=(save_plots==2),
                         output_dir=output_dir, filename = [f'spatial_profile_exp{exp_ind}'])
 
-    
     return spatial_prof
 
 
-def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_type = 'polyfit', 
+def optimal_extraction(obs, trace_x, traces_y, masks = [],
+                       width = 25, thresh = 17., prof_type = 'polyfit', 
                        iterate = False, zero_bkg = None,
                        verbose=0, show_plots=0, save_plots=0, output_dir=None):
-    """Performs an optimal extraction with a spatial profile of choice following
-    the methods of Horne 1986.
+    """Performs an optimal extraction with a spatial profile of choice following the methods of Horne 1986.
 
     Args:
         obs (xarray): dataset from which we will extract the 1D spectra.
         trace_x (array-like): x column solutions of the trace to extract.
         traces_y (arary-like): y row solutions of the trace to extract.
-        width (int, optional): aperture halfwidth for extraction. For optimal,
-        ideally use a very large window since the weighting will take care of
-        the rest. Defaults to 25.
+        masks (list, optional): x, y, radii of objects in the aperture you want to mask. Defaults to [].
+        width (int, optional): aperture halfwidth for extraction. For optimal, ideally use a very large window since the weighting will take care of the rest. Defaults to 25.
         thresh (float, optional): _description_. Defaults to 17..
-        prof_type (str, optional): the type of profile to use for optimal
-        extraction. Options are 'median', 'polyfit', 'smooth', 'curved_poly',
-        or 'curved_smooth'. Defaults to 'polyfit'.
-        iterate (bool, optional): _description_. Defaults to False.
-        zero_bkg (_type_, optional): _description_. Defaults to None.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        prof_type (str, optional): the type of profile to use for optimal extraction. Options are 'median', 'polyfit', 'smooth', or 'curved_poly'. Defaults to 'polyfit'.
+        iterate (bool, optional): whether to iterate over the profile to remove outliers. Defaults to False.
+        zero_bkg (np.array, optional): the 0th-order background signal, which is needed for variance estimation if it was removed earlier. Defaults to None.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         array-like, array-like: optimally-extracted 1D spectra and uncertainties.
@@ -419,6 +393,21 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
     opt_specs, opt_specs_err = [], []
     images = obs.images.data.copy()
     errors = obs.errors.data.copy()
+
+    # mask objects if asked
+    if masks != None:
+        for k in range(images.shape[0]):
+            frame = images[k,:,:]
+            err = errors[k,:,:]
+            for mask in masks:
+                # Build a circle mask on top of the object.
+                obj_mask = create_circular_mask(frame.shape[0], frame.shape[1],
+                                                center=[mask[0],mask[1]], radius=mask[2])
+                # 0 out that data.
+                frame[obj_mask] = 0
+                err[obj_mask] = 0
+            images[k,:,:] = frame  
+            errors[k,:,:] = err
 
     # Define subarray for extraction
     margin = 5
@@ -430,7 +419,7 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
 
     # get initial spectrum
     specs, specs_err = standard_extraction(obs,
-                                           halfwidth=12,
+                                           halfwidth=12, # FIX: why not use the width input into this function?
                                            trace_x=trace_x,
                                            trace_y=traces_y)
 
@@ -438,16 +427,12 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
     if prof_type == 'median':
         prof = spatial_profile_median(sub_images, show_plots=show_plots, 
                                       save_plots=save_plots, output_dir=output_dir) 
-        
-    # generate random number for plotting
-    plot_ind = np.random.randint(0, np.shape(sub_images)[0])
 
     # extract optimal spectrum
     for i, sub_image in enumerate(tqdm(sub_images, desc = 'Extracting optimal spectrum... Progress')):
 
         # initialize variables and get exposure data
         opt_spec, opt_err, diff_image = [], [], []
-        sub_mask = []
         err = sub_errs[i] 
      
         # initialize spectrum
@@ -504,7 +489,6 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
 
             # define readout variance 
             read_var = obs.read_noise.data[i]
-            #print(read_var)
 
             # define background, if true, add background from zeroth order flux
             if zero_bkg is None:
@@ -564,6 +548,5 @@ def optimal_extraction(obs, trace_x, traces_y, width = 25, thresh = 17., prof_ty
         # plot masked pixels
         if iterate:
             xhits, yhits = np.where(hit_image == 1)
-            #utils.plot_image([sub_image], scatter_data=[yhits, xhits])
 
     return np.array(opt_specs), np.array(opt_specs_err)

@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import least_squares
 
-from hustle_tools.plotting import plot_exposure, plot_best_aperture
+from hustle_tools.plotting import plot_exposure
 from hustle_tools.plotting import plot_aperture_lightcurves
 
 
@@ -15,21 +15,18 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
 
     Args:
         obs (xarray): obs.images contains the data.
-        halfwidth (int): "halfwidth" of the extraction aperture, which spans
-        from A-hw to A+hw where A is the index of the central row.
-        trace_x (array-like): x positions of the pixels in the trace solution.
-        trace_y (array-like): y positions of the pixels in the trace solution.
+        halfwidth (int): "halfwidth" of the extraction aperture, which spans from A-hw to A+hw where A is the index of the central row.
+        trace_x (np.array): x positions of the pixels in the trace solution.
+        trace_y (np.array): y positions of the pixels in the trace solution.
         order (str): for labelling plots correctly.
         masks (list): x, y, radii of objects in the aperture you want to mask.
-        verbose (int, optional): How detailed you want the printed statements
-        to be. Defaults to 0.
+        verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
         show_plots (int, optional): How many plots you want to show. Defaults to 0.
         save_plots (int, optional): How many plots you want to save. Defaults to 0.
-        output_dir (str, optional): Where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        output_dir (str, optional): Where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        array-like, array-like: 1D spectrum and errors.
+        np.array,np.array: 1D spectrum and errors.
     """
     # Define traces array.
     traces = []
@@ -51,7 +48,7 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
         frame = obs.images[k].values
         err = obs.errors[k].values
 
-        if masks != None:
+        if masks:
             for mask in masks:
                 # Build a circle mask on top of the object.
                 obj_mask = create_circular_mask(frame.shape[0], frame.shape[1],
@@ -83,7 +80,7 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
 
     # Extract 1D spectrum using the standard method.
     for k in range(traces.shape[0]):
-        err = box(err_traces[k,:,:])
+        err = np.sqrt(box(err_traces[k,:,:]**2))
         flx = box(traces[k,:,:])
         oneD_spec.append(flx)
         spec_err.append(err)
@@ -92,18 +89,16 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
 
 
 def get_trace(frame, halfwidth, xs, ys):
-    """Short function to pull a trace region from a frame using the given
-    solution and halfwidth.
+    """Short function to pull a trace region from a frame using the given solution and halfwidth.
 
     Args:
-        frame (array-like): one frame from obs.images Dataset.
-        halfwidth (int): halfwidth of extraction. Pulls pixels from A-hw to
-        A+hw where A is the central row index.
-        xs (array-like): x positions of the pixels in the trace solution.
-        ys (array-like): y positions of the pixels in the trace solution.
+        frame (np.array): one frame from obs.images Dataset.
+        halfwidth (int): halfwidth of extraction. Pulls pixels from A-hw to A+hw where A is the central row index.
+        xs (np.array): x positions of the pixels in the trace solution.
+        ys (np.array): y positions of the pixels in the trace solution.
 
     Returns:
-        array-like: dispersion profiles from the trace.
+        np.array: dispersion profiles from the trace.
     """
     dispersion_profiles = []
     for i,x in enumerate(xs):
@@ -115,37 +110,32 @@ def get_trace(frame, halfwidth, xs, ys):
 
 
 def box(trace):
-    """The simplest extraction method, this routine sums the trace along
-    columns without any weighting.
+    """The simplest extraction method, this routine sums the trace along columns without any weighting.
 
     Args:
-        trace (array-like): one frame in time showing the trace at integration k.
+        trace (np.array): one frame in time showing the trace at integration k.
 
     Returns:
-        array-like: 1D array of the unweighted spectrum from that trace.
+        np.array: 1D array of the unweighted spectrum from that trace.
     """
     return np.nansum(trace,axis=1)
 
 
 def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10],[-10,-1]),
                               verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
-    """Extracts multiple standard white light curves and determines the half-width
-    that minimizes scatter out of transit/eclipse.
+    """Extracts multiple standard white light curves and determines the half-width that minimizes scatter out of transit/eclipse.
 
     Args:
         obs (xarray): obs.images DataSet contains the images.
         order (str): used to label plots appropriately.
-        trace_x (array-like): x positions of the pixels in the trace solutions.
-        trace_y (array-like): y positions of the pixels in the trace solutions.
-        wavs (array-like): wavelength solution for each image.
-        indices (tuple, optional): indices that define the out-of-transit/eclipse
-        flux, for which scatter is measured. Defaults to ([0,10],[-10,-1]).
-        verbose (int, optional): How detailed you want the printed statements
-        to be. Defaults to 0.
+        trace_x (np.array): x positions of the pixels in the trace solutions.
+        trace_y (np.array): y positions of the pixels in the trace solutions.
+        wavs (np.array): wavelength solution for each image.
+        indices (tuple, optional): indices that define the out-of-transit/eclipse flux, for which scatter is measured. Defaults to ([0,10],[-10,-1]).
+        verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
         show_plots (int, optional): How many plots you want to show. Defaults to 0.
         save_plots (int, optional): How many plots you want to save. Defaults to 0.
-        output_dir (str, optional): Where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        output_dir (str, optional): Where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         int: half-width integer that minimizes scatter.
@@ -160,7 +150,7 @@ def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10
         # Get the 1D spectra.
         oneD_spec, oneD_err = standard_extraction(obs, hw, trace_x, trace_y)
         # Bin into a median-normalized white light curve on valid wavelength range.
-        ok = (wavs>2000) & (wavs<8000)
+        ok = (wavs>2000) & (wavs<8000) # TO DO: make this variable
         WLC = np.nansum(oneD_spec[:,ok],axis=1)
         WLC /= np.nanmedian(WLC)
         # Truncate to just the range of out-of-transit/eclipse for each set of indices.
@@ -180,27 +170,36 @@ def determine_ideal_halfwidth(obs, order, trace_x, trace_y, wavs, indices=([0,10
                                   filename = "determine_halfwidth_WLC{}_tested-hws-wlcs".format(order), output_dir = output_dir)
    
     if (show_plots > 0 or save_plots > 0):
-        plot_best_aperture(tested_hws, reses,  
-                            show_plot = (show_plots > 0), save_plot = (save_plots > 0),
-                            filename = f"best_aperture_{order}", output_dir = output_dir)
-       
+        plt.figure(figsize=(10, 7))
+        plt.scatter(tested_hws, [1e6*i for i in reses], color='indianred')
+        plt.axvline(tested_hws[np.argmin(reses)], color='gray', linestyle='--')
+        plt.xlabel('half-width [pixels]')
+        plt.ylabel('residuals [ppm]')
+        if save_plots > 0:
+            plot_dir = os.path.join(output_dir,'plots')
+            if not os.path.exists(plot_dir):
+                os.makedirs(plot_dir)
+            plt.savefig(os.path.join(plot_dir,"determine_halfwidth_{}_tested-hws.png".format(order)),
+                        dpi=300,bbox_inches='tight')
+        if show_plots > 0:
+            plt.show(block=True)
+        plt.close()
+    
     # Find index of minimum scatter.
     ideal_halfwidth = tested_hws[reses.index(min(reses))]
     return ideal_halfwidth
 
 
 def est_errs(time, flx, kick_outliers=True):
-    """Simple function for estimating the scatter in the
-    out-of-transit/eclipse flux.
+    """Simple function for estimating the scatter in the out-of-transit/eclipse flux.
 
     Args:
-        time (array-like): timestamps for exposures.
-        flx (array-like): oot/ooe flux.
-        kick_outliers (bool, optional): Whether to remove outliers like CRs
-        from the array to get more accurate scatter estimation. Defaults to True.
+        time (np.array): timestamps for exposures.
+        flx (np.array): oot/ooe flux.
+        kick_outliers (bool, optional): Whether to remove outliers like CRs from the array to get more accurate scatter estimation. Defaults to True.
 
     Returns:
-        array-like: residuals from the rampslope fit to the oot/ooe flux.
+        np.array: residuals from the rampslope fit to the oot/ooe flux.
     """
     result = least_squares(residuals_,
                            np.array([1,1,0,1]),
@@ -213,14 +212,13 @@ def residuals_(fit,x,flx,kick_outliers=False):
     """Residuals function for fitting a ramp-slope time-series to oot/ooe flux.
 
     Args:
-        fit (array-like): guess of parameters for the fit.
-        x (array-like): time.
-        flx (array-like): flux.
-        kick_outliers (bool, optional):Whether to remove outliers like CRs
-        from the array to get more accurate scatter estimation. Defaults to True.
+        fit (np.array): guess of parameters for the fit.
+        x (np.array): time.
+        flx (np.array): flux.
+        kick_outliers (bool, optional): Whether to remove outliers like CRs from the array to get more accurate scatter estimation. Defaults to True.
 
     Returns:
-         array-like: residuals of the fit.
+         np.array: residuals of the fit.
     """
     rs = rampslope(x,fit[0],fit[1],fit[2],fit[3])
     residuals = flx-rs
@@ -237,19 +235,30 @@ def rampslope(x,a,b,c,d):
     """A exp(b t) + c t + d trend.
 
     Args:
-        x (array-like): time.
+        x (np.array): time.
         a (float): amplitude of the exponential.
         b (float): "slope" of the exponential.
         c (float): linear trend slope.
         d (float): linear trend intercept.
 
     Returns:
-        array-like: ramp-slope trend.
+        np.array: ramp-slope trend.
     """
     return a*np.exp(b*(x-np.nanmean(x))) + c*(x-np.nanmean(x)) + d
 
 
 def create_circular_mask(h, w, center=None, radius=None):
+    """Simple function to draw a circular mask on the trace.
+
+    Args:
+        h (int): the x shape of the array.
+        w (int): the y shape of the array.
+        center (int, optional): x,y center of the circle to draw. Defaults to None.
+        radius (int, optional): the radius of the circle to draw. Defaults to None.
+
+    Returns:
+        np.array: a mask which covers a circle on the array.
+    """
     if center is None: # use the middle of the image
         center = (int(w/2), int(h/2))
     if radius is None: # use the smallest distance between the center and image walls

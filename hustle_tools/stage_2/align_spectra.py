@@ -6,32 +6,27 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from scipy import signal
 
-from hustle_tools.plotting import plot_shifts_cc
+from hustle_tools.plotting.plot_spectra import plot_many_spectra
 
 
 def cross_corr(spec, temp_spec, order='+1', i=0, trim = 1, fit_window = 5, subpix_width = 0.01,
                show_plots = 0, save_plots = 0, output_dir = None):
-    """Function to perform cross-correlation of two arrays.
-    Based on ExoTic-JEDI align_spectra.py code
+    """Function to perform cross-correlation of two arrays. Based on ExoTic-JEDI align_spectra.py code
 
     Args:
-        spec (array-like): spectra that need to be aligned over time.
-        temp_spec (array-like): template spectrum used to measure position shifts.
+        spec (np.array): spectra that need to be aligned over time.
+        temp_spec (np.array): template spectrum used to measure position shifts.
         order (str): for labelling plots correctly.
         i (float): for labelling plots correctly.
-        trim (int, optional): how many indices to take out from beginning and
-        end of each spectrum. Improves cross-correlation when 0s are at ends.
-        Defaults to 1.
+        trim (int, optional): how many indices to take out from beginning and end of each spectrum. Improves cross-correlation when 0s are at ends. Defaults to 1.
         fit_window (int, optional): used for measuring shifts. Defaults to 5.
-        subpix_width (float, optional): how finely to interpolate the spectra
-        when measuring the shifts. Defaults to 0.01.
+        subpix_width (float, optional): how finely to interpolate the spectra when measuring the shifts. Defaults to 0.01.
         show_plots (int, optional): how many plots you want to show. Defaults to 0.
         save_plots (int, optional): how many plots you want to save. Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        array-like: cross-dispersion shifts
+        np.array: cross-dispersion shifts
     """
 
     xvals = np.arange(0, spec.shape[0])
@@ -67,27 +62,44 @@ def cross_corr(spec, temp_spec, order='+1', i=0, trim = 1, fit_window = 5, subpi
 
     parab_vtx = -p_coeffs[1] / (2 * p_coeffs[0]) * subpix_width
     
+    if (show_plots == 2 or save_plots == 2):
+        plt.figure()
+        plt.plot(corr_lags, corr)
+
+        plt.figure()
+        plt.plot(cent_lags, cent_corr)
+        plt.plot(cent_lags, p_val)
+
+        if save_plots == 2:
+            plot_dir = os.path.join(output_dir, "plots")
+            if not os.path.exists(plot_dir):
+                os.makedirs(plot_dir)
+            plt.savefig(os.path.join(plot_dir,'cross_corr_order{}_f{}.png'.format(order,i)),
+                        dpi=300,bbox_inches='tight')
+        if show_plots == 2:
+            plt.show(block=True)
+        plt.close()
+        plt.close() # save memory
+
     return parab_vtx + trim
 
 
-def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
+def align_spectra(obs, specs, specs_err, order, trace_x, wavelengths, align = False,
                   verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
     """Aligns 1D spectra and uncertainties using cross-correlation.
 
     Args:
         obs (xarray): used to attach the spectra to an xarray object.
-        specs (array-like): array of 1D spectra.
-        specs_err (array-like): array of 1D spectral uncertainties.
+        specs (np.array): array of 1D spectra.
+        specs_err (np.array): array of 1D spectral uncertainties.
         order (str): for labelling plots correctly.
-        trace_x (array-like): x positions of the trace solution.
-        align (bool, optional): whether to apply the alignment to the spectra.
-        Defaults to False.
-        verbose (int, optional): How detailed you want the printed statements
-        to be. Defaults to 0.
+        trace_x (np.array): x positions of the trace solution.
+        wavelengths (np.array): used to find acceptable indices.
+        align (bool, optional): whether to apply the alignment to the spectra. Defaults to False.
+        verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
         show_plots (int, optional): How many plots you want to show. Defaults to 0.
         save_plots (int, optional): How many plots you want to save. Defaults to 0.
-        output_dir (str, optional): Where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        output_dir (str, optional): Where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         xarray: aligned obs spectra.
@@ -97,11 +109,11 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
     align_specs = []
     align_specs_err = []
     x_shifts = []
-
     # align only on the intended wavelengths of analysis
-    ok = (trace_x>2000) & (trace_x<8000)
+    ok = (wavelengths>2000) & (wavelengths<8000) # TO DO: make this variable
     temp_spec = np.median(specs[:,ok], axis = 0)
 
+    
     # iterate over all spectra
     for i, spec in tqdm(enumerate(specs),
                         desc='Aligning spectra in order {}... Progress:'.format(order),
@@ -131,11 +143,32 @@ def align_spectra(obs, specs, specs_err, order, trace_x, align = False,
 
 
     if (save_plots > 0 or show_plots > 0):
+        plt.figure(figsize = (10, 7))
+        plt.plot(obs.exp_time.data, x_shifts, '-o', color='indianred')
+        plt.xlabel('Exposure time')
+        plt.ylabel('X shift')
+        plt.title('Spectrum shift')
+        if save_plots > 0:
+            plot_dir = os.path.join(output_dir, "plots")
+            if not os.path.exists(plot_dir):
+                os.makedirs(plot_dir)
+            plt.savefig(os.path.join(plot_dir,'cross_corr_order{}.png'.format(order)),
+                        dpi=300,bbox_inches='tight')
+        if show_plots > 0:
+            plt.show(block=True)
         
-        plot_shifts_cc(obs.exp_time.data, x_shifts, ylabel='X shift (pixels)',
-                        show_plot = (show_plots > 0), save_plot = (save_plots > 0), 
-                        filename = 'xshifts_cc_order{}.png'.format(order), output_dir = output_dir)
+        plt.close() # save memory
 
+        # Plot the most shifted spectrum relative to the first
+        max_idx = np.argmax(np.abs(x_shifts))
+        if verbose == 2:
+            print("Index of greatest shift: ",max_idx,"with shift:",x_shifts[max_idx])
+        plot_many_spectra(wavelengths, [specs[max_idx],align_specs[max_idx]],
+                          order="+1", labels=("Raw","Aligned"),
+                          show_plot = (show_plots>0), save_plot = (save_plots>0),
+                          filename = 'alignment_order{}'.format(order),
+                          output_dir = output_dir)
+    
     return align_specs, align_specs_err, np.array(x_shifts)
 
 
@@ -145,20 +178,17 @@ def align_profiles(obs, trace_x, traces_y, order, width = 25,
 
     Args:
         obs (xarray): used to measure the profile shifts.
-        trace_x (array-like): dispersion solution of the profiles.
-        traces_y (array-like): cross-dispersion solution of the profiles.
+        trace_x (np.array): dispersion solution of the profiles.
+        traces_y (np.array): cross-dispersion solution of the profiles.
         order (str): which order we are aligning, for plot naming.
-        width (int, optional): how far from the trace center to measure.
-        Defaults to 25.
-        verbose (int, optional): How detailed you want the printed statements
-        to be. Defaults to 0.
+        width (int, optional): how far from the trace center to measure. Defaults to 25.
+        verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
         show_plots (int, optional): How many plots you want to show. Defaults to 0.
         save_plots (int, optional): How many plots you want to save. Defaults to 0.
-        output_dir (str, optional): Where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        output_dir (str, optional): Where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        array-like: cross-dispersion shifts over time.
+        np.array: cross-dispersion shifts over time.
     """
 
     # copy images and errors
@@ -195,8 +225,21 @@ def align_profiles(obs, trace_x, traces_y, order, width = 25,
     y_shifts = np.array(y_shifts).transpose()
 
     if show_plots>0 or save_plots>0:
-        plot_shifts_cc(obs.exp_time.data, np.median(y_shifts, axis = 1), ylabel='Y shift (pixels)',
-                    show_plot = (show_plots > 0), save_plot = (save_plots > 0), 
-                    filename = 'yshifts_cc_order{}.png'.format(order), output_dir = output_dir)
+        plt.figure(figsize = (10, 7))
+        plt.plot(exp_times, np.median(y_shifts, axis = 1), '-o', color='indianred')
+        plt.xlabel('Exposure time')
+        plt.ylabel('Y displacement')
 
+        if save_plots>0:
+            plot_dir = os.path.join(output_dir, 'plots')
+            if not os.path.exists(plot_dir):
+                os.makedirs(plot_dir) 
+            filedir = os.path.join(plot_dir, 'trace_crossdisp_profiles_order{}.png'.format(order))
+            plt.savefig(filedir, bbox_inches = 'tight', dpi = 300)
+        
+        if show_plots>0:
+            plt.show(block=True)
+
+        plt.close() # save memory
+        
     return y_shifts

@@ -19,17 +19,14 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos,
     """Function to plot the displacements of the background stars.
 
     Args:
-        image (array-like): 2D image array showing all of the stars in context.
-        exp_times (array-like): BJD exposure times for each frame.
-        mean_loc (array-like): mean absolute location of each star.
-        mean_pos (array-like): mean relative position of each star.
-        stars_pos (array-like): relative position of each star over time.
-        show_plot (bool, optional): whether to interrupt execution to
-        show the user the plot. Defaults to False.
-        save_plot (bool, optional): whether to save the plot to a file.
-        Defaults to False.
-        output_dir (str, optional): output directory where the plot will be
-        saved. Defaults to None.
+        image (np.array): 2D image array showing all of the stars in context.
+        exp_times (np.array): BJD exposure times for each frame.
+        mean_loc (np.array): mean absolute location of each star.
+        mean_pos (np.array): mean relative position of each star.
+        stars_pos (np.array): relative position of each star over time.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save the plot to a file. Defaults to False.
+        output_dir (str, optional): output directory where the plot will be saved. Defaults to None.
     """
 
     # first just plot the example frame and where the stars we tracked are
@@ -43,9 +40,8 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos,
     plt.figure(figsize = (10, 7))
     plt.plot(exp_time, mean_pos[:, 0], '-o')
     plt.plot(exp_time, np.transpose(stars_pos[:, :, 0]), '-o', alpha = 0.5)
-    plt.xlabel('Time Of Exposure (MJD)')
-    plt.ylabel('X-Pixel Displacement (pixels)')
-    plt.title("Background Stars X Drift Over Time")
+    plt.xlabel('Exposure times')
+    plt.ylabel('X pixel displacement')
 
     if save_plot:
         plot_dir = os.path.join(output_dir, 'plots') 
@@ -63,9 +59,8 @@ def plot_bkg_stars(image, exp_time, mean_loc, mean_pos, stars_pos,
     plt.figure(figsize = (10, 7))
     plt.plot(exp_time, mean_pos[:, 1], '-o')
     plt.plot(exp_time, np.transpose(stars_pos[:, :, 1]), '-o', alpha = 0.5)
-    plt.xlabel('Time Of Exposure (MJD)')
-    plt.ylabel('Y-Pixel Displacement (pixels)')
-    plt.title("Background Stars Y Drift Over Time")
+    plt.xlabel('Exposure times')
+    plt.ylabel('Y pixel displacement')
 
     if save_plot:
         plot_dir = os.path.join(output_dir, 'plots') 
@@ -87,23 +82,19 @@ def plot_0th_order(exp_time, xs, ys,
     """Function to plot the location of the 0th order over time.
 
     Args:
-        exp_times (array-like): BJD exposure times for each frame.
-        xs (array-like): 0th order x positions.
-        ys (array-like): 0th order y positions.
-        show_plot (bool, optional): whether to interrupt execution to
-        show the user the plot. Defaults to False.
-        save_plot (bool, optional): whether to save the plot to a file.
-        Defaults to False.
-        output_dir (str, optional): output directory where the plot will be
-        saved. Defaults to None.
+        exp_times (np.array): BJD exposure times for each frame.
+        xs (np.array): 0th order x positions.
+        ys (np.array): 0th order y positions.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save the plot to a file. Defaults to False.
+        output_dir (str, optional): output directory where the plot will be saved. Defaults to None.
     """
 
     # initialize figure and plot x motion of 0th order
     plt.figure(figsize = (10, 7))
     plt.plot(exp_time, xs, '-o')
-    plt.xlabel('Exposure Times (MJD)')
-    plt.ylabel('X-Pixel Displacement (pixels)')
-    plt.title("0th Order X Drift Over Time")
+    plt.xlabel('Exposure times')
+    plt.ylabel('X pixel displacement')
 
     if save_plot:
         plot_dir = os.path.join(output_dir, 'plots') 
@@ -120,9 +111,8 @@ def plot_0th_order(exp_time, xs, ys,
     # initialize figure and plot y motion of 0th order
     plt.figure(figsize = (10, 7))
     plt.plot(exp_time, ys, '-o')
-    plt.xlabel('Exposure Times (MJD)')
-    plt.ylabel('Y-Pixel Displacement (pixels)')
-    plt.title("0th Order Y Drift Over Time")
+    plt.xlabel('Exposure times')
+    plt.ylabel('Y pixel displacement')
 
     if save_plot:
         plot_dir = os.path.join(output_dir, 'plots') 
@@ -137,44 +127,3 @@ def plot_0th_order(exp_time, xs, ys,
     plt.close() # save memory
 
     return 
-
-
-def plot_shifts_cc(exp_time, shifts, ylabel = 'X shift (pixels)',
-                   show_plot = False, save_plot = False, 
-                   filename = None, output_dir = None):
-    """Plots the dispersion or cross-dispersion 
-    shifts calculated via cross-correlation
-
-    Args:
-        exp_time (np.array): exposure times for each frame.
-        x_shifts (np.array): shifts calculated via cross-correlation
-        ylabel (str, optional): y-axis label. Defaults to 'X shift (pixels)'.
-        show_plot (bool, optional): whether to interrupt execution to
-        show the user the plot. Defaults to False.
-        save_plot (bool, optional): whether to save this plot to a file.
-        Defaults to False.
-        filename (str, optional): name to give this file, if saving.
-        Defaults to None.
-        output_dir (str, optional): where to save the file, if saving.
-        Defaults to None.
-    """
-
-    plt.figure(figsize = (10, 7))
-    plt.plot(exp_time, shifts, '-o', color='indianred')
-    plt.xlabel('Time Of Exposure (MJD)')
-    plt.ylabel(ylabel)
-   
-    if save_plot:
-        plot_dir = os.path.join(output_dir, "plots")
-        if not os.path.exists(plot_dir):
-            os.makedirs(plot_dir)
-        plt.savefig(os.path.join(plot_dir, filename),
-                    dpi=300,bbox_inches='tight')
-        
-    if show_plot:
-        plt.show(block=True)
-    
-    plt.close() # save memory
-
-    return 
-

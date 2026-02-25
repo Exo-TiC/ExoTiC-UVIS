@@ -7,51 +7,44 @@ from scipy.optimize import least_squares
 from scipy.optimize import curve_fit
 from scipy.signal import medfilt, medfilt2d
 
-from hustle_tools.plotting import plot_exposure, plot_corners, plot_bkgvals, plot_mode_v_params, plot_histogram
+from hustle_tools.plotting import plot_exposure, plot_corners, plot_bkgvals, plot_mode_v_params, plot_histogram, plot_bkgcorrection
 
 
 def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
                            smooth_fits=True, smooth_parameter=3.0, median_on_columns=True,
                            verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
-    """Scales the supplied Pagul et al. G280 sky image to each frame and
-    subtracts the scaled image as background.
+    """Scales the supplied Pagul et al. G280 sky image to each frame and subtracts the scaled image as background.
 
     Args:
         obs (xarray): obs.images contains the data to be corrected.
-        pagul_path (str): path to your chosen Pagul et al. sky image. There
-        are a few options from different years, chips, calibrations, etc.
-        masking_parameter (float, optional): how aggressively to mask the
-        source. Values of 0.001 or less recommended. A good value should make
-        the Pagul et al. scaling parameters similar to the frame mode.
-        Defaults to 0.001.
-        smooth_fits (bool, optional): whether to smooth the scaling parameters
-        in time. Helps prevent background "flickering" in event of minor bckg
-        bimodality. Defaults to True.
-        smooth_parameter (float, optional): if smooth_fits is True, sigma
-        for smoothing. Defaults to 3.0.
-        median_on_columns (bool, optional): if True, take the median value of
-        the Pagul et al. sky image along columns. Approximately eliminates
-        contamination from poorly-sampled parts of sky. Defaults to True.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        pagul_path (str): path to your chosen Pagul et al. sky image. There are a few options from different years, chips, calibrations, etc.
+        masking_parameter (float, optional): how aggressively to mask the source. Values of 0.001 or less recommended. A good value should make the Pagul et al. scaling parameters similar to the frame mode. Defaults to 0.001.
+        smooth_fits (bool, optional): whether to smooth the scaling parameters in time. Helps prevent background "flickering" in event of minor bckg bimodality. Defaults to True.
+        smooth_parameter (float, optional): if smooth_fits is True, sigma for smoothing. Defaults to 3.0.
+        median_on_columns (bool, optional): if True, take the median value of the Pagul et al. sky image along columns. Approximately eliminates contamination from poorly-sampled parts of sky. Defaults to True.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        xarray: obs with sky-corrected images and with bkg values saved to
-        ['bkg_vals'] keyword.
+        xarray: obs with sky-corrected images and with bkg values saved to ['bkg_vals'] keyword.
     """
 
     # copy images
     images = obs.images.data.copy() 
 
+    # collect pre-subtraction corner flux for reference
+    xshape, yshape = images[0,:,:].shape
+    bx1,bx2 = xshape-25,xshape-1
+    by1,by2 = yshape-500,yshape-1
+    bckg_flux_pre = np.empty(images.shape[0])
+    for i in range(images.shape[0]):
+        bckg_flux_pre[i] = np.median(images[i,bx1:bx2,by1:by2])
+
     # track scaling parameters, should be ~equal to the frame mode
     scaling_parameters = []
-    modes = []
+    modes, meds = [], []
 
     # open the Pagul et al. sky image
     with fits.open(pagul_path) as fits_file:
@@ -62,36 +55,49 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
     # get the subarr_coords
     x1,x2,y1,y2 = [int(x) for x in obs.subarr_coords.values]
 
-    # pick a bin_number that won't break image
-    d_test = obs.images[0].values
-    bin_number = int(0.50*d_test.shape[0]*d_test.shape[1])
-    
-    # def function to fit ims
-    def residuals_(A,x,y):
-        return np.ma.sum((y - (A*x))**2)
+    # build the frame mask using the median frame
+    med_image = np.median(images,axis=0)
+    finite = med_image[np.isfinite(med_image)]
+    bin_number = int(0.10*finite.shape[0])
+    hist, bin_edges = np.histogram(finite, bins=bin_number)
+    ind = np.argmax(hist)
+    mode = (bin_edges[ind]+bin_edges[ind+1])/2
+    sig = np.nanstd(finite)
+    masked_frame = np.ma.masked_where(med_image - mode > masking_parameter*sig, med_image)
+    pagul_mask = masked_frame.mask
+    if verbose > 0:
+        n_masked = 100*np.sum(masked_frame.mask)/(masked_frame.size)
+        print("Percentange of each frame that is masked by this parameter: {:.1f}%".format(n_masked))
 
-    # iterate over all images
+    # iterate over all images, applying the same mask
     for k, image in enumerate(tqdm(images, desc = 'Fitting Pagul et al. sky image... Progress:',
                                    disable=(verbose<1))):
         # first, get the coarse frame mode and standard deviation using the frame's finite values
         finite = image[np.isfinite(image)]
+        # pick a reasonable bin_number
+        bin_number = int(0.10*finite.shape[0])
         hist, bin_edges = np.histogram(finite, bins=bin_number)
         ind = np.argmax(hist)
         mode = (bin_edges[ind]+bin_edges[ind+1])/2
-        sig = np.nanstd(finite)
+        #sig = np.nanstd(finite)
 
         modes.append(mode)
+        meds.append(np.median(finite))
 
-        # next, mask any sources in the frame using the frame mode and standard deviation
-        masked_frame = np.ma.masked_where(np.abs(image - mode) > masking_parameter*sig, image)
+        # next, mask any sources in the frame using the pagul mask
+        masked_frame = np.ma.masked_array(image,mask=pagul_mask)
 
         # if true, plot the masked frame
         if (save_plots > 0 or show_plots > 0) and k == 0:
-            plot_exposure([masked_frame,], max = 50, title = 'Pagul+ Background Removal Mask', 
+            plot_mask = np.where(pagul_mask==True,1,1e-1)
+            plot_exposure([plot_mask,], title = 'Pagul+ Background Removal Mask',
+                          min = 1e-1, max = 1,
                           show_plot=(show_plots>0), save_plot=(save_plots>0),
                           output_dir=output_dir, filename = ['bkg_pagul_mask',])
     
         # then fit the standard bckg to the masked frame
+        def residuals_(A,x,y):
+            return np.ma.sum((y - (A*x))**2)
         result = least_squares(residuals_, 1, args=(pagul_bckg[y1:y2+1,x1:x2+1], masked_frame))
         A = result.x[0]
 
@@ -109,25 +115,28 @@ def Pagul_bckg_subtraction(obs, pagul_path, masking_parameter=0.001,
     # then remove the background
     for k, image in enumerate(tqdm(images, desc = 'Removing background... Progress:',
                                    disable=(verbose<1))):
-         image -= scaling_parameters[k]*pagul_bckg[y1:y2+1,x1:x2+1]
+         images[k] -= scaling_parameters[k]*pagul_bckg[y1:y2+1,x1:x2+1]
 
     # save background values
     obs['bkg_vals'] = xr.DataArray(data = scaling_parameters, dims = ['exp_time'])
 
-    # if true, plot calculated background values
+    # collect post-subtraction corner flux for reference
+    bckg_flux_post = np.empty(images.shape[0])
+    for i in range(images.shape[0]):
+        bckg_flux_post[i] = np.median(images[i,bx1:bx2,by1:by2])
+
+    # if true, plot calculated background values and compare to frame modes
     if save_plots > 0 or show_plots > 0:
         plot_bkgvals(obs.exp_time.data, scaling_parameters, method='pagul',
                      output_dir=output_dir, show_plot = (show_plots>0), save_plot = (save_plots>0))
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
                       show_plot=(show_plots>0), save_plot=(save_plots>0),
                       output_dir=output_dir, filename = ['bkg_before_subtraction', 'bkg_after_subtraction'])
-        
-    # if true, also plot a comparison of the
-    # scaling parameters against frame modes
-    if save_plots == 2 or show_plots == 2:
-        plot_mode_v_params(obs.exp_time.data, modes, scaling_parameters,
+        plot_mode_v_params(obs.exp_time.data, modes, meds, scaling_parameters,
                            output_dir=output_dir,
-                           show_plot=(show_plots==2), save_plot=(save_plots==2))
+                           show_plot=(show_plots>0), save_plot=(save_plots>0))
+        plot_bkgcorrection(obs.exp_time.data, bckg_flux_pre, bckg_flux_post, 'Pagul',
+                           output_dir=output_dir, show_plot = (show_plots>0), save_plot = (save_plots>0))
 
     # update the images to be corrected    
     obs.images.data = images
@@ -153,31 +162,20 @@ def Gauss1D(x, H, A, x0, sigma):
 
 def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0, 
                    fit = None, show_plots = 0, save_plots = 0, output_dir=None):
-    """Function to return the mode of an image.
+    """Function to return the mode of an image
 
     Args:
         array (np.array): 2D image array.
-        hist_min (float): lower bound of values to consider when building
-        the histogram.
-        hist_max (float): upper bound of values to consider when building
-        the histogram.
+        hist_min (float): lower bound of values to consider when building the histogram.
+        hist_max (float): upper bound of values to consider when building the histogram.
         hist_bins (int): number of bins to use for the calculation.
-        fit (str or None, optional): type of fit to apply to the histogram.
-        Options are 'Gaussian' (fits a 1D Gaussian to the histogram),
-        'median' (takes the median of the histogram), or can be left as
-        None to use just the histogram's mode. Defaults to None.
-        ind (int, optional): index of this array, used for naming the plot.
-        Defaults to 0.
-        method (str, optional): method used to calculate background value.
-        Options are 'full-frame' or 'corners'. Defaults to None.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plot (bool, optional): whether to show this plot.
-        Defaults to False.
-        save_plot (bool, optional): whether to save this plot.
-        Defaults to False.
-        output_dir (str, optional): where to save the plot to, if save_plot
-        is True. Defaults to None.
+        fit (str or None, optional): type of fit to apply to the histogram. Options are 'Gaussian' (fits a 1D Gaussian to the histogram), 'median' (takes the median of the histogram), or can be left as None to use just the histogram's mode. Defaults to None.
+        ind (int, optional): index of this array, used for naming the plot. Defaults to 0.
+        method (str, optional): method used to calculate background value. Options are 'full-frame' or 'corners'. Defaults to None.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plot (bool, optional): whether to show this plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot. Defaults to False.
+        output_dir (str, optional): where to save the plot to, if save_plot is True. Defaults to None.
 
     Returns:
         float: background value for this array.
@@ -235,37 +233,34 @@ def calculate_mode(array, hist_min, hist_max, hist_bins, exp_num = 0,
 def uniform_value_bkg_subtraction(obs, fit = None, bounds = None,
                                   hist_min = -20, hist_max = 50, hist_bins = 1000,
                                   verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
-    """Function to compute a uniform background value per frame, using either
-     the full frame or using subsets of the image.
+    """ Function to compute a uniform background value per frame, using either the full frame or using subsets of the image.
 
     Args:
         obs (xarray): obs.images contains the data to be corrected.
-        fit (str or None, optional): type of fit to apply to the histogram.
-        Options are 'Gaussian' (fits a 1D Gaussian to the histogram),
-        'median' (takes the median of the histogram), or can be left as
-        None to use just the histogram's mode. Defaults to None.
-        bounds (list of int, optional): bounds from which to draw the corners, if
-        using corners. Use None to draw from the full frame. Defaults to None.
+        fit (str or None, optional): type of fit to apply to the histogram. Options are 'Gaussian' (fits a 1D Gaussian to the histogram), 'median' (takes the median of the histogram), or can be left as None to use just the histogram's mode. Defaults to None.
+        bounds (list of int, optional): bounds from which to draw the corners, if using corners. Use None to draw from the full frame. Defaults to None.
         hist_min (int, optional): lower bound for bckg values. Defaults to -20.
         hist_max (int, optional): upper bound for bckg values. Defaults to 50.
-        hist_bins (int, optional): number of bins for calculating the mode.
-        Cannot exceed number of pixels available. Defaults to 1000.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        hist_bins (int, optional): number of bins for calculating the mode. Cannot exceed number of pixels available. Defaults to 1000.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        xarray: obs with sky-corrected images and with bkg values saved to
-        ['bkg_vals'] keyword.
+        xarray: obs with sky-corrected images and with bkg values saved to ['bkg_vals'] keyword.
     """
 
     # copy images
-    images = obs.images.data.copy() 
+    images = obs.images.data.copy()
+
+    # collect pre-subtraction corner flux for reference
+    xshape, yshape = images[0,:,:].shape
+    bx1,bx2 = xshape-25,xshape-1
+    by1,by2 = yshape-500,yshape-1
+    bckg_flux_pre = np.empty(images.shape[0])
+    for i in range(images.shape[0]):
+        bckg_flux_pre[i] = np.median(images[i,bx1:bx2,by1:by2]) 
 
     # initialize background values
     bkg_vals = []
@@ -310,6 +305,11 @@ def uniform_value_bkg_subtraction(obs, fit = None, bounds = None,
     # save background values
     obs['bkg_vals'] = xr.DataArray(data = bkg_vals, dims = ['exp_time'])
 
+    # collect post-subtraction corner flux for reference
+    bckg_flux_post = np.empty(images.shape[0])
+    for i in range(images.shape[0]):
+        bckg_flux_post[i] = np.median(images[i,bx1:bx2,by1:by2])
+
     # if true, plot calculated background values
     if save_plots > 0 or show_plots > 0:
         method = 'full-frame'
@@ -323,6 +323,8 @@ def uniform_value_bkg_subtraction(obs, fit = None, bounds = None,
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
                       show_plot = (show_plots>0), save_plot = (save_plots>0),
                       output_dir=output_dir, filename = ['bkg_before_subtraction', 'bkg_after_subtraction'])
+        plot_bkgcorrection(obs.exp_time.data, bckg_flux_pre, bckg_flux_post, method,
+                           output_dir=output_dir, show_plot = (show_plots>0), save_plot = (save_plots>0))
         
     obs.images.data = images
 
@@ -335,30 +337,29 @@ def column_by_column_subtraction(obs, rows=np.array([i for i in range(10)]), sig
 
     Args:
         obs (xarray): obs.images contains the data to be corrected.
-        rows (array-like, optional): indices of rows to treat as the background.
-        Ignored if mask_trace is True. Defaults to [i for i in range(10)].
-        sigma (int, optional): used to clean outliers from the background.
-        Defaults to 3.
-        mask_trace (bool, optional): whether to fit a mask to the trace so
-        that it does not affect the computed bckg value. Defaults to True.
-        width (int, optional): if mask_trace is True, how far from the trace
-        up and down to mask out. Defaults to 100.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        rows (array-like, optional): indices of rows to treat as the background. Ignored if mask_trace is True. Defaults to [i for i in range(10)].
+        sigma (int, optional): used to clean outliers from the background. Defaults to 3.
+        mask_trace (bool, optional): whether to fit a mask to the trace so that it does not affect the computed bckg value. Defaults to True.
+        width (int, optional): if mask_trace is True, how far from the trace up and down to mask out. Defaults to 100.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        xarray: obs with sky-corrected images and with bkg images saved to
-        ['bkg_vals'] keyword.
+        xarray: obs with sky-corrected images and with bkg images saved to ['bkg_vals'] keyword.
     """
 
     # copy images
     images = obs.images.data.copy() 
+
+    # collect pre-subtraction corner flux for reference
+    xshape, yshape = images[0,:,:].shape
+    bx1,bx2 = xshape-25,xshape-1
+    by1,by2 = yshape-500,yshape-1
+    bckg_flux_pre = np.empty(images.shape[0])
+    for i in range(images.shape[0]):
+        bckg_flux_pre[i] = np.median(images[i,bx1:bx2,by1:by2])
 
     # initialize background values
     bckgs = []
@@ -415,6 +416,11 @@ def column_by_column_subtraction(obs, rows=np.array([i for i in range(10)]), sig
     # save background values
     obs['bkg_vals'] = xr.DataArray(data = bckgs, dims = ['exp_time','columns'])
 
+    # collect post-subtraction corner flux for reference
+    bckg_flux_post = np.empty(images.shape[0])
+    for i in range(images.shape[0]):
+        bckg_flux_post[i] = np.median(images[i,bx1:bx2,by1:by2])
+
     # if true, plot calculated background values
     if save_plots > 0 or show_plots > 0:
         plot_bkgvals(obs.exp_time.data, bckgs, method='col-by-col',
@@ -422,6 +428,8 @@ def column_by_column_subtraction(obs, rows=np.array([i for i in range(10)]), sig
         plot_exposure([obs.images.data[1], images[1]], title = 'Background Removal Example', 
                       show_plot = (show_plots>0), save_plot = (save_plots>0),
                       output_dir=output_dir, filename = ['bkg_before_subtraction', 'bkg_after_subtraction'])
+        plot_bkgcorrection(obs.exp_time.data, bckg_flux_pre, bckg_flux_post, method='col-by-col',
+                           output_dir=output_dir, show_plot = (show_plots>0), save_plot = (save_plots>0))
 
     obs.images.data = images
 

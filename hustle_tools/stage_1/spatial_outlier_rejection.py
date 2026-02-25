@@ -15,25 +15,14 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=11, sigma=10, bounds_set=[[2
 
     Args:
         obs (xarray): obs.images contains the dataset we are cleaning.
-        type (str): options are "1D_smooth" (to use row-wise scipy
-        median-filtering),  "2D_smooth" (to use scipy 2D median-filtering),
-        and "polyfit" (to fit row-wise polynomials).
-        kernel (int or tup, optional): the size of the kernel used to compute
-        the median-filtered image. If using 1D_smooth, should be an odd int. If
-        using 2D_smooth, should be a tuple of two odd ints. Defaults to 11.
-        sigma (float, optional): threshold at which to remove an outlier.
-        Defaults to 10.
-        bounds_set (array-like, optional): whether to only perform spatial
-        smoothing on a subset of the array, for time-saving. If None, corrects
-        for the full frame. Defaults to [[260, 370, 640, 1100],].
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        type (str): options are "1D_smooth" (to use row-wise scipy median-filtering) or "2D_smooth" (to use scipy 2D median-filtering).
+        kernel (int or tup, optional): the size of the kernel used to compute the median-filtered image. If using 1D_smooth, should be an odd int. If using 2D_smooth, should be a tuple of two odd ints. Defaults to 11.
+        sigma (float, optional): threshold at which to remove an outlier. Defaults to 10.
+        bounds_set (array-like, optional): whether to only perform spatial smoothing on a subset of the array, for time-saving. If None, corrects for the full frame. Defaults to [[260, 370, 640, 1100],].
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
         xarray: obs with images cleaned and data quality flags updated.
@@ -65,17 +54,13 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=11, sigma=10, bounds_set=[[2
                                                                               threshold = sigma,
                                                                               kernel = kernel,
                                                                               show_plots=show_plots,
-                                                                              save_plots=save_plots)           
+                                                                              save_plots=save_plots,
+                                                                              output_dir=output_dir)
             # remove outliers with 2D smoothing 
             elif type == '2D_smooth':
                 Pprof, sub_image_clean, xhits, yhits = spatial_2D_smooth(sub_image,
                                                                          kernel=kernel,
                                                                          sigma=sigma)
-
-            # remove outliers with other routines
-            elif type == 'polyfit':
-                # FIX (Issue #41): we'll add this routine in a future update, stay tuned!
-                print('More cleaning options will be added in the future (see Issue #41)')
 
             # save position of corrected outliers
             all_xhits = np.concatenate((all_xhits, xhits))
@@ -85,48 +70,50 @@ def spatial_smoothing(obs, type='1D_smooth', kernel=11, sigma=10, bounds_set=[[2
             if save_plots > 0 or show_plots > 0:
                 if (show_plots > 0 or save_plots > 0) and i == 0:
                     plot_exposure([sub_image, sub_image_clean], min = 1e0, 
-                                title = f'Spatial Bad Pixel Removal, Exposure #{i}', 
+                                title = f'Spatial Bad Pixel removal Exposure {i}', 
                                 show_plot=(show_plots > 0), save_plot=(save_plots > 0),
                                 output_dir=output_dir,
                                 filename = [f'spatialsmooth_before_correction_frame{i}', f'spatialsmooth_after_correction_frame{i}'])
 
                     plot_exposure([sub_image], scatter_data=[xhits, yhits], min = 1e0, 
-                                title = f'Location Of Corrected Pixels, Exposure #{i}', mark_size = 1,
+                                title = f'Location of corrected pixels for Exposure {i}', mark_size = 1,
                                 show_plot=(show_plots > 0), save_plot=(save_plots > 0),
                                 output_dir=output_dir, filename = [f'spatialsmooth_location_frame{i}'])
                 
                 elif (show_plots == 2 or save_plots == 2):
                     plot_exposure([sub_image, sub_image_clean], min = 1e0, 
-                                title = f'Spatial Bad Pixel Removal, Exposure #{i}', 
+                                title = f'Spatial Bad Pixel removal Exposure {i}', 
                                 show_plot=(show_plots == 2), save_plot=(save_plots == 2),
                                 output_dir=output_dir,
                                 filename = [f'spatialsmooth_before_correction_frame{i}', f'spatialsmooth_after_correction_frame{i}'])
 
                     plot_exposure([sub_image], scatter_data=[xhits, yhits], min = 1e0, 
-                                title = f'Location Of Corrected Pixels, Exposure #{i}', mark_size = 1,
+                                title = f'Location of corrected pixels for Exposure {i}', mark_size = 1,
                                 show_plot=(show_plots == 2), save_plot=(save_plots == 2),
                                 output_dir=output_dir, filename = [f'spatialsmooth_location_frame{i}'])
-            
+
             # update image
+            raw_image = np.copy(image)
             image[bounds[0]:bounds[1], bounds[2]:bounds[3]] = sub_image_clean
+            dq = np.where(raw_image!=image,1,0)
+
+            # now update the obs and data quality array
+            obs.images[i] = obs.images[i].where(obs.images[i].values == image,image)
+            obs.data_quality[i] = obs.data_quality[i].where(obs.data_quality[i].values == dq,dq)
           
     return obs
 
 
 def spatial_2D_smooth(sub_image, kernel=(5,5), sigma=10):
-    """Uses scipy.signal.medfil2d to correct spatial outliers.
-    Adapted from routine developed by Trevor Foote (tof2@cornell.edu).
+    """Uses scipy.signal.medfil2d to correct spatial outliers. Adapted from routine developed by Trevor Foote (tof2@cornell.edu).
 
     Args:
         sub_image (array-like): a frame to clean of outliers.
-        kernel (tuple, optional): tuple of two odd ints which define the
-        kernel used for smoothing. Defaults to (5,5).
-        sigma (float, optional): threshold at which to remove an outlier.
-        Defaults to 10.
+        kernel (tuple, optional): tuple of two odd ints which define the kernel used for smoothing. Defaults to (5,5).
+        sigma (float, optional): threshold at which to remove an outlier. Defaults to 10.
 
     Returns:
-        array-like, array-like, array-like, array-like: the median-filtered
-        image, cleaned image, and maps of where pixels were hit in x and y.
+        array-like, array-like, array-like, array-like: the median-filtered image, cleaned image, and maps of where pixels were hit in x and y.
     """
 
     # build the median-filtered model
@@ -152,39 +139,29 @@ def spatial_2D_smooth(sub_image, kernel=(5,5), sigma=10):
 
 def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=False, contrast_factor=5,
                              verbose = 0, show_plots = 0, save_plots = 0, output_dir = None):
-    """Uses Laplacian Edge Detection (van Dokkum 2001) to detect cosmic rays
-    and hot/cold pixels.
+    """Uses Laplacian Edge Detection (van Dokkum 2001) to detect cosmic rays and hot/cold pixels.
 
     Args:
         obs (xarray): obs.images DataSet contains the images.
-        sigma (float, optional): sigma to use for detecting bad pixels and
-        replacing them. Defaults to 10.
-        factor (int, optional): subsampling factor, minimum value 2 to work.
-        Higher values increase computation time but don't tend to improve
-        the routine much, so best left at 2. Defaults to 2.
-        n (int, optional): how many iterations you want to run. Useful for
-        catching large blobs of bad pixels, as LED detects edges and not
-        interiors. Defaults to 2.
-        build_fine_structure (bool, optional): whether to build a fine structure
-        model to protect the trace against LED. Defaults to False.
-        contrast_factor (int, optional): the threshold for rejection when a fine
-        structure model is in use. Defaults to 5.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
-        show_plots (int, optional): how many plots you want to show.
-        Defaults to 0.
-        save_plots (int, optional): how many plots you want to save.
-        Defaults to 0.
-        output_dir (str, optional): where to save the plots to, if save_plots
-        is greater than 0. Defaults to None.
+        sigma (float, optional): sigma to use for detecting bad pixels and replacing them. Defaults to 10.
+        factor (int, optional): subsampling factor, minimum value 2 to work. Higher values increase computation time but don't tend to improve the routine much, so best left at 2. Defaults to 2.
+        n (int, optional): how many iterations you want to run. Useful for catching large blobs of bad pixels, as LED detects edges and not interiors. Defaults to 2.
+        build_fine_structure (bool, optional): whether to build a fine structure model to protect the trace against LED. Defaults to False.
+        contrast_factor (int, optional): the threshold for rejection when a fine structure model is in use. Defaults to 5.
+        verbose (int, optional): how detailed you want the printed statements to be. Defaults to 0.
+        show_plots (int, optional): how many plots you want to show. Defaults to 0.
+        save_plots (int, optional): how many plots you want to save. Defaults to 0.
+        output_dir (str, optional): where to save the plots to, if save_plots is greater than 0. Defaults to None.
 
     Returns:
-        xarray: obs with the .data cleaned of bad pixels and the .data_quality
-        updated to reflect where bad pixels were found.
+        xarray: obs with the .data cleaned of bad pixels and the .data_quality updated to reflect where bad pixels were found.
     """
 
     # Define the Laplacian kernel.
     l = 0.25*np.array([[0,-1,0],[-1,4,-1],[0,-1,0]])
+
+    # Open a tracker for changed pixels.
+    cumulative_S = np.zeros_like(obs.images.values)
 
     # Iterate over each frame one at a time until the iteration stop condition is met by each frame.
     if verbose >= 1:
@@ -226,9 +203,7 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
                 F = build_fine_structure_model(data_frame)
 
             # Subsample the array.
-            subsample, original_shape, factor = subsample_frame(data_frame,
-                                                                factor=factor,
-                                                                verbose=verbose)
+            subsample, original_shape = subsample_frame(data_frame, factor=factor)
             
             # Convolve subsample with laplacian.
             lap_img = np.convolve(l.flatten(),subsample.flatten(),mode='same').reshape(subsample.shape)
@@ -259,7 +234,11 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
 
             # Ignore the 0th order, it's a dead end of endless masking.
             xmid = int(S.shape[1]/2)
-            S[0:-1,xmid-70:xmid+70] = 0 # FIX: currently hardcoded to assume the source / 0th order is near the middle of the frame.
+            ymid = int(S.shape[0]/2)
+            S[ymid-70:ymid+70,xmid-70:xmid+70] = 0 # FIX: currently hardcoded to assume the source / 0th order is near the middle of the frame.
+
+            # Track what was flagged.
+            cumulative_S[k,:,:] += S
 
             # Report where data quality flags should be added and count pixels to be replaced.
             dq = np.where(S != 0, 1, dq)
@@ -292,7 +271,7 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
         obs.data_quality[k] = obs.data_quality[k].where(obs.data_quality[k].values == dq,dq)
 
         if (show_plots == 1 or save_plots == 1) and k == 0:
-            plot_exposure([S], min = 1e-3, max = 1, 
+            plot_exposure([cumulative_S[0,:,:]],
                           show_plot=(show_plots>=1), save_plot=(save_plots>=1), 
                           output_dir=output_dir, filename = ['LED_location_of_corrected_pixels_0'])
             
@@ -301,7 +280,7 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
                           output_dir=output_dir, filename = ['LED_after_correction_0'])
         
         elif show_plots == 2 or save_plots == 2:
-            plot_exposure([S], min = 1e-3, max = 1, 
+            plot_exposure([cumulative_S[k,:,:]],
                           show_plot=(show_plots==2), save_plot=(save_plots==2), 
                           output_dir=output_dir, filename = ['LED_location_of_corrected_pixels_{}'.format(k)])
             
@@ -311,32 +290,37 @@ def laplacian_edge_detection(obs, sigma=10, factor=2, n=2, build_fine_structure=
             
             if k == 0:
                 # Additionally plot the noise model and fine structure model, if applicable.
-                plot_exposure([noise_model], min = 1e-3, max = 1, 
+                plot_exposure([noise_model,], min = 1e-3, max = 1000, 
                               show_plot=(show_plots==2), save_plot=(save_plots==2), 
                               output_dir=output_dir, filename = ['LED_Noise_Model'])
                 
                 if build_fine_structure:
-                    plot_exposure([F], min = 1e-3, max = 1, 
+                    plot_exposure([F,], min = 1e-3, max = 1000, 
                                   show_plot=(show_plots==2), save_plot=(save_plots==2), 
                                   output_dir=output_dir, filename = ['LED_Fine_Structure_Model'])
     
+    # Make a plot of where was hit.
+    if (show_plots == 1 or save_plots == 1):
+        thits, xhits, yhits = np.where(cumulative_S != 0)
+        plot_exposure([obs.images.data[0]], scatter_data=[yhits, xhits],
+                      title = 'Location of corrected pixels', mark_size = 1,
+                      show_plot=(show_plots >= 1), save_plot=(save_plots >= 1),
+                      output_dir=output_dir, filename = [f'LED_location_of_all_corrected_pixels'])
+
     if verbose >= 1:
         print("All frames cleaned of spatial outliers by LED.")
     return obs
 
 
 def build_noise_model(data_frame, readnoise):
-    """Builds a noise model for the given data frame, following van Dokkum
-    2001 methods.
+    """Builds a noise model for the given data frame, following van Dokkum 2001 methods.
 
     Args:
-        data_frame (np.array): frame from the images DataSet, used to build
-        the noise model.
+        data_frame (np.array): frame from the images DataSet, used to build the noise model.
         readnoise (float): readnoise estimated to be in the data frame.
 
     Returns:
-        np.array: 2D array same size as the data frame, a noise model describing
-        noise in the frame.
+        np.array: 2D array same size as the data frame, a noise model describing noise in the frame.
     """
 
     noise_model = np.sqrt(median_filter(np.abs(data_frame),size=5)+readnoise**2)
@@ -344,25 +328,18 @@ def build_noise_model(data_frame, readnoise):
     return noise_model
 
 
-def subsample_frame(data_frame, factor=2, verbose = 0):
+def subsample_frame(data_frame, factor=2):
     """Subsamples the input frame by the given subsampling factor.
 
     Args:
-        data_frame (array-like): Frame from the images DataSet, used to build
-        the noise model.
-        factor (int, optional): Factor by which to subsample the array which
-        must be >= 2. Defaults to 2.
-        verbose (int, optional): how detailed you want the printed statements
-        to be. Defaults to 0.
+        data_frame (np.array): Frame from the images DataSet, used to build the noise model.
+        factor (int, optional): Factor by which to subsample the array which must be >= 2. Defaults to 2.
 
     Returns:
-        array-like, array-like, int: 2D array same shape as data frame,
-        subsampled by factor. Also returns img original shape and the factor
-        for subsampling, which may have gotten updated.
+        np.array: 2D array same shape as data frame, subsampled by factor.
     """
     if factor < 2:
-        if verbose > 0:
-            print("Subsampling factor must be at least 2, forcing factor to 2...")
+        print("Subsampling factor must be at least 2, forcing factor to 2...")
         factor = 2 # Force factor 2 or more
     factor = int(factor) # Force integer
     
@@ -377,18 +354,18 @@ def subsample_frame(data_frame, factor=2, verbose = 0):
                 subsample[i,j] = data_frame[int((i+1)/2),int((j+1)/2)]
             except IndexError:
                 subsample[i,j] = 0
-    return subsample, original_shape, factor
+    return subsample, original_shape
 
 
 def resample_frame(data_frame, original_shape):
     """Resamples a subsampled array back to the original shape.
 
     Args:
-        data_frame (array-like): subsampled frame from the images DataSet.
+        data_frame (np.array): subsampled frame from the images DataSet.
         original_shape (tuple of int): original shape of the subsampled array.
 
     Returns:
-        array-like: 2D array with original shape resampled from the data frame.
+        np.array: 2D array with original shape resampled from the data frame.
     """
     resample = np.empty(original_shape)
     for i in range(original_shape[0]):
@@ -404,10 +381,10 @@ def build_fine_structure_model(data_frame):
     """Builds a fine structure model for the data frame.
 
     Args:
-        data_frame (array-like): Native resolution data.
+        data_frame (np.array): Native resolution data.
 
     Returns:
-        array-like: 2D array of fine structure model.
+        np.array: 2D array of fine structure model.
     """
     F = median_filter(data_frame, size=3) - median_filter(median_filter(data_frame, size=3), size=7)
     F[F <= 0] = np.mean(F) # really want to avoid nans

@@ -1,4 +1,12 @@
 import numpy as np
+import matplotlib.pyplot as plt
+
+#define plotting parameters
+plt.rc('font', family='serif')
+plt.rc('xtick', labelsize=14)
+plt.rc('ytick', labelsize=14)
+plt.rc('axes', labelsize=14)
+plt.rc('legend',**{'fontsize':11})
 
 
 def clean_spectra(spec, sigma,
@@ -6,13 +14,12 @@ def clean_spectra(spec, sigma,
     """Replace spectral outliers in time with their temporal median.
 
     Args:
-        spec (array-like): spectrum to clean.
+        spec (np.array): spectrum to clean.
         sigma (float): threshold at which to reject a value as an outlier.
-        verbose (int, optional): How detailed you want the printed statements
-        to be. Defaults to 0.
+        verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
 
     Returns:
-        array-like: input spectrum cleaned of final outliers.
+        np.array: input spectrum cleaned of final outliers.
     """
 
     if verbose > 0:
@@ -23,6 +30,7 @@ def clean_spectra(spec, sigma,
 
     # Track outliers removed.
     bad_spex_removed = 0
+    n_spex_points = oneD_spec.shape[0]*oneD_spec.shape[1]
 
     # Iteration stop condition. As long as outliers are being found, we have to keep iterating.
     outlier_found = True
@@ -49,7 +57,7 @@ def clean_spectra(spec, sigma,
         oneD_spec = np.where(S == 1, med_spec, oneD_spec)
 
     if verbose > 0:
-        print("1D spectral cleaning complete. Removed %.0f spectral outliers." % bad_spex_removed)
+        print("1D spectral cleaning complete. Removed %.0f spectral outliers from %.0f spectral points." % (bad_spex_removed,
+                                                                                                            n_spex_points))
 
     return oneD_spec
-

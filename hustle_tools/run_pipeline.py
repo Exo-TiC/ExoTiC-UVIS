@@ -6,6 +6,7 @@ from hustle_tools.read_and_write_config import parse_config
 from hustle_tools.read_and_write_config import write_config
 
 from hustle_tools.plotting import plot_one_spectrum
+from hustle_tools.plotting import plot_many_spectra
 from hustle_tools.plotting import plot_spec_gif
 from hustle_tools.plotting import plot_2d_spectra
 from hustle_tools.plotting import plot_raw_whitelightcurve
@@ -14,10 +15,11 @@ from hustle_tools.plotting import quicklookup
 from hustle_tools.stage_0 import collect_and_move_files
 from hustle_tools.stage_0 import get_files_from_mast
 from hustle_tools.stage_0 import locate_target
-from hustle_tools.stage_0 import check_spt_subarray
+from hustle_tools.stage_0 import check_subarray
 
 from hustle_tools.stage_1 import load_data_S1
 from hustle_tools.stage_1 import save_data_S1
+from hustle_tools.stage_1 import correct_hst_flags
 from hustle_tools.stage_1 import uniform_value_bkg_subtraction
 from hustle_tools.stage_1 import Pagul_bckg_subtraction
 from hustle_tools.stage_1 import column_by_column_subtraction
@@ -34,6 +36,7 @@ from hustle_tools.stage_2 import save_data_S2
 from hustle_tools.stage_2 import get_calibration_0th
 from hustle_tools.stage_2 import get_trace_solution
 from hustle_tools.stage_2 import sens_correct
+from hustle_tools.stage_2 import time_and_relative_detrending_in_space
 from hustle_tools.stage_2 import determine_ideal_halfwidth
 from hustle_tools.stage_2 import standard_extraction
 from hustle_tools.stage_2 import optimal_extraction
@@ -43,14 +46,12 @@ from hustle_tools.stage_2 import align_profiles
 from hustle_tools.stage_2 import remove_zeroth_order
 
 
-def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
+def run_pipeline(config_files_dir, stages=(0, 1, 2)):
     """Wrapper for all Stages of the HUSTLE-tools pipeline.
 
     Args:
-        config_files_dir (str): folder which contains the .hustle files needed
-        to run the stages you want to run.
-        stages (tuple, optional): the stages that you want to run.
-        Defaults to (0, 1, 2, 3, 4, 5).
+        config_files_dir (str): folder which contains the .hustle files needed to run the stages you want to run.
+        stages (tuple, optional): the stages that you want to run. Defaults to (0, 1, 2).
     """
     ######## Run Stage 0 ########
     if 0 in stages:
@@ -65,7 +66,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                 stage0_dict['visit_number'],
                                 stage0_dict['toplevel_dir'],
                                 token=stage0_dict['token'],
-                                extensions=stage0_dict['extensions'])
+                                extensions=stage0_dict['extensions'],
+                                verbose=stage0_dict['verbose'])
     
         # collect and move files
         if stage0_dict['do_organize']:
@@ -73,7 +75,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                 stage0_dict['filesfrom_dir'] = stage0_dict['toplevel_dir'] # if the data weren't pre-downloaded, then they are here
             collect_and_move_files(stage0_dict['visit_number'], 
                                    stage0_dict['filesfrom_dir'],
-                                   stage0_dict['toplevel_dir'])
+                                   stage0_dict['toplevel_dir'],
+                                   stage0_dict['verbose'])
             
         # check if output directory exists, otherwise create output directory
         output_dir = os.path.join(stage0_dict['toplevel_dir'],'outputs')
@@ -83,8 +86,8 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         # locate target in direct image
         if stage0_dict['do_locate']:
             # check for direct image / spec image discrepancies
-            xdiscs, ydiscs = check_spt_subarray(os.path.join(stage0_dict['toplevel_dir'],'directimages/or01dr001_spt.fits'),
-                                                sorted(glob.glob(os.path.join(os.path.join(stage0_dict['toplevel_dir'],'specimages'),'*spt.fits'))))
+            xdiscs, ydiscs = check_subarray(os.path.join(stage0_dict['toplevel_dir'],'directimages/or01dr001_flt.fits'),
+                                                sorted(glob.glob(os.path.join(os.path.join(stage0_dict['toplevel_dir'],'specimages'),'*flt.fits'))))
             source_x, source_y = locate_target(os.path.join(stage0_dict['toplevel_dir'],'directimages/or01dr001_flt.fits'))
             # modify config keyword
             stage0_dict['location'] = [source_x,source_y]
@@ -98,6 +101,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         # create quicklook gif
         if stage0_dict['do_quicklook']:
             quicklookup(stage0_dict['toplevel_dir'],
+                        stage0_dict['traces_included'],
                         stage0_dict['verbose'], 
                         stage0_dict['show_plots'], 
                         stage0_dict['save_plots'],
@@ -141,6 +145,16 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         run_dir = os.path.join(stage_dir,stage1_dict['output_run'])
         if not os.path.exists(run_dir):
             os.makedirs(run_dir)
+
+        # hst flag corrections
+        if stage1_dict['do_hst_flags']:
+            obs = correct_hst_flags(obs,
+                                    stage1_dict['hst_flags'],
+                                    stage1_dict['hst_replace'],
+                                    verbose=stage1_dict['verbose'],
+                                    show_plots=stage1_dict['show_plots'],
+                                    save_plots=stage1_dict['save_plots'],
+                                    output_dir=run_dir)
 
         # temporal removal fixed iterations
         if stage1_dict['do_fixed_iter']:
@@ -236,6 +250,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                        obs.attrs['target_posy']]
 
         # displacements by 0th order tracking
+        obs["0th_order_pos"] = (("exp_time", "xy"), np.zeros((obs.exp_time.data.shape[0],2))) # placeholder in case you don't do this step
         if stage1_dict['do_0thtracking']:
             # FIX (Issue #39): Hard-coded guess values are used to shift from
             # direct image pos to spec image. Hardcoding is something that we
@@ -250,6 +265,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         obs["meanstar_disp"] = (("exp_time", "xy"), np.zeros((obs.exp_time.data.shape[0],2))) # placeholder in case you don't do this step
         if stage1_dict['do_bkg_stars']:
             track_bkgstars(obs, bkg_stars=stage1_dict['bkg_stars_loc'], 
+                           window=stage1_dict['bkg_window'],
                            verbose=stage1_dict['verbose'],
                            show_plots=stage1_dict['show_plots'],
                            save_plots=stage1_dict['save_plots'],
@@ -257,7 +273,11 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             
         # create quicklook gif
         if stage1_dict['do_quicklook']:
+            if stage1_dict['include_hst_dq']:
+                obs.data_quality.values += np.where(obs.hst_dq.values >= 1, 1, 0)
+                obs.data_quality.values = np.where(obs.data_quality.values >= 1, 1, 0)
             quicklookup(obs,
+                        stage1_dict['traces_included'],
                         stage1_dict['verbose'], 
                         stage1_dict['show_plots'], 
                         stage1_dict['save_plots'],
@@ -277,7 +297,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
         # read out the stage 2 config
         stage2_config = glob.glob(os.path.join(config_files_dir,'stage_2*'))[0]
         stage2_dict = parse_config(stage2_config)
-      
+
         # read data
         S2_data_path = os.path.join(stage2_dict['toplevel_dir'],
                                     os.path.join('outputs/stage1',stage2_dict['input_run']))
@@ -285,7 +305,6 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
         # get the location from the obs.nc file
         stage2_dict['location'] = [obs.attrs['target_posx'], obs.attrs['target_posy']]
-        print(stage2_dict['location']) # FIX: this should NOT be the default, it should have been updated
 
         # create output directory
         output_dir = os.path.join(stage2_dict['toplevel_dir'],'outputs')
@@ -306,12 +325,12 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             # 0th order removal
             remove_zeroth_order(obs, 
                                 zero_pos = [x0th, y0th], 
-                                rmin = 100, rmax = 300, rwidth = 3, 
+                                rmin = 85, rmax = 500, rwidth = 3,
                                 fit_profile = True,
                                 verbose = stage2_dict['verbose'],
                                 show_plots = stage2_dict['show_plots'],
                                 save_plots = stage2_dict['save_plots'],
-                                output_dir = None)
+                                output_dir = run_dir)
 
         # iterate over orders
         for i, order in enumerate(stage2_dict['traces_to_conf']):
@@ -325,6 +344,19 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                                    show_plots=stage2_dict['show_plots'], 
                                                                    save_plots=stage2_dict['save_plots'],
                                                                    output_dir=run_dir)
+            
+            # tardis clean
+            if stage2_dict['do_tardis']:
+                obs = time_and_relative_detrending_in_space(obs, trace_x,
+                                                            np.median(trace_y,axis=0), order,
+                                                            sigmas=stage2_dict['tardis_sigma'],
+                                                            flux_threshold=stage2_dict['flux_threshold'],
+                                                            windows=stage2_dict['tardis_window'],
+                                                            replacement=stage2_dict['tardis_replace'],
+                                                            verbose=stage2_dict['verbose'],
+                                                            show_plots=stage2_dict['show_plots'],
+                                                            save_plots=stage2_dict['save_plots'],
+                                                            output_dir=run_dir)
             
             # extract
             if stage2_dict['method'] == 'box':
@@ -361,6 +393,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                 spec, spec_err = optimal_extraction(obs, 
                                                     trace_x, 
                                                     trace_y,
+                                                    masks=stage2_dict['mask_objs'],
                                                     width = stage2_dict['halfwidths_opt'][i],
                                                     prof_type = stage2_dict['aperture_type'],
                                                     show_plots=stage2_dict['show_plots'],
@@ -378,8 +411,9 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
                                                         spec,
                                                         spec_err,
                                                         order,
-                                                        trace_x=wav,
-                                                        align=True,
+                                                        trace_x=trace_x,
+                                                        wavelengths=wav,
+                                                        align=stage2_dict['apply_align'],
                                                         verbose=stage2_dict['verbose'],
                                                         show_plots=stage2_dict['show_plots'], 
                                                         save_plots=stage2_dict['save_plots'],
@@ -398,17 +432,26 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
             # do clean spectra
             if stage2_dict['outlier_sigma']:
                 spec = clean_spectra(spec,
-                                     sigma=stage2_dict['outlier_sigma'])
+                                     sigma=stage2_dict['outlier_sigma'],
+                                     verbose=stage2_dict['verbose'])
 
             # do plotting
             if (stage2_dict['show_plots'] > 0 or stage2_dict['save_plots'] > 0):
                 
-                plot_one_spectrum(wav, spec[0, :],
+                plot_one_spectrum(wav, np.median(spec[:, :],axis=0), order,
                                 show_plot=(stage2_dict['show_plots'] > 0),
                                 save_plot=(stage2_dict['save_plots'] > 0),
-                                filename='1Dspec_order{}'.format(order),
+                                filename='1Dspec-med_order{}'.format(order),
                                 output_dir=run_dir,
                                 )
+                
+                plot_many_spectra(wav, spec, order,
+                                  show_plot=(stage2_dict['show_plots'] > 0),
+                                save_plot=(stage2_dict['save_plots'] > 0),
+                                filename='1Dspec-all_order{}'.format(order),
+                                output_dir=run_dir,
+                                )
+                                
                                 
                 plot_2d_spectra(wav, spec,
                                 show_plot = (stage2_dict['show_plots'] > 0), 
@@ -446,8 +489,3 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2, 3, 4, 5)):
 
         # write config
         write_config(stage2_dict, stage2_dict['output_run'], 2, run_dir)
-        
-
-    
-
-            

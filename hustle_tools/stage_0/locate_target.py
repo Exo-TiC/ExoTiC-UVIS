@@ -7,14 +7,11 @@ from photutils import DAOStarFinder
 
 
 def locate_target(direct_image,test=False):
-    """Uses the direct image and user feedback to locate the
-    target, necessary for trace calibration and source
-    tracking in later stages.
+    """Uses the direct image and user feedback to locate the target, necessary for trace calibration and source tracking in later stages.
 
     Args:
         direct_image (str): Path to the direct image.
-        test (bool, optional): Whether you are running in testing mode.
-        Only used for validation on github. Defaults to False.
+        test (bool, optional): Whether you are running in testing mode. Only used for validation on github. Defaults to False.
 
     Returns:
         float, float: Location of the direct image in x, y floats.
@@ -150,14 +147,12 @@ def locate_target(direct_image,test=False):
     print("Source selected:", xs, ys)
     return xs, ys
 
-
-def check_spt_subarray(direct_spt,spec_spts):
-    """Checks the subarray corner info for the direct and spec spt files
-    and alerts the user to discrepancies.
+def check_subarray(direct_flt,spec_flts):
+    """Checks the subarray corner info for the direct and spec flt files and alerts the user to discrepancies.
 
     Args:
-        direct_spt (str): Path to the direct spt.
-        spec_spts (list of str): Paths to the spec spts.
+        direct_spt (str): Path to the direct flt.
+        spec_spts (list of str): Paths to the spec flts.
 
     Returns:
         list, list: Discrepancies in x and y between these values.
@@ -166,17 +161,17 @@ def check_spt_subarray(direct_spt,spec_spts):
     xdiscs, ydiscs = [], []
 
     # First, crack open the direct image and check its corners.
-    with fits.open(direct_spt) as fits_file:
+    with fits.open(direct_flt) as fits_file:
         # Retrieve the direct image subarray info.
-        x0 = fits_file[0].header['SS_A1CRN']
-        y0 = fits_file[0].header['SS_A2CRN']
+        x0 = fits_file['SCI'].header['LTV1']
+        y0 = fits_file['SCI'].header['LTV2']
     
     # Then, check for mismatches.
-    for spec_spt in spec_spts:
-        with fits.open(spec_spt) as fits_file:
+    for spec_flt in spec_flts:
+        with fits.open(spec_flt) as fits_file:
             # Retrieve the spec image subarray info.
-            xs = fits_file[0].header['SS_A1CRN']
-            ys = fits_file[0].header['SS_A2CRN']
+            xs = fits_file['SCI'].header['LTV1']
+            ys = fits_file['SCI'].header['LTV2']
         xdiscs.append(x0-xs)
         ydiscs.append(y0-ys)
     
@@ -189,9 +184,9 @@ def check_spt_subarray(direct_spt,spec_spts):
     if any([i!=0 for i in xdiscs]):
         print("x corner discrepancies found.")
         print("Number of discrepant spec files: {} out of {}".format(len([i for i in xdiscs if i != 0]),
-                                                                     len(spec_spts)))
+                                                                     len(spec_flts)))
         if all([i==np.mean(i) for i in xdiscs]):
-            print("Offset to apply to x: {}".format(xdiscs[0]))
+            print("Offset to apply to x: {}".format(-xdiscs[0]))
         else:
             print("Variable discrepancies detected! The discrepancies are:")
             for i, x in enumerate(xdiscs):
@@ -201,9 +196,9 @@ def check_spt_subarray(direct_spt,spec_spts):
     if any([i!=0 for i in ydiscs]):
         print("y corner discrepancies found.")
         print("Number of discrepant spec files: {} out of {}".format(len([i for i in ydiscs if i != 0]),
-                                                                     len(spec_spts)))
+                                                                     len(spec_flts)))
         if all([i==np.mean(i) for i in ydiscs]):
-            print("Offset to apply to y: {}".format(ydiscs[0]))
+            print("Offset to apply to y: {}".format(-ydiscs[0]))
         else:
             print("Variable discrepancies detected! The discrepancies are:")
             for i, y in enumerate(ydiscs):

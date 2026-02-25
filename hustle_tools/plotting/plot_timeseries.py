@@ -1,8 +1,8 @@
 import os
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import matplotlib.pylab as pl
 
 
 #define plotting parameters
@@ -26,10 +26,8 @@ def plot_flags_per_time(series_x, series_y, style='line',
         series_x (array-like): series of x coordinates for plotting.
         series_y (array-like): series of y coordinates for plotting.
         style (str): options are 'line' or 'scatter'. Defaults to 'line'.
-        line_data (array-like, optional): x, y values defining lines
-        to overplot on top of series_x, series_y. Defaults to None.
-        scatter_data (array-like, optional): x, y values defining scatter
-        points to overplot on top of series_x, series_y. Defaults to None.
+        line_data (array-like, optional): x, y values defining lines to overplot on top of series_x, series_y. Defaults to None.
+        scatter_data (array-like, optional): x, y values defining scatter points to overplot on top of series_x, series_y. Defaults to None.
         title (str, optional): title for the plot. Defaults to None.
         xlabel (str, optional): x axis label. Defaults to None.
         ylabel (str, optional): y axis label. Defaults to None.
@@ -39,12 +37,9 @@ def plot_flags_per_time(series_x, series_y, style='line',
         ymax (float, optional): y axis upper limit. Defaults to 1e4.
         mark_size (float, optional): size of scatter points. Defaults to 30.
         line_style (str, optional): mpl style of line. Defaults to '-'.
-        show_plot (bool, optional): whether to interrupt execution to show the
-        user the plot. Defaults to False.
-        save_plot (bool, optional): whether to save this plot to a file.
-        Defaults to False.
-        filename (list of str, optional): names to give each output file,
-        if saving. Defaults to None.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot to a file. Defaults to False.
+        filename (list of str, optional): names to give each output file, if saving. Defaults to None.
         output_dir (str, optional): where to save the files to. Defaults to None.
     """
     
@@ -59,7 +54,7 @@ def plot_flags_per_time(series_x, series_y, style='line',
             plt.xlabel(xlabel[i])
         if ylabel:
             plt.ylabel(ylabel[i])
-            
+
         if xmin or xmax:
             plt.xlim(xmin, xmax)
 
@@ -94,22 +89,16 @@ def plot_flags_per_time(series_x, series_y, style='line',
 def plot_raw_whitelightcurve(times, spec, order="+1",
                              show_plot = False, save_plot = False,
                              filename = None, output_dir = None):
-    """Plots the uncorrected broad-band light curve for this order, as a
-    diagnostic of your cleaning process.
+    """Plots the uncorrected broad-band light curve for this order, as a diagnostic of your cleaning process.
 
     Args:
         times (np.array): mid-exposure time of each frame.
         spec (np.array): 1D extracted spectra.
-        order (str, optional): which order we are plotting, for plot title.
-        Defaults to "+1".
-        show_plot (bool, optional): whether to interrupt execution to show the
-        user the plot. Defaults to False.
-        save_plot (bool, optional): whether to save this plot to a file.
-        Defaults to False.
-        filename (str, optional): name to give this file, if saving.
-        Defaults to None.
-        output_dir (str, optional): where to save the file, if saving.
-        Defaults to None.
+        order (str, optional): which order we are plotting, for plot title. Defaults to "+1".
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot to a file. Defaults to False.
+        filename (str, optional): name to give this file, if saving. Defaults to None.
+        output_dir (str, optional): where to save the file, if saving. Defaults to None.
     """
 
     # define order colors
@@ -122,9 +111,9 @@ def plot_raw_whitelightcurve(times, spec, order="+1",
 
     plt.figure(figsize = (10, 7))
     plt.plot(times, raw_wlc, 'o', color=colors[order], markeredgecolor='black')
-    plt.xlabel('Time Of Exposure (MJD)')
-    plt.ylabel('Counts (counts)')
-    plt.title("Raw Broad-band Light Curve, Order {}".format(order))
+    plt.xlabel('Time of exposure (BJD TBD)')
+    plt.ylabel('Counts')
+    plt.title("Raw broad-band light curve, order {}".format(order))
 
       
     if save_plot:
@@ -145,22 +134,16 @@ def plot_raw_whitelightcurve(times, spec, order="+1",
 def plot_aperture_lightcurves(obs, tested_hws, wlcs,  
                               show_plot = False, save_plot = False,
                               filename = None, output_dir = None):
-    """Plot each extracted broad-band light curve per halfwidth,
-    to show which halfwidth produced the nicest light curve.
+    """Plot each extracted broad-band light curve per halfwidth, to show which halfwidth produced the nicest light curve.
 
     Args:
         obs (xarray): just need the .exp_time from this.
-        tested_hws (array-like): int, the halfwidths of extraction
-        that we tested.
+        tested_hws (array-like): int, the halfwidths of extraction that we tested.
         wlcs (array-like): each light curve extracted.
-        show_plot (bool, optional): whether to interrupt execution to show the
-        user the plot. Defaults to False.
-        save_plot (bool, optional): whether to save this plot to a file.
-        Defaults to False.
-        filename (str, optional): name to give this file, if saving.
-        Defaults to None.
-        output_dir (str, optional): where to save the file, if saving.
-        Defaults to None.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
+        save_plot (bool, optional): whether to save this plot to a file. Defaults to False.
+        filename (str, optional): name to give this file, if saving. Defaults to None.
+        output_dir (str, optional): where to save the file, if saving. Defaults to None.
     """
 
     # colormap
@@ -174,9 +157,9 @@ def plot_aperture_lightcurves(obs, tested_hws, wlcs,
         else:
             plt.scatter(obs.exp_time, wlc, color=c, alpha=0.75)
     plt.legend(loc='upper left', ncols=2)
-    plt.xlabel('Time Of Exposure (MJD)')
-    plt.ylabel('Counts (counts)')
-    plt.title("Light Curve By Aperture Halfwidth")
+    plt.xlabel('Time of exposure (BJD TBD)')
+    plt.ylabel('Counts')
+    plt.title("Light curve for each tested halfwidth")
     
     if save_plot:
         plot_dir = os.path.join(output_dir,'plots')

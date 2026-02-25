@@ -1,0 +1,16 @@
+numpy
+scipy>=1.8.0
+xarray
+astroquery
+astropy
+photutils<=1.13.0
+matplotlib
+tqdm
+grismconf
+wfc3tools
+# for sphinx documentation
+ipykernel
+nbsphinx
+sphinx_rtd_theme
+# temporary to fix build error
+jwst

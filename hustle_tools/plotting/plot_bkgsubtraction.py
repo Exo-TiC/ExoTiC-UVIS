@@ -17,26 +17,22 @@ def plot_corners(image, corners,
                  min = 1e-3, max = 1e4,
                  show_plot = False, save_plot = False, 
                  output_dir = None):
-    """Function to plot exposure with rectangles to indicate the corners used
-    for background subtraction.
+    """Function to plot exposure with rectangles to indicate the corners used for background subtraction.
 
     Args:
-        image (array-like): 2D image from the obs xarray.
-        corners (lst of lsts): x, y bounds of each rectangle used to define
-        the corners from which the background is measured.
+        image (np.array): 2D image from the obs xarray.
+        corners (lst of lsts): x, y bounds of each rectangle used to define the corners from which the background is measured.
         min (int, optional): darkest point for the colormap. Defaults to 1e-3.
         max (int, optional): brightest point for the colormap. Defaults to 1e4.
-        show_plot (bool, optional): whether to interrupt execution to show
-        the user the plot. Defaults to False.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
         save_plot (bool, optional): whether to save this plot. Defaults to False.
-        output_dir (str, optional): output directory where the plot will be
-        saved. Defaults to None.
+        output_dir (str, optional): output directory where the plot will be saved. Defaults to None.
     """
     
     image = image.copy()
     image[image <= 0] = 1e-10
 
-    plt.figure(figsize = (20, 5))
+    plt.figure(figsize = (20, 4))
     plt.imshow(image, origin = 'lower', norm='log', 
                 vmin = min, vmax = max, 
                 cmap = 'gist_gray')
@@ -49,9 +45,8 @@ def plot_corners(image, corners,
                                  corner[1] - corner[0], linewidth=1, edgecolor='r', facecolor='none')
 
         ax.add_patch(rect)
-    plt.xlabel('Detector X-pixel')
-    plt.ylabel('Detector Y-pixel')
-    plt.title('Region Used For Background Estimation')
+    plt.xlabel('Detector x-pixel')
+    plt.ylabel('Detector y-pixel')
     plt.colorbar()
 
     if save_plot:
@@ -74,16 +69,12 @@ def plot_bkgvals(exp_times, bkg_vals, method,
     """Function to create measured background value plots for all methods.
 
     Args:
-        exp_times (array-like): BJD exposure times for each frame.
-        bkg_vals (array-like): 1D or 2D array of measured background values.
-        method (str): The method used for background subtraction, useful to
-        distinguish each plot file from each other.
-        output_dir (str, optional): output directory where the plot will be
-        saved. Defaults to None.
-        save_plot (bool, optional): whether to save the plot to a file.
-        Defaults to False.
-        show_plot (bool, optional): whether to interrupt execution to
-        show the user the plot. Defaults to False.
+        exp_times (np.array): BJD exposure times for each frame.
+        bkg_vals (np.array): 1D or 2D array of measured background values.
+        method (str): The method used for background subtraction, useful to distinguish each plot file from each other.
+        output_dir (str, optional): output directory where the plot will be saved. Defaults to None.
+        save_plot (bool, optional): whether to save the plot to a file. Defaults to False.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
     """
 
     # initialize figure
@@ -91,21 +82,21 @@ def plot_bkgvals(exp_times, bkg_vals, method,
     if method != 'col-by-col':
         # if it's not col-by-col, we take a single bkg value per frame, 1D
         plt.plot(exp_times, bkg_vals, '-o', color='indianred')
-        plt.xlabel('Time Of Exposure (MJD)')
-        plt.ylabel('Background Counts (counts)')
-        plt.title('Image Background Per Exposure')
+        plt.xlabel('Exposure')
+        plt.ylabel('Background Counts')
+        plt.title('Image background per exposure')
         if method == 'Pagul':
-            plt.ylabel('Pagul et al. Image Scaling Parameter (counts)')
-            plt.title('Scaling Parameter Per Exposure')
+            plt.ylabel('Pagul et al. image scaling parameter')
+            plt.title('Scaling parameter per exposure')
     
     else:
         # if it's col-by-col, we take a bkg value per column per frame, 2D
         v = np.nanmedian(bkg_vals)
         plt.imshow(bkg_vals,aspect=20, vmin=0.5*v,vmax=1.5*v)
         plt.colorbar(fraction=0.01)
-        plt.xlabel('Column (#)')
-        plt.ylabel('Exposure Index (#)')
-        plt.title("Image Background Columns By Exposure")
+        plt.xlabel('Column #')
+        plt.ylabel('Exposure index')
+        plt.title("Image background columns by exposure")
     
     if save_plot:
         plot_dir = os.path.join(output_dir, 'plots') 
@@ -122,31 +113,29 @@ def plot_bkgvals(exp_times, bkg_vals, method,
     return 
 
 
-def plot_mode_v_params(exp_times, modes, params,
+def plot_mode_v_params(exp_times, modes, meds, params,
                        output_dir = None, save_plot = False, show_plot = False):
     """Function to create a diagnostic plot for Pagul et al. bkg subtraction.
 
     Args:
-        exp_times (array-like): BJD exposure times for each frame.
-        modes (array-like): measured mode of each frame, used for comparison.
-        params (array-like): Pagul+ sky image scaling parameter. Ideally, the
-        mode and scaling parameters should not be too different.
-        output_dir (str, optional): output directory where the plot will be
-        saved. Defaults to None.
-        save_plot (bool, optional): whether to save the plot to a file.
-        Defaults to False.
-        show_plot (bool, optional): whether to interrupt execution to
-        show the user the plot. Defaults to False.
+        exp_times (np.array): BJD exposure times for each frame.
+        modes (np.array): measured mode of each frame, used for comparison.
+        meds (np.array): measured median of each frame, used for comparison.
+        params (np.array): Pagul+ sky image scaling parameter. Ideally, the mode and scaling parameters should not be too different.
+        output_dir (str, optional): output directory where the plot will be saved. Defaults to None.
+        save_plot (bool, optional): whether to save the plot to a file. Defaults to False.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
     """
 
     # initialize figure
     plt.figure(figsize = (10, 7))
-    # add the modes and params in different colors and markers
+    # add the modes, medians, and params in different colors and markers
     plt.scatter(exp_times, modes, marker='s', color='red',label='mode')
+    plt.scatter(exp_times, meds, marker='v', color='blue',label='median')
     plt.scatter(exp_times, params, marker='o', color='k',label='scaling parameter')
-    plt.xlabel('Exposure (#)')
-    plt.ylabel('Counts (counts)')
-    plt.title('Frame Mode Vs Scaling Parameter')
+    plt.xlabel('Exposure')
+    plt.ylabel('Counts')
+    plt.title('Frame mode/median vs scaling parameter')
     plt.legend()
     
     if save_plot:
@@ -171,21 +160,15 @@ def plot_histogram(bin_cents, array, mode, median, exp_num,
 
     Args:
         bin_cents (array-like): centers of each bin.
-        array (array-like): flattened image data for which the histogram
-        was computed.
+        array (array-like): flattened image data for which the histogram was computed.
         mode (float): mode of the array without any fit or trim.
         median (float): median of the array without any fit or trim.
         exp_num (float): exposure number.
-        gaussian_center (float, optional): if not False, center of the Gaussian
-        fit to plot. Defaults to False.
-        gaussian_fit (array-like, optional): if not None, the Gaussian fit
-        to plot. Defaults to None.
-        show_plots (bool, optional): whether to show this plot.
-        Defaults to False.
-        save_plots (bool, optional): whether to save this plot.
-        Defaults to False.
-        output_dir (str, optional): where to save the plot to, if save_plot
-        is True. Defaults to None.
+        gaussian_center (float, optional): if not False, center of the Gaussian fit to plot. Defaults to False.
+        gaussian_fit (array-like, optional): if not None, the Gaussian fit to plot. Defaults to None.
+        show_plots (bool, optional): whether to show this plot. Defaults to False.
+        save_plots (bool, optional): whether to save this plot. Defaults to False.
+        output_dir (str, optional): where to save the plot to, if save_plot is True. Defaults to None.
     """
 
     plt.figure(figsize = (10, 7))
@@ -197,10 +180,10 @@ def plot_histogram(bin_cents, array, mode, median, exp_num,
 
     plt.axvline(median, linestyle = '--', color = 'dodgerblue', label='Median')
     plt.axvline(mode, linestyle = '--', color = 'gold', label='Mode')
-    plt.xlabel('Pixel Value (counts)')
-    plt.ylabel('Counts (#)')
+    plt.xlabel('Pixel Value')
+    plt.ylabel('Counts')
     plt.legend()
-    plt.title(f'Background Values Histogram, Exposure #{exp_num}')
+    plt.title(f'Background Values histogram Exposure {exp_num}')
 
     if save_plots:
         plot_dir = os.path.join(output_dir, 'plots') 
@@ -215,3 +198,50 @@ def plot_histogram(bin_cents, array, mode, median, exp_num,
     plt.close() # save memory
 
     return
+
+def plot_bkgcorrection(exp_times, pre_bkg, post_bkg, method,
+                       output_dir = None, save_plot = False, show_plot = False):
+    """Plots the pre- and post-subtraction median background flux for the
+    upper right corner of the image.
+
+    Args:
+        exp_times (np.array): BJD exposure times for each frame.
+        pre_bkg (np.array): 1D array of measured background values.
+        post_bkg (np.array): 1D array of corrected background values.
+        method (str): The method used for background subtraction, useful to distinguish each plot file from each other.
+        output_dir (str, optional): output directory where the plot will be saved. Defaults to None.
+        save_plot (bool, optional): whether to save the plot to a file. Defaults to False.
+        show_plot (bool, optional): whether to interrupt execution to show the user the plot. Defaults to False.
+    """
+
+    # initialize figure
+    plt.figure(figsize = (10, 7))
+    # plot values and also median+/-sigma
+    plt.plot(exp_times, pre_bkg, '-o', color='indianred',label='pre-correction')
+    med, sig = np.median(pre_bkg), np.std(pre_bkg)
+    plt.axhline(med,ls='--',color='indianred')
+    for mult in (-1,1):
+        plt.axhline(med+(mult*sig),ls=':',color='indianred')
+    plt.plot(exp_times, post_bkg, '-o', color='k',label='post-correction')
+    med, sig = np.median(post_bkg), np.std(post_bkg)
+    plt.axhline(med,ls='--',color='k')
+    for mult in (-1,1):
+        plt.axhline(med+(mult*sig),ls=':',color='k')
+    plt.legend()
+    plt.xlabel('Exposure')
+    plt.ylabel('Background Counts')
+    plt.title('Raw vs corrected background')
+    
+    if save_plot:
+        plot_dir = os.path.join(output_dir, 'plots') 
+        filedir = os.path.join(plot_dir, 'bkg_correction_{}.png'.format(method))
+        if not os.path.exists(plot_dir):
+            os.makedirs(plot_dir) 
+        plt.savefig(filedir, bbox_inches='tight', dpi=300)
+
+    if show_plot:
+        plt.show(block=True)
+    
+    plt.close() # save memory
+
+    return 

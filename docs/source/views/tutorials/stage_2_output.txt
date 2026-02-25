@@ -1,0 +1,10 @@
+Extracting standard spectra... Progress:: 100%|██████████████████████████████████████████████████████████████████████████████████████| 74/74 [00:02<00:00, 36.55it/s]
+Aligning spectra in order +1... Progress:: 74it [00:00, 139.23it/s]
+Computing profile displacements... Progress:: 100%|████████████████████████████████████████████████████████████████████████████████| 421/421 [00:28<00:00, 14.63it/s]
+MovieWriter ffmpeg unavailable; using Pillow instead.
+Extracting standard spectra... Progress:: 100%|██████████████████████████████████████████████████████████████████████████████████████| 74/74 [00:01<00:00, 58.90it/s]
+Aligning spectra in order -1... Progress:: 74it [00:00, 153.17it/s]
+Computing profile displacements... Progress:: 100%|████████████████████████████████████████████████████████████████████████████████| 390/390 [00:26<00:00, 14.52it/s]
+MovieWriter ffmpeg unavailable; using Pillow instead.
+Writing config file for Stage 2...
+Config file written.

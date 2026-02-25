@@ -1,9 +1,18 @@
-Add a logo
+.. HUSTLE-tools documentation master file.
 
-Introduction
-------------
+.. image:: hustle-tools_logo.png
+  :width: 512
+  :align: center
+  :alt: HUSTLE-tools Logo
 
-HUSTLE-tools is a python package for...
+|
+
+HUSTLE-tools: A One-Stop Shop for WFC3/UVIS G280 Data Reduction
+===============================================================
+
+:code:`HUSTLE-tools` is a one-stop shop Python package for extracting precise 1D spectral time series from WFC3/UVIS G280 time-series obserations. :code:`HUSTLE-tools` processes the raw \*flt.fits files of your observation with a user-friendly interface and easily-replicable reduction instructions supplied from .hustle configuration files.
+
+:code:`HUSTLE-tools` is under active development - stay tuned for future updates which will include tools for exoplanet transmission and emission spectrum fitting!
 
 .. toctree::
    :maxdepth: 2
@@ -19,12 +28,8 @@ HUSTLE-tools is a python package for...
 Acknowledgements
 ----------------
 
-HUSTLE-tools is built by Abby Boehm and Carlos Gascon.
+:code:`HUSTLE-tools` is built and maintained by Abby Boehm and Carlos Gascon.
 
-Add HUSTLE/other contributor acknowledgements here...
+We thank Hannah Wakeford, David Grant, and Ailsa Campbell for contributing to the development and testing of :code:`HUSTLE-tools`!
 
-If you make use of HUSTLE-tools in your research, see the :doc:`citation page <views/citation>`
-for info on how to cite this package. Anyone can get involved by following
-the :doc:`contributing guidelines <views/contributing>`. You can find other
-software from the Exoplanet Timeseries Characterisation (ExoTiC) ecosystem
-over on `GitHub <https://github.com/Exo-TiC>`_.
+If you make use of :code:`HUSTLE-tools` in your research, see the :doc:`citation page <views/citation>` for info on how to cite this package. Anyone can get involved by following the :doc:`contributing guidelines <views/contributing>`. You can find other software from the Exoplanet Timeseries Characterisation (ExoTiC) ecosystem over on `GitHub <https://github.com/Exo-TiC>`_.

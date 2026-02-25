@@ -1,5 +1,7 @@
 __all__ = [
     "load_data_S1",
+    "uvis_coords",
+    "correct_hst_flags",
     "laplacian_edge_detection",
     "spatial_smoothing",
     "fixed_iteration_rejection",
@@ -15,8 +17,9 @@ __all__ = [
 ]
 
 
-from hustle_tools.stage_1.load_and_save_data import load_data_S1
-from hustle_tools.stage_1.load_and_save_data import save_data_S1
+from hustle_tools.stage_1.load_and_save_data import load_data_S1, save_data_S1
+from hustle_tools.stage_1.uvis_embed import get_subarr_coords
+from hustle_tools.stage_1.correct_hst_flags import correct_hst_flags
 from hustle_tools.stage_1.spatial_outlier_rejection import laplacian_edge_detection, spatial_smoothing
 from hustle_tools.stage_1.bckg_subtract import Pagul_bckg_subtraction, uniform_value_bkg_subtraction, column_by_column_subtraction
 from hustle_tools.stage_1.temporal_outlier_rejection import fixed_iteration_rejection, free_iteration_rejection

@@ -1,0 +1,17 @@
+Stage 0 .hustle located, using 'location' parameter supplied by Stage 0 fitting process.
+Loading data... Progress:: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████| 158/158 [00:06<00:00, 23.95it/s]
+Correcting for 0th sigma... Progress:: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 74/74 [00:22<00:00,  3.32it/s]
+Bad pixels removed on iteration 0 with sigma 4.50: 197257████████████████████████████████████████████████████████████████████████████| 74/74 [00:22<00:00,  4.55it/s]
+Correcting for 1th sigma... Progress:: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 74/74 [00:21<00:00,  3.42it/s]
+Bad pixels removed on iteration 1 with sigma 4.50: 14163█████████████████████████████████████████████████████████████████████████████| 74/74 [00:21<00:00,  4.69it/s]
+Iterating with fixed sigmas to remove CRs... Progess:: 2it [00:47, 23.71s/it]
+Fixed iterations complete. Total pixels corrected: 211420 out of 93240000
+Removing background... Progress:: 100%|██████████████████████████████████████████████████████████████████████████████████████████████| 74/74 [01:18<00:00,  1.06s/it]
+Refining location of source in direct image with centroiding...
+Tracking 0th order... Progress:: 100%|███████████████████████████████████████████████████████████████████████████████████████████████| 74/74 [00:30<00:00,  2.43it/s]
+Tracked 0th order in 74 frames.
+Parsing xarray for quicklookup... Progress:: 100%|█████████████████████████████████████████████████████████████████████████████████| 74/74 [00:00<00:00, 1658.60it/s]
+MovieWriter ffmpeg unavailable; using Pillow instead.
+MovieWriter ffmpeg unavailable; using Pillow instead.
+Writing config file for Stage 1...
+Config file written.
