@@ -3,6 +3,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import matplotlib.pylab as pl
 
 
 #define plotting parameters
@@ -54,8 +55,7 @@ def plot_flags_per_time(series_x, series_y, style='line',
             plt.xlabel(xlabel[i])
         if ylabel:
             plt.ylabel(ylabel[i])
-        plt.colorbar()
-
+            
         if xmin or xmax:
             plt.xlim(xmin, xmax)
 
@@ -112,9 +112,9 @@ def plot_raw_whitelightcurve(times, spec, order="+1",
 
     plt.figure(figsize = (10, 7))
     plt.plot(times, raw_wlc, 'o', color=colors[order], markeredgecolor='black')
-    plt.xlabel('Time of exposure')
-    plt.ylabel('Counts')
-    plt.title("Raw broad-band light curve, order {}".format(order))
+    plt.xlabel('Time Of Exposure (MJD)')
+    plt.ylabel('Counts (counts)')
+    plt.title("Raw Broad-band Light Curve, Order {}".format(order))
 
       
     if save_plot:
@@ -158,9 +158,9 @@ def plot_aperture_lightcurves(obs, tested_hws, wlcs,
         else:
             plt.scatter(obs.exp_time, wlc, color=c, alpha=0.75)
     plt.legend(loc='upper left', ncols=2)
-    plt.xlabel('Time of exposure')
-    plt.ylabel('Counts')
-    plt.title("Light curve for each tested halfwidth")
+    plt.xlabel('Time Of Exposure (MJD)')
+    plt.ylabel('Counts (counts)')
+    plt.title("Light Curve By Aperture Halfwidth")
     
     if save_plot:
         plot_dir = os.path.join(output_dir,'plots')

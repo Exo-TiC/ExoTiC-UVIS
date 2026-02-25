@@ -14,12 +14,12 @@ def clean_spectra(spec, sigma,
     """Replace spectral outliers in time with their temporal median.
 
     Args:
-        spec (np.array): spectrum to clean.
+        spec (array-like): spectrum to clean.
         sigma (float): threshold at which to reject a value as an outlier.
         verbose (int, optional): How detailed you want the printed statements to be. Defaults to 0.
 
     Returns:
-        np.array: input spectrum cleaned of final outliers.
+        array-like: input spectrum cleaned of final outliers.
     """
 
     if verbose > 0:

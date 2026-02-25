@@ -1,9 +1,9 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
 from astropy.stats import sigma_clipped_stats
 from astropy.io import fits
 from photutils import DAOStarFinder
-
-import numpy as np
-import matplotlib.pyplot as plt
 
 
 def locate_target(direct_image,test=False):

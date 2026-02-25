@@ -252,9 +252,9 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2)):
         # displacements by 0th order tracking
         obs["0th_order_pos"] = (("exp_time", "xy"), np.zeros((obs.exp_time.data.shape[0],2))) # placeholder in case you don't do this step
         if stage1_dict['do_0thtracking']:
-            # FIX: The below hardcodes an adjustment to your guess that shifts it
-            # from direct image pos to spec image. Hardcoding is something that we
-            # want to avoid, so we need to think of a better way...
+            # FIX (Issue #39): Hard-coded guess values are used to shift from
+            # direct image pos to spec image. Hardcoding is something that we
+            # want to avoid, so we need to think of a better way.
             track_0thOrder(obs, guess=[100,150],
                            verbose=stage1_dict['verbose'],
                            show_plots=stage1_dict['show_plots'],
@@ -322,7 +322,7 @@ def run_pipeline(config_files_dir, stages=(0, 1, 2)):
                                             show_plots=stage2_dict['show_plots'], 
                                             save_plots=stage2_dict['save_plots'],
                                             output_dir=run_dir)
-            # test 0th order removal
+            # 0th order removal
             remove_zeroth_order(obs, 
                                 zero_pos = [x0th, y0th], 
                                 rmin = 85, rmax = 500, rwidth = 3,
