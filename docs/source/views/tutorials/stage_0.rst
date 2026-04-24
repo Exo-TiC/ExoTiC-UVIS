@@ -105,7 +105,7 @@ The output :code:`toplevel_dir/outputs/stage_0` folder will contain a near-copy 
 
 Diagnostic 3: quicklookup.gif and image files contain expected observations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You should check to confirm that the output :code:`toplevel_dir/specimages` and :code:`toplevel_dir/directimages` folders contain the expected number of *flt.fits files. To confirm the contents of the spectroscopic image files, check the quicklookup.gif to ensure that it (1) has as many frames as there are *flt.fits files in :code:`toplevel_dir/specimages`, and (2) has a trace flux time series (bottom right plot) matching the event you expected to observe. We show an example direct image and frame from the quicklookup.gif below from HUSTLE program observations of a transit of WASP-127b from visit 12 of HST-GO 17183 (PI: Hannah Wakeford):
+You should check to confirm that the output :code:`toplevel_dir/specimages` and :code:`toplevel_dir/directimages` folders contain the expected number of \*flt.fits files. To confirm the contents of the spectroscopic image files, check the quicklookup.gif to ensure that it (1) has as many frames as there are \*flt.fits files in :code:`toplevel_dir/specimages`, and (2) has a trace flux time series (bottom right plot) matching the event you expected to observe. We show an example direct image and frame from the quicklookup.gif below from HUSTLE program observations of a transit of WASP-127b from visit 12 of HST-GO 17183 (PI: Hannah Wakeford):
 
 
 .. figure:: ../directimage.png
