@@ -131,10 +131,130 @@ Then execute this script to run Stage 2! The output in your cell should look sim
 
 Assessing Stage 2's success
 ---------------------------
-Stage 2 is also a fairly customizable stage and has many diagnostics to look over. You will know if Stage 2 succeeded if:
+Stage 2 is also a fairly customizable stage and has many diagnostics to look over.
 
-  1. The calibration and aperture plots accurately located the correct traces and the apertures encompass the entirety of the orders you have chosen to extract from.
-  2. The extracted 1D spectral time series are consistent with the source spectrum expected (e.g. if your target is an A star, you should be able to see Balmer absorption lines in the spectrum centered at the appropriate wavelengths), and the 1D spectrum gif shows no cosmic ray spikes, drift over time, or reduction process artifacts (e.g. rapid variations or dramatic changes in flux in certain channels which can arise from hot/cold/dead pixels, an up-and-down jitteriness that might be the result of bad background subtraction, etc.).
-  3. The extracted orders are reasonably consistent with each other, where their wavelength ranges overlap. Some minor differences should be expected due to order throughput variations, but the overall shape and features should be comparable.
-  4. The cross-correlation dispersion and cross-dispersion shifts are reasonably consistent with the x-y shifts measured in the 0th order and background stars (if available) in Stage 1.
-  5. The extracted raw white light curves for each order clearly show the transit with the depth and scatter that you expect.
+
+Diagnostic 1: Calibration and apertures acquired traces
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The calibration and aperture plots should show that Stage 2 located the correct traces, and that the apertures encompass the entirety of the orders you have chosen to extract from. We show aperture plots including the trace position calibration for the +1 and -1 traces below.
+
+.. list-table::
+   :widths: 256 256
+   :header-rows: 0
+
+   * - .. figure:: ../aperture+1.png
+          :width: 100%
+
+          *Aperture (top and bottom lines) encasing the +1 trace with a halfwidth of 12 pixels. The calibration solution (central line) traces the dispersed spectra to a sub-pixel accuracy.*
+     - .. figure:: ../aperture-1.png
+          :width: 100%
+
+          *Aperture (top and bottom lines) encasing the -1 trace with a halfwidth of 12 pixels. The calibration solution (central line) traces the dispersed spectra to a sub-pixel accuracy.*
+
+We additionally show calibration plots for orders +1 through +4, which can all be extracted albeit with increasing self-contamination.
+
+.. list-table::
+   :widths: 256 256 256 256
+   :header-rows: 0
+
+   * - .. figure:: ../calibration+1.png
+          :width: 100%
+
+          *The calibration solution for the +1 order.*
+     - .. figure:: ../calibration+2.png
+          :width: 100%
+
+          *The calibration solution for the +2 order.*
+     - .. figure:: ../calibration+3.png
+          :width: 100%
+
+          *The calibration solution for the +3 order.*
+     - .. figure:: ../calibration+4.png
+          :width: 100%
+
+          *The calibration solution for the +4 order.*
+
+Finally, we include calibration plots for orders -1 through -4, which can all be extracted albeit with increasing self-contamination.
+
+.. list-table::
+   :widths: 256 256 256 256
+   :header-rows: 0
+
+   * - .. figure:: ../calibration-1.png
+          :width: 100%
+
+          *The calibration solution for the -1 order.*
+     - .. figure:: ../calibration-2.png
+          :width: 100%
+
+          *The calibration solution for the -2 order.*
+     - .. figure:: ../calibration-3.png
+          :width: 100%
+
+          *The calibration solution for the -3 order.*
+     - .. figure:: ../calibration-4.png
+          :width: 100%
+
+          *The calibration solution for the -4 order.*
+
+
+Diagnostic 2: 1D spectral time series of source
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The extracted 1D spectral time series should be consistent with the source spectrum expected (e.g. if your target is an A star, you should be able to see Balmer absorption lines in the spectrum centered at the appropriate wavelengths), and the 1D spectrum gif should show no cosmic ray spikes, drift over time, or reduction process artifacts (e.g. rapid variations or dramatic changes in flux in certain channels which can arise from hot/cold/dead pixels, an up-and-down jitteriness that might be the result of bad background subtraction, etc.). We show a 1D spectral time series for...
+
+.. list-table::
+   :widths: 256 256 256 256
+   :header-rows: 0
+
+   * - .. figure:: ../1Dspec+1.gif
+          :width: 100%
+
+          *The 1D spectral time series for the +1 order.*
+     - .. figure:: ../1Dspec-11.gif
+          :width: 100%
+
+          *The 1D spectral time series for the +1 order.*
+
+Diagnostic 3: Comparison between orders
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The extracted orders should be reasonably consistent with each other, where their wavelength ranges overlap. Some minor differences should be expected due to order throughput variations, but the overall shape and features should be comparable. Below we show the overplotted +1 and -1 spectra of ...
+
+.. figure:: ../overplotted.png
+   :width: 1024
+   :align: center
+
+   *The median +1 (red) and -1 (blue) 1D spectra from ... Apart from a scaling factor, the two spectra are otherwise consistent in terms of shape and features.*
+
+Diagnostic 4: Stage 2 displacement consistency with Stage 1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The cross-correlation dispersion and cross-dispersion shifts should be reasonably consistent with the x-y shifts measured in the 0th order and background stars (if available) in Stage 1. We show the cross-correlation shifts for both the dispersion and cross-dispersion directions for the +1 1D spectral time series of ..., overplotted with the x-y shifts measured from the 0th order.
+
+.. list-table::
+   :widths: 256 256
+   :header-rows: 0
+
+   * - .. figure:: ../bkg_stars_x_displacement.png
+          :width: 100%
+
+          *Dispersion shifts of the +1 order measured with cross-correlation.*
+     - .. figure:: ../bkg_stars_y_displacement.png
+          :width: 100%
+
+          *Cross-dispersion shifts of the +1 order measured with cross-correlation.*
+
+Diagnostic 5: Raw white light curves show expected shape and quality
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The extracted raw white light curves for each order should clearly show the event you expect to observe, with the level of scatter that you expect. Bear in mind that some systematics should still be present at this stage - these can be treated using a variety of methods including systematic marginalisation (Wakeford et al. 2016) and jitter decorrelation (Sing et al. 2019). We show the raw white light curves for the +1 and -1 order of ... below.
+
+.. list-table::
+   :widths: 256 256
+   :header-rows: 0
+
+   * - .. figure:: ../wlc+1.png
+          :width: 100%
+
+          *The raw white light curve from the +1 order.*
+     - .. figure:: ../wlc-1.png
+          :width: 100%
+
+          *The raw white light curve from the -1 order.*
