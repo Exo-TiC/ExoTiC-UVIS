@@ -296,7 +296,7 @@ Stage 2 extracts the 1D spectral time series from our reduced data frame, and li
   4. 1Dspec_order+1.png and 1Dspec_order-1.png show the first frame's 1D spectrum for each order. 2Dspec_order+1.png and 2Dspec_order-1.png plot the 1D spectra in every frame over time as a 2D map. 1Dspec_order+1.gif and 1Dspec_order-1.gif plays all extracted 1D spectra for each order as a gif. All of these plots can be used to assess the quality of the extracted spectra, including looking for uncorrected cosmic rays or systematic signals. In this dataset, a strong systematic can be seen in the -1 order at 400 nm.
   5. rawwlc_order+1.png and rawwlc_order-1.png show the white light curves obtained by summing all 1D spectra across all wavelengths. These light curves should be clean and with good signal-to-noise ratio, with minimal systematic patterns and no spurious points from e.g. cosmic rays.
 
-The 1D spectra for each order will be output to specs\_+1.nc and specs\_-1.nc which can be opened and manipulated with the :code:`xarray` package. These are the final science products on which you would perform your analyses. For example, the script below can be used to generate a plot of the white and spectroscopic light curves from this observation:
+The 1D spectra for each order will be output to specs\_+1.nc and specs\_-1.nc which can be opened and manipulated with the :code:`xarray` package, documented `here <https://docs.xarray.dev/en/stable/>`_. These are the final science products on which you would perform your analyses. For example, the script below can be used to generate a plot of the white and spectroscopic light curves from this observation:
 
 .. code-block:: bash
 
@@ -366,7 +366,7 @@ The 1D spectra for each order will be output to specs\_+1.nc and specs\_-1.nc wh
   :width: 100%
   :align: center
   
-  *The white light curve (top) and some spectroscopic light curves (bottom) created from our HUSTLE-tools reduction of a transit of WASP-127 b observed in HST-GO 17183.*
+  *The white light curve (top) and spectroscopic light curves (bottom) created from our HUSTLE-tools reduction of a transit of WASP-127 b observed in HST-GO 17183. Note the increasing transit depth at shorter wavelengths.*
 
 
 5. What next?
