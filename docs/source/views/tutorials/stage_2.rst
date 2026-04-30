@@ -137,7 +137,7 @@ Stage 2 is also a fairly customizable stage and has many diagnostics to look ove
 
 Diagnostic 1: Calibration and apertures acquired traces
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The calibration and aperture plots should show that Stage 2 located the correct traces, and that the apertures encompass the entirety of the orders you have chosen to extract from. We show aperture plots including the trace position calibration for the +1 and -1 traces below.
+The calibration and aperture plots should show that Stage 2 located the correct traces, and that the apertures encompass the entirety of the orders you have chosen to extract from. Below we show aperture plots including the trace position calibration for the +1 and -1 traces of a V~10 star with an effective temperature of 5600 K, observed by HST-GO 17183.
 
 .. list-table::
    :widths: 256 256
@@ -152,7 +152,9 @@ The calibration and aperture plots should show that Stage 2 located the correct 
 
           *Aperture (dashed lines) encasing the -1 trace with a halfwidth of 12 pixels. The calibration solution (solid line) traces the dispersed spectra to a sub-pixel accuracy.*
 
-We additionally show calibration plots for orders +1 through +4, which can all be extracted albeit with increasing self-contamination.
+We additionally show calibration plots for the traces from another HST-GO 17183 observation for a V~7 star at an effective temperature of 8000 K. Note that unlike the data for the cooler star, the higher orders in this data are readily visible. Self-contamination from overlapping orders poses a significant challenge in processing datasets with low-V, high-T stars! For most stars, the higher orders will be barely resolved and self-contamination contributes much less error than the photon noise limit, so self-contamination treatment is often unnecessary.
+
+Below we show orders +1 through +4, which can all be extracted albeit with increasing self-contamination.
 
 .. list-table::
    :widths: 256 256 256 256
@@ -175,7 +177,7 @@ We additionally show calibration plots for orders +1 through +4, which can all b
 
           *+4 order.*
 
-Finally, we include calibration plots for orders -1 through -4, which can all be extracted albeit with increasing self-contamination.
+Below we show orders -1 through -4, which can all be extracted albeit with increasing self-contamination.
 
 .. list-table::
    :widths: 256 256 256 256
@@ -203,7 +205,7 @@ Diagnostic 2: 1D spectral time series of source
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The extracted 1D spectral time series should be consistent with the source spectrum expected (e.g. if your target is an A star, you should be able to see Balmer absorption lines in the spectrum centered at the appropriate wavelengths), and the 1D spectrum gif should show no cosmic ray spikes, drift over time, or reduction process artifacts (e.g. rapid variations or dramatic changes in flux in certain channels which can arise from hot/cold/dead pixels, an up-and-down jitteriness that might be the result of bad background subtraction, etc.).
 
-We show an example +1 1D spectral time series below.
+We show an example +1 1D spectral time series from HST-GO 17183 below.
 
 .. figure:: ../1Dspec_order+1.gif
   :width: 50%
@@ -211,7 +213,7 @@ We show an example +1 1D spectral time series below.
   
   *The 1D spectral time series for the +1 order.*
 
-We show an example -1 1D spectral time series below.
+We show an example -1 1D spectral time series from HST-GO 17183 below.
 
 .. figure:: ../1Dspec_order-1.gif
   :width: 50%
@@ -227,7 +229,7 @@ The extracted orders should be reasonably consistent with each other, where thei
    :width: 1024
    :align: center
 
-   *The median +1 (red) and -1 (blue) 1D spectra of WASP-127 from HST-GO 17183. Apart from a scaling factor, the two spectra are otherwise largely consistent in terms of shape and features.*
+   *The median +1 (red) and -1 (blue) 1D spectra. Apart from a scaling factor, the two spectra are otherwise largely consistent in terms of shape and features.*
 
 Diagnostic 4: Stage 2 displacement consistency with Stage 1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -257,8 +259,8 @@ The extracted raw white light curves for each order should clearly show the even
    * - .. figure:: ../wlc+1.png
           :width: 100%
 
-          *The raw white light curve from the +1 order.*
+          *The raw white light curve from the +1 order. While systematics are present that skew each orbit's shape, the scatter is reasonably consistent with expectations.*
      - .. figure:: ../wlc-1.png
           :width: 100%
 
-          *The raw white light curve from the -1 order.*
+          *The raw white light curve from the -1 order. Compared to the brighter +1 order, the dimmer -1 order light curve shows greater scatter and systematics.*
