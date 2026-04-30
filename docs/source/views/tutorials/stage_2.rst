@@ -73,19 +73,20 @@ Step 2: Trace configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :code:`HUSTLE-tools` uses :code:`grismconf`, a package developed by `Pirzkal & Ryan 2017 <https://www.stsci.edu/files/live/sites/www/files/home/hst/instrumentation/wfc3/documentation/instrument-science-reports-isrs/_documents/2017/WFC3-2017-01.pdf>`_, to assign the field-dependent wavelength solution to the traces you want to extract. If you followed the instructions on the :doc:`Installation <views/installation>` page, you should have downloaded a set of `WFC3/UVIS configuration files <https://github.com/npirzkal/GRISM_WFC3>`_ which :code:`grismconf` will use to determine the wavelength solution for each order based on the target position you located in Stage 0 and optionally refined in Stage 1. Depending on which of the two WFC3/UVIS CCD chips you collected your observations on, you must supply the :code:`path_to_cal` variable with the absolute path to either your local UVIS_G280_CCD1_V2.conf file for chip 1, or your local UVIS_G280_CCD2_V2.conf file for chip 2. It is recommended by `Wakeford et al. 2020 <https://iopscience.iop.org/article/10.3847/1538-3881/ab7b78/pdf>`_ to use chip 2 for WFC3/UVIS observations because it is more stable than chip 1. Your observations are also most likely collected on chip 2, which you can confirm by opening the .fits files and checking the CCDCHIP keyword of the [SCI] header, as shown below.
 
-.. image:: ../ccdchipheader.png
-  :width: 256
+.. figure:: ../ccdchipheader.png
+  :width: 50%
   :align: left
-  :alt: [SCI] header info showing the CCD chip number stored in the CCDCHIP keyword
+  
+  *[SCI] header info showing the CCD chip number stored in the CCDCHIP keyword.*
 
 
-:code:`grismconf` supports extraction of both the positive (higher throughput, dispersed to left) orders and the negative (lower throughput, dispersed to right) orders, with support for up to the 4th order trace. You can specify which traces you want to extract by supplying the sign and order of each trace in the :code:`traces_to_conf` variable, e.g. by supplying this variable as ("+1","-1") you can request to extract the positive and negative 1st-order traces. Below we show a G280 data frame with the 0th order and all extractable traces marked.
+:code:`grismconf` supports extraction of both the positive (higher throughput, dispersed to left) orders and the negative (lower throughput, dispersed to right) orders, with support for up to the 4th order trace. All traces are extractable, but note that higher order traces have less flux and are more contaminated, which can make reliable extraction more challenging. You can specify which traces you want to extract by supplying the sign and order of each trace in the :code:`traces_to_conf` variable, e.g. by supplying this variable as ("+1","-1") you can request to extract the positive and negative 1st-order traces.
 
-.. image:: ../orders.png
-  :width: 512
+.. figure:: ../orders.png
+  :width: 100%
   :align: left
-  :alt: A WFC3/UVIS G280 data frame showing the 0th order (middle), all extractable positive orders (left), and all extractable negative orders (right)
-
+  
+  *A WFC3/UVIS G280 data frame showing the 0th order (middle), all extractable positive orders (left), and all extractable negative orders (right).*
 
 Shifts in the trace position over time can affect the wavelength solution, which is determined from the static direct photometric image taken at the observation start. You can refine the trace solution by setting :code:`refine_fit` to True to allow the trace solution to be updated in each frame.
 
@@ -145,11 +146,11 @@ The calibration and aperture plots should show that Stage 2 located the correct 
    * - .. figure:: ../aperture+1.png
           :width: 100%
 
-          *Aperture (top and bottom lines) encasing the +1 trace with a halfwidth of 12 pixels. The calibration solution (central line) traces the dispersed spectra to a sub-pixel accuracy.*
+          *Aperture (dashed lines) encasing the +1 trace with a halfwidth of 12 pixels. The calibration solution (solid line) traces the dispersed spectra to a sub-pixel accuracy.*
      - .. figure:: ../aperture-1.png
           :width: 100%
 
-          *Aperture (top and bottom lines) encasing the -1 trace with a halfwidth of 12 pixels. The calibration solution (central line) traces the dispersed spectra to a sub-pixel accuracy.*
+          *Aperture (dashed lines) encasing the -1 trace with a halfwidth of 12 pixels. The calibration solution (solid line) traces the dispersed spectra to a sub-pixel accuracy.*
 
 We additionally show calibration plots for orders +1 through +4, which can all be extracted albeit with increasing self-contamination.
 
@@ -157,22 +158,22 @@ We additionally show calibration plots for orders +1 through +4, which can all b
    :widths: 256 256 256 256
    :header-rows: 0
 
-   * - .. figure:: ../calibration+1.png
+   * - .. figure:: ../calibration_+1.png
           :width: 100%
 
-          *The calibration solution for the +1 order.*
-     - .. figure:: ../calibration+2.png
+          *+1 order.*
+     - .. figure:: ../calibration_+2.png
           :width: 100%
 
-          *The calibration solution for the +2 order.*
-     - .. figure:: ../calibration+3.png
+          *+2 order.*
+     - .. figure:: ../calibration_+3.png
           :width: 100%
 
-          *The calibration solution for the +3 order.*
-     - .. figure:: ../calibration+4.png
+          *+3 order.*
+     - .. figure:: ../calibration_+4.png
           :width: 100%
 
-          *The calibration solution for the +4 order.*
+          *+4 order.*
 
 Finally, we include calibration plots for orders -1 through -4, which can all be extracted albeit with increasing self-contamination.
 
@@ -180,71 +181,74 @@ Finally, we include calibration plots for orders -1 through -4, which can all be
    :widths: 256 256 256 256
    :header-rows: 0
 
-   * - .. figure:: ../calibration-1.png
+   * - .. figure:: ../calibration_-1.png
           :width: 100%
 
-          *The calibration solution for the -1 order.*
-     - .. figure:: ../calibration-2.png
+          *-1 order.*
+     - .. figure:: ../calibration_-2.png
           :width: 100%
 
-          *The calibration solution for the -2 order.*
-     - .. figure:: ../calibration-3.png
+          *-2 order.*
+     - .. figure:: ../calibration_-3.png
           :width: 100%
 
-          *The calibration solution for the -3 order.*
-     - .. figure:: ../calibration-4.png
+          *-3 order.*
+     - .. figure:: ../calibration_-4.png
           :width: 100%
 
-          *The calibration solution for the -4 order.*
+          *-4 order.*
 
 
 Diagnostic 2: 1D spectral time series of source
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The extracted 1D spectral time series should be consistent with the source spectrum expected (e.g. if your target is an A star, you should be able to see Balmer absorption lines in the spectrum centered at the appropriate wavelengths), and the 1D spectrum gif should show no cosmic ray spikes, drift over time, or reduction process artifacts (e.g. rapid variations or dramatic changes in flux in certain channels which can arise from hot/cold/dead pixels, an up-and-down jitteriness that might be the result of bad background subtraction, etc.). We show a 1D spectral time series for...
+The extracted 1D spectral time series should be consistent with the source spectrum expected (e.g. if your target is an A star, you should be able to see Balmer absorption lines in the spectrum centered at the appropriate wavelengths), and the 1D spectrum gif should show no cosmic ray spikes, drift over time, or reduction process artifacts (e.g. rapid variations or dramatic changes in flux in certain channels which can arise from hot/cold/dead pixels, an up-and-down jitteriness that might be the result of bad background subtraction, etc.).
 
-.. list-table::
-   :widths: 256 256 256 256
-   :header-rows: 0
+We show an example +1 1D spectral time series below.
 
-   * - .. figure:: ../1Dspec+1.gif
-          :width: 100%
+.. figure:: ../1Dspec_order+1.gif
+  :width: 50%
+  :align: left
+  
+  *The 1D spectral time series for the +1 order.*
 
-          *The 1D spectral time series for the +1 order.*
-     - .. figure:: ../1Dspec-11.gif
-          :width: 100%
+We show an example -1 1D spectral time series below.
 
-          *The 1D spectral time series for the +1 order.*
+.. figure:: ../1Dspec_order-1.gif
+  :width: 50%
+  :align: left
+  
+  *The 1D spectral time series for the -1 order.*
 
 Diagnostic 3: Comparison between orders
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The extracted orders should be reasonably consistent with each other, where their wavelength ranges overlap. Some minor differences should be expected due to order throughput variations, but the overall shape and features should be comparable. Below we show the overplotted +1 and -1 spectra of ...
+The extracted orders should be reasonably consistent with each other, where their wavelength ranges overlap. Some minor differences should be expected due to order throughput variations, but the overall shape and features should be comparable. Below we show the overplotted +1 and -1 spectra of WASP-127 from HST-GO 17183.
 
-.. figure:: ../overplotted.png
+.. figure:: ../spectra.png
    :width: 1024
    :align: center
 
-   *The median +1 (red) and -1 (blue) 1D spectra from ... Apart from a scaling factor, the two spectra are otherwise consistent in terms of shape and features.*
+   *The median +1 (red) and -1 (blue) 1D spectra of WASP-127 from HST-GO 17183. Apart from a scaling factor, the two spectra are otherwise largely consistent in terms of shape and features.*
 
 Diagnostic 4: Stage 2 displacement consistency with Stage 1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The cross-correlation dispersion and cross-dispersion shifts should be reasonably consistent with the x-y shifts measured in the 0th order and background stars (if available) in Stage 1. We show the cross-correlation shifts for both the dispersion and cross-dispersion directions for the +1 1D spectral time series of ..., overplotted with the x-y shifts measured from the 0th order.
+The cross-correlation dispersion and cross-dispersion shifts should be reasonably consistent with each other, and with the x-y shifts measured in the background stars (if available) in Stage 1. The shifts may be somewhat less consistent with the 0th order motions, especially in the y direction, due to saturation and bloom affecting 0th order tracking. We show the cross-correlation shifts for both the dispersion and cross-dispersion directions for the +1 1D spectral time series of WASP-127 from HST-GO 17183, overplotted with the x-y shifts measured from the 0th order.
 
 .. list-table::
    :widths: 256 256
    :header-rows: 0
 
-   * - .. figure:: ../bkg_stars_x_displacement.png
+   * - .. figure:: ../spec_disp.png
           :width: 100%
 
-          *Dispersion shifts of the +1 order measured with cross-correlation.*
-     - .. figure:: ../bkg_stars_y_displacement.png
+          *Dispersion shifts of the +1 and -1 orders measured with cross-correlation. As the traces are mirrors of each other in the dispersion direction, the +1 and -1 shifts are mirrored.*
+     - .. figure:: ../prof_disp.png
           :width: 100%
 
-          *Cross-dispersion shifts of the +1 order measured with cross-correlation.*
+          *Cross-dispersion shifts of the +1 and -1 orders measured with cross-correlation. As the traces are symmetric in the cross-dispersion direction, the +1 and -1 shifts are alike.*
 
 Diagnostic 5: Raw white light curves show expected shape and quality
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The extracted raw white light curves for each order should clearly show the event you expect to observe, with the level of scatter that you expect. Bear in mind that some systematics should still be present at this stage - these can be treated using a variety of methods including systematic marginalisation (Wakeford et al. 2016) and jitter decorrelation (Sing et al. 2019). We show the raw white light curves for the +1 and -1 order of ... below.
+The extracted raw white light curves for each order should clearly show the event you expect to observe, with the level of scatter that you expect. Bear in mind that some systematics should still be present at this stage - these can be treated using a variety of methods including systematic marginalisation (Wakeford et al. 2016) and jitter decorrelation (Sing et al. 2019). We show the raw white light curves for the +1 and -1 order of WASP-127 below.
 
 .. list-table::
    :widths: 256 256
