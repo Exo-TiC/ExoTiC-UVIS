@@ -34,9 +34,15 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
 
     # Plot planned aperture of extraction.
     if (save_plots > 0 or show_plots > 0):
+        x1,x2,y1,y2 = (np.min(trace_x)-5,np.max(trace_x)+5,
+                       np.min(trace_y)-halfwidth-5,np.max(trace_y)+halfwidth+5)
+        dx, dy = abs(x1-x2), abs(y1-y2)
         plot_exposure([obs.images[0].values,], line_data=[[trace_x,trace_y[0]],
                                                           [trace_x,[i+halfwidth for i in trace_y[0]]],
                                                           [trace_x,[i-halfwidth for i in trace_y[0]]]],
+                                                          xlimits=(x1,x2),ylimits=(y1,y2),
+                                                          min = 1e-1, max = 4e4, linestyles = ['-','--','--'],
+                                                          cbar_orient='horizontal',cbar_aspect=(dx/dy)**2, cbar_fraction=0.15, cbar_pad = 0.20,
                       title='Extraction Aperture', save_plot=(save_plots>0), show_plot=(show_plots>0),
                       filename=['aperture{}'.format(order)],output_dir=output_dir)
 
@@ -57,9 +63,15 @@ def standard_extraction(obs, halfwidth, trace_x, trace_y, order='+1', masks = []
                 frame[obj_mask] = 0
                 err[obj_mask] = 0
             if ((save_plots > 0 or show_plots > 0) and k == 0):
+                x1,x2,y1,y2 = (np.min(trace_x)-5,np.max(trace_x)+5,
+                               np.min(trace_y)-halfwidth-5,np.max(trace_y)+halfwidth+5)
+                dx, dy = abs(x1-x2), abs(y1-y2)
                 plot_exposure([frame,], line_data=[[trace_x,trace_y[0]],
                                                    [trace_x,[i+halfwidth for i in trace_y[0]]],
                                                    [trace_x,[i-halfwidth for i in trace_y[0]]]],
+                                                    xlimits=(x1,x2),ylimits=(y1,y2),
+                                                    min = 1e-1, max = 4e4, linestyles = ['-','--','--'],
+                                                    cbar_orient='horizontal',cbar_aspect=(dx/dy)**2, cbar_fraction=0.15, cbar_pad = 0.20,
                               title='Extraction Aperture', save_plot=(save_plots>0), show_plot=(show_plots>0),
                               filename=['aperture-masked{}'.format(order)],output_dir=output_dir)
 
