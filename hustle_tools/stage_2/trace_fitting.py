@@ -139,7 +139,13 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
     
     # Plot the calibration over the image.
     if (show_plots > 0 or save_plots > 0):
+        x1,x2,y1,y2 = (np.min(trace_x)-5,np.max(trace_x)+5,
+                       np.min(trace_y)-35,np.max(trace_y)+35)
+        dx, dy = abs(x1-x2), abs(y1-y2)
         plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y]], 
+                      xlimits=(x1,x2),ylimits=(y1,y2),
+                      min = 1e-1, max = 4e4,
+                      cbar_orient='horizontal',cbar_aspect=(dx/dy)**2, cbar_fraction=0.15, cbar_pad = 0.20,
                       title=f'Calibration Trace Order {order}',
                       filename = ['calibration_{}'.format(order)],
                       save_plot=(save_plots>0), show_plot=(show_plots>0),
@@ -150,9 +156,14 @@ def get_trace_solution(obs, order, source_pos, refine_calibration, path_to_cal,
         trace_y, widths = fit_trace(obs, trace_x, trace_y, profile_width = 70, pol_deg = 7, fit_type = 'Gaussian',
                                     fit_trace = True, plot_profile = [20, 300], order=order, 
                                     verbose = verbose, show_plots = show_plots, save_plots = save_plots, output_dir = output_dir)
-        
+        x1,x2,y1,y2 = (np.min(trace_x)-5,np.max(trace_x)+5,
+                       np.min(trace_y)-35,np.max(trace_y)+35)
+        dx, dy = abs(x1-x2), abs(y1-y2)
         # Plot refined calibration.
         plot_exposure([obs.images.data[0]], line_data=[[trace_x, trace_y[0]]], 
+                      xlimits=(x1,x2),ylimits=(y1,y2),
+                      min = 1e-1, max = 4e4,
+                      cbar_orient='horizontal',cbar_aspect=(dx/dy)**2, cbar_fraction=0.15, cbar_pad = 0.20,
                       title=f'Refined Trace Order {order}',
                       filename = ['calibration-refined_{}'.format(order)],
                       save_plot=(save_plots>0), show_plot=(show_plots>0),

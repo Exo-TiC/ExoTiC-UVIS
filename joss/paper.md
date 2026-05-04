@@ -25,6 +25,10 @@ authors:
     orcid: 0000-0002-8507-1304
     affiliation: '1'
     corresponding: false
+  - name: Ailsa M Campbell
+    orcid: 0009-0006-4198-719X
+    affiliation: '3'
+    corresponding: false
 affiliations:
   - name: Department of Astronomy and Carl Sagan Institute, Cornell University, 122 Sciences Drive, Ithaca, NY, 14853, USA
     index: 1
@@ -47,18 +51,18 @@ The Hubble Space Telescope Wide Field Camera 3 UV Imaging Spectrograph (HST WFC3
 
 # Statement of Need
 
-While the Hubble Space Telescope (HST) has been operating for more than 30 years, the WFC3-UVIS/G280 mode saw limited use until the recent surge of application to transmission spectroscopy of exoplanets [@wakeford2020; @lewis2020]. Current HST WFC3 pipelines [e.g. @eureka; @pacman] only service WFC-IR spectroscopy. HST WFC3-UVIS/G280 observations offer unique challenges in extracting spectral information: a curved spectral trace with a varied width, overlapping spectral orders, and high cosmic ray counts. These are in addition to potential variations in spectral extraction based on the use of different sub-array sizes and positions on the detector for each observation. Such challenges make current HST pipelines not suitable for reducing UVIS/G280 observations, and therefore a specialized pipeline is needed. 
+While the Hubble Space Telescope (HST) has been operating for more than 30 years, the WFC3-UVIS/G280 mode saw limited use until the recent surge of application to transmission spectroscopy of exoplanets [@wakeford2020; @lewis2020]. Most current HST WFC3 pipelines [e.g. @eureka; @pacman; @grizli] only service WFC-IR spectroscopy. Existing software tools for WFC3-UVIS data reduction are many years out of date [e.g. @hstaXe], restricted by licensed softwares such as IDL [e.g. @idl1; @idl2], or not specialized for use with this detector [e.g. @exotedrf]. HST WFC3-UVIS/G280 observations offer unique challenges in extracting spectral information: a curved spectral trace with a varied width, overlapping spectral orders, and high cosmic ray counts. These are in addition to potential variations in spectral extraction based on the use of different sub-array sizes and positions on the detector for each observation. Such challenges make current HST pipelines not suitable for reducing UVIS/G280 observations, and therefore a specialized, up-to-date, and fully open source pipeline is needed. 
 
 
 # Design and Features
 
 Similar to other HST and JWST pipelines [@eureka; @exotedrf], HUSTLE-tools is built in a modular fashion consisting of three stages. These stages encompass the different steps and subroutines necessary for data quality assessment, reduction, and spectral extraction:
 
-* Stage 0: allows the user to download and organize the files included as part of a specific GTO program number and visit number within that program. This stage can produce a "quick look" .gif file displaying all the downloaded G280 frames, intended to be used to diagnose potential errors during the observation. 
+* Stage 0: allows the user to download and organize the files included as part of a specific GTO program number and visit number within that program. The user is also prompted to examine their observation's direct photometric image (typically taken through the F300X filter) and locate the target star, which is necessary for accurate wavelength calibration in Stage 2. This stage can produce a "quick look" .gif file displaying all the downloaded G280 frames, intended to be used to diagnose potential errors during the observation.
 
-* Stage 1: allows the user to perform a suite of cleaning operations on the data to treat cosmic rays, hot pixels, and background signal, as well as track the motion of the trace across the detector between frames. The output of this stage contains the cleaned frames together with several auxiliary variables such as the image displacement in X and Y detector axes.
+* Stage 1: allows the user to perform a suite of cleaning operations on the data to treat cosmic rays, hot pixels, and background signal, as well as track the motion of the trace across the detector between frames. Cosmic ray rejection is handled through iterative rejection of outliers in pixel time series. Hot pixels can be removed through spatial median filters or by Laplacian Edge Detection [@vandokkum2001]. Background treatments range from simple uniform corrections to subtraction of a scaled empirical G280 sky image [@pagul2023]. Trace motion is tracked by proxy through measurement of the 0th order X-Y position as well as background stars if available. The output of this stage contains the cleaned frames together with several auxiliary variables such as the image displacement in X and Y detector axes.
 
-* Stage 2: allows the user to extract spectra from each image. The data are calibrated using the GRISMCONF package [@pirzkal2020], which offers wavelength solutions and trace positions for orders up to +/-4. Spectral extraction can be performed using a standard unweighted aperture of uniform size, or via the optimal weighting method described in @horne1986 and @marsch1989. The output of this stage is the extracted 1D spectral timeseries.
+* Stage 2: allows the user to extract spectra from each image. The data are calibrated using the GRISMCONF package [@pirzkal2020], which offers wavelength solutions and trace positions for orders up to +/-4, although orders beyond +/-1 are usually negligible unless the target star is of spectral type A or earlier. Calibration accuracy for all orders is dependent only on the S/N and correct APT configuration of the direct photometric image of the target star. Spectral extraction can be performed using a standard unweighted aperture of uniform size, or via the optimal weighting method described in @horne1986 and @marsch1989. Cross-correlation can then be applied to the output spectra to correct for telescope drift. The output of this stage is the extracted 1D spectral timeseries, with a separate output provided for each order extracted.
 
 Each run for each stage is defined through a ".hustle" configuration file, where all the parameters and variables needed to perform the stage subroutines are defined. For reproducibility, a copy of each configuration file is saved within the run's output directory. These files ensure that the user can always recreate a past result and facilitate comparing different runs.
 

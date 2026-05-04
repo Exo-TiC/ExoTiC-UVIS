@@ -251,7 +251,13 @@ The outputs of the pipeline will be stored in :code:`output/outputs/`. Output pl
 4.1. The outputs of Stage 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Stage 0 downloads our data and organizes it. The most important output of Stage 0 is the quicklookup.gif file. This gif compiles all of the G280 exposures, the total image flux, and the flux contained in an aperture containing the positive first order. We can use this gif to confirm that we captured the transit/eclipse of our target planet, or to look for issues such as tracking failures or satellite crossings. As you will see, the quicklookup.gif for this visit has no issues!
+Stage 0 downloads our data and organizes it. The most important output of Stage 0 is the quicklookup.gif file. This gif compiles all of the G280 exposures, the total image flux, and the flux contained in an aperture containing the positive first order. We can use this gif to confirm that we captured the transit/eclipse of our target planet, or to look for issues such as tracking failures or satellite crossings. As you can see below and in your own output folders, the quicklookup.gif for this visit has no issues!
+
+.. figure:: quicklookup.png
+  :width: 100%
+  :align: center
+  
+  *Last frame of quicklookup.gif file from visit 12 of HST-GO 17183, with a clear transit visible in the bottom right plot.*
 
 4.2. The outputs of Stage 1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -265,6 +271,20 @@ Stage 1 handles data reduction, and outputs a lot of diagnostic plots we can use
 
 Stage 1 also outputs a revised quicklookup.gif that we can compare to our Stage 0 gif to see how the frames have changed after reduction. We also receive a similar gif showing the data quality array, which shows the pixels in each frame that were flagged for data quality issues during reduction (e.g. cosmic rays caught by temporal rejection, hot pixels caught by spatial rejection, etc.).
 
+.. list-table::
+   :widths: 512 512
+   :header-rows: 0
+
+   * - .. figure:: clean_quicklookup.png
+          :width: 100%
+
+          *The last frame of the quick lookup after cleaning. The data frames are free of cosmic rays and hot pixels with a smooth background (top), while the transit light curve shows greatly reduced scatter (bottom right).*
+     - .. figure:: dqquicklookup.png
+          :width: 100%
+
+          *The data quality array for the same frame. White marks pixels flagged as outliers. The total flags in the frame (bottom left) and the flags in the boxed region (right) are also displayed; neither exceeds 5\% of the data.*
+
+
 4.3. The outputs of Stage 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -276,7 +296,78 @@ Stage 2 extracts the 1D spectral time series from our reduced data frame, and li
   4. 1Dspec_order+1.png and 1Dspec_order-1.png show the first frame's 1D spectrum for each order. 2Dspec_order+1.png and 2Dspec_order-1.png plot the 1D spectra in every frame over time as a 2D map. 1Dspec_order+1.gif and 1Dspec_order-1.gif plays all extracted 1D spectra for each order as a gif. All of these plots can be used to assess the quality of the extracted spectra, including looking for uncorrected cosmic rays or systematic signals. In this dataset, a strong systematic can be seen in the -1 order at 400 nm.
   5. rawwlc_order+1.png and rawwlc_order-1.png show the white light curves obtained by summing all 1D spectra across all wavelengths. These light curves should be clean and with good signal-to-noise ratio, with minimal systematic patterns and no spurious points from e.g. cosmic rays.
 
-The 1D spectra for each order will be output to specs\_+1.nc and specs\_-1.nc which can be opened and manipulated with the :code:`xarray` package. These are the final science products on which you would perform your analyses.
+The 1D spectra for each order will be output to specs\_+1.nc and specs\_-1.nc which can be opened and manipulated with the :code:`xarray` package, documented `here <https://docs.xarray.dev/en/stable/>`_. These are the final science products on which you would perform your analyses. For example, the script below can be used to generate a plot of the white and spectroscopic light curves from this observation:
+
+.. code-block:: bash
+
+  import numpy as np
+  import xarray as xr
+  import matplotlib.pyplot as plt
+  
+  #define plotting parameters
+  plt.rc('font', family='serif')
+  plt.rc('xtick', labelsize=14)
+  plt.rc('ytick', labelsize=14)
+  plt.rc('axes', labelsize=14)
+  plt.rc('legend',**{'fontsize':11})
+  
+    
+  specs = xr.open_dataset('output/outputs/stage2/demo/specs_+1.nc') 
+  
+  # Get the timestamps of exposures.
+  exp_time = specs.exp_time
+  
+  # Open the 1D spectral time series and its uncertainties
+  spectrum = specs.spec    # has shape exp_time x wavelengths
+  errors = specs.spec_err  # same shape as above
+  
+  # Open the grismconf wavelength solution
+  wavelengths = specs.wave
+  
+  # Create a plot.
+  layout = """
+      AAA
+      BCD
+  """
+  fig, ax = plt.subplot_mosaic(layout,figsize=(16,5),sharey=True)
+  plt.subplots_adjust(wspace=0,hspace=0.3)
+  
+  # Make a white light curve.
+  wlc = np.sum(spectrum,axis=1)
+  wle = np.sqrt(np.sum(np.square(errors),axis=1))
+  wle /= np.median(wlc)
+  wlc /= np.median(wlc)
+  ax['A'].errorbar(exp_time,wlc,yerr=wle,capsize=3,markersize=3,marker='o',color='k',ls='none')
+  ax['A'].set_xlabel('')
+  ax['A'].set_ylabel('Flux [a.u.]')
+  ax['A'].tick_params(which='both',axis='both',direction='in')
+  ax['A'].set_title("White Light Curve")
+  
+  # Make a red, green, and blue light curve.
+  for wavelength,color,letter in zip((2000,4000,6000),
+                                     ('blue','green','red'),
+                                     ('B','C','D')):
+      ok = (wavelengths>=wavelength) & (wavelengths<=wavelength+2000)
+      slc = np.sum(spectrum[:,ok],axis=1)
+      sle = np.sqrt(np.sum(np.square(errors[:,ok]),axis=1))
+      sle /= np.median(slc)
+      slc /= np.median(slc)
+  
+      ax[letter].errorbar(exp_time,slc,yerr=sle,capsize=3,markersize=3,marker='o',color=color,ls='none')
+      ax[letter].set_xlabel('Exposure Time [MJD]')
+      if letter == 'B':
+          ax[letter].set_ylabel('Flux [a.u.]')
+      ax[letter].tick_params(which='both',axis='both',direction='in')
+      ax[letter].set_title(f'{wavelength+1000} AA')
+  plt.savefig('light_curves.png',dpi=300,bbox_inches='tight')
+  plt.close()
+
+.. figure:: light_curves.png
+  :width: 100%
+  :align: center
+  
+  *The white light curve (top) and spectroscopic light curves (bottom) created from our HUSTLE-tools reduction of a transit of WASP-127 b observed in HST-GO 17183. Note the increasing transit depth at shorter wavelengths.*
+
 
 5. What next?
 ----------------------

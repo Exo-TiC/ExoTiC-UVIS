@@ -204,10 +204,111 @@ Then execute this script to run Stage 1! The output in your cell should look sim
 
 Assessing Stage 1's success
 ---------------------------
-Stage 1 is the most customizable stage and has a lot of diagnostics to look over. You will know if Stage 1 succeeded if:
+Stage 1 is the most customizable stage and has a lot of diagnostics to look over.
 
-  1. Maps of pixels flagged by temporal and spatial outlier rejection routines (e.g. CR_location.png, LED_location_of_all_corrected_pixels.png) show largely random spatial distributions with no obvious correlation to the trace. Do not worry if methods like LED targeted the 0th order bloom (large vertical spike in the middle); as long as the traces were preserved, the extraction should be reliable.
-  2. The plot of estimated background values over time (bkg_values_{name of method you used}.png) shows reasonable background values consistent with the typical value of pixels away from the trace, and the plot showing the median background pixel values before and after correction (bkg_correction_{name of method you used}.png) shows that the post-corrected values are consistent with 0 e-.
-  3. Measured 0th-order displacements are reasonable (should be order pixels to sub-pixels, not tens of pixels), and if available, the background star displacements are reasonably consistent with each other and the 0th-order displacements.
-  4. The quicklookup.gif created by this stage shows a clear transit, a smooth background signal, no flickering or other odd visual patterns, and no obvious cosmic rays left over after cleaning.
-  5. Additionally, the quicklookupDQ.gif created by this stage shows a spatially random distribution of flagged pixels - at no point should you be able to see the shape of the trace in this gif, and if you do see it, you have overcorrected the data!
+Diagnostic 1: Maps of pixels flagged by outlier rejection methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Routines that detect individual pixel outliers will produce map images showing the location of each flagged pixel. If :code:`show_plots` or :code:`save_plots` is set to 1, a map of all outliers across time will be produced. If these are set to 2, a map will be produced for each frame. These routines were successful if (1) no hot pixels, cosmic rays, or other defects can be seen in the cleaned images; and (2) the maps show largely random spatial distributions with no obvious correlation to the trace. Do not worry if methods like LED targeted the 0th order bloom (large vertical spike in the middle); as long as the traces were preserved, the extraction should be reliable.
+
+Below we show examples of these maps for good and bad temporal iteration outlier rejections.
+
+.. list-table::
+   :widths: 256 256
+   :header-rows: 0
+
+   * - .. figure:: ../CR-fixed_location_frame59_good.png
+          :width: 100%
+
+          *A frame with cosmic ray rejection at the 5-sigma level. Cosmic rays are flagged in red, with no correlation to the trace. The chosen threshold is appropriate for the data.*
+     - .. figure:: ../CR-fixed_location_frame59_bad.png
+          :width: 100%
+
+          *A frame with cosmic ray rejection at the 3-sigma level. Large sections of the +1 trace (left) have been flagged in red. The chosen threshold is too low for the data.*
+
+Below we show examples of these maps for good and bad LED spatial outlier rejection.
+
+.. list-table::
+   :widths: 256 256
+   :header-rows: 0
+
+   * - .. figure:: ../LED_fine_structure.png
+          :width: 100%
+
+          *A map of outliers flagged by LED rejection with the fine structure model enabled. Hot pixels and saturation bloom are flagged in white with no correlation to the trace.*
+     - .. figure:: ../LED_no_fine_structure.png
+          :width: 100%
+
+          *A map of outliers flagged by LED rejection with the fine structure model disabled. Without the fine structure model protecting them, trace pixels are flagged in white as outliers.*
+
+Diagnostic 2: Background values pre- and post-correction
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The plot of estimated background values over time (bkg_values_{name of method you used}.png) should show reasonable background values consistent with the typical value of pixels away from the trace, and the plot showing the median background pixel values before and after correction (bkg_correction_{name of method you used}.png) should show that the post-corrected values are consistent with 0 e-.
+
+.. figure:: ../bkg_correction_corners.png
+   :width: 512
+   :align: center
+
+   *Median background values before (red) and after (black) correction by the corners method. After correction, the background values have shifted towards 0 e- with a greatly reduced scatter in values.*
+
+Diagnostic 3: Measured positional shifts of 0th order and background stars
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Measured 0th-order displacements are reasonable (should be order pixels to sub-pixels, not tens of pixels), and if available, the background star displacements are reasonably consistent with each other and the 0th-order displacements.
+
+Below we show displacements of the 0th order.
+
+.. list-table::
+   :widths: 256 256
+   :header-rows: 0
+
+   * - .. figure:: ../0th_order_x_displacement.png
+          :width: 100%
+
+          *Displacement of the 0th order in the dispersion / detector X direction. The displacements are sub-pixel in scale.*
+     - .. figure:: ../0th_order_y_displacement.png
+          :width: 100%
+
+          *Displacement of the 0th order in the spatial / detector Y direction. The displacements are sub-pixel in scale.*
+
+Below we show three background stars that were tracked in an observation from HST-GO 17183.
+
+.. figure:: ../bkg_stars_location.png
+   :width: 1024
+   :align: center
+
+   *Three background stars (marked with red "+" marks) which were tracked and compared to the displacements of the saturated 0th order.*
+
+Below we show the displacements of the three background stars.
+
+.. list-table::
+   :widths: 256 256
+   :header-rows: 0
+
+   * - .. figure:: ../bkg_stars_x_displacement.png
+          :width: 100%
+
+          *Displacements of 3 background stars in the dispersion / detector X direction, with the mean of all stars' motion in blue. The displacements are sub-pixel and consistent with each other.*
+     - .. figure:: ../bkg_stars_y_displacement.png
+          :width: 100%
+
+          *Displacements of 3 background stars in the spatial / detector Y direction, with the mean of all stars' motion in blue. The displacements are sub-pixel and consistent with each other.*
+
+Diagnostic 4: quicklookup.gif files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The quicklookup.gif created by this stage should show a clear transit, a smooth background signal, no flickering or other odd visual patterns, and no obvious cosmic rays left over after cleaning. We show the last frame of the quicklookup.gif from Visit 12 of HST-GO 17183 below, before and after cleaning. Additionally, the quicklookupDQ.gif created by this stage should show a spatially random distribution of flagged pixels - at no point should you be able to see the shape of the trace in this gif, and if you do see it, you have overcorrected the data! Ideally, the number of flagged pixels should never represent over 5\% of the data. We include the data quality array frame below as well.
+
+.. list-table::
+   :widths: 256 256 256
+   :header-rows: 0
+
+   * - .. figure:: ../quicklookup.png
+          :width: 100%
+
+          *The quick lookup frame before cleaning. Cosmic rays litter the frame (top), while the transit light curve shows significant scatter (bottom right).*
+     - .. figure:: ../clean_quicklookup.png
+          :width: 100%
+
+          *The quick lookup frame after cleaning. The data frames are free of cosmic rays and hot pixels with a smooth background (top), while the transit light curve shows greatly reduced scatter (bottom right).*
+     - .. figure:: ../dqquicklookup.png
+          :width: 100%
+
+          *The data quality array for the same frame. White marks pixels flagged as outliers. The total flags in the frame (bottom left) and the flags in the boxed region (right) are also displayed; neither exceeds 5\% of the data.*

@@ -86,8 +86,39 @@ Then execute this script to run Stage 0! The output in your cell should look sim
 
 Assessing Stage 0's success
 ---------------------------
-Stage 0 is the simplest stage that has very few diagnostics to look over. You will know if Stage 0 succeeded if:
+Stage 0 is the simplest stage that has very few diagnostics to look over.
 
-  1. The :code:`toplevel_dir` folder has been created and populated with the :code:`specimages`, :code:`directimages`, :code:`jitterfiles`, :code:`visitfiles`, :code:`miscfiles`, and :code:`outputs` subfolders.
-  2. The :code:`toplevel_dir/outputs/stage_0` folder contains an updated copy of the .hustle configuration folder with the :code:`location` variable changed from None to a tuple of floats.
-  3. The quicklookup.gif created by this stage, or the .fits files downloaded to the :code:`toplevel_dir/specimages` directory, clearly show your target star and contain all of the orbits and total number of frames you expected.
+Diagnostic 1: :code:`toplevel_dir` directory structure
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Stage 0 will create a :code:`toplevel_dir` populated with the :code:`specimages`, :code:`directimages`, :code:`jitterfiles`, :code:`visitfiles`, :code:`miscfiles`, and :code:`outputs` subfolders, as shown:
+
+.. figure:: ../toplevel_dir.png
+   :alt: A directory named "output", with subfolders "spec images", "direct images", "jitter files", "visit files", "misc files", and "outputs".
+   :width: 512
+   :align: center
+
+   *The toplevel_dir filetree with expected subfolders; here, toplevel_dir has been named 'output'.*
+
+Diagnostic 2: updated :code:`location` variable
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The output :code:`toplevel_dir/outputs/stage_0` folder will contain a near-copy of the input Stage 0 .hustle configuration file. If you set :code:`do_locate` to :code:`True`, then the only change will be an updated :code:`location` variable matching the location you found when running Stage 0.
+
+Diagnostic 3: quicklookup.gif and image files contain expected observations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You should check to confirm that the output :code:`toplevel_dir/specimages` and :code:`toplevel_dir/directimages` folders contain the expected number of \*flt.fits files. To confirm the contents of the spectroscopic image files, check the quicklookup.gif to ensure that it (1) has as many frames as there are \*flt.fits files in :code:`toplevel_dir/specimages`, and (2) has a trace flux time series (bottom right plot) matching the event you expected to observe. We show an example direct image and frame from the quicklookup.gif below from HUSTLE program observations of a transit of WASP-127b from visit 12 of HST-GO 17183 (PI: Hannah Wakeford):
+
+
+.. figure:: ../directimage.png
+   :alt: A mostly-black CCD image with one very bright star visible; this is the target star.
+   :width: 1024
+   :align: center
+
+   *F300X image of the target star in visit 12 of HST-GO-17183, with target star in the yellow circle.*
+
+
+.. figure:: ../quicklookup.png
+  :alt: A CCD image showing a bright star with spectrally-dispersed traces on either side. Two additional plots show the total flux in the frame and the total flux within the positive first-order trace. The positive first-order trace flux clearly shows a transit event.
+  :width: 1024
+  :align: center
+  
+  *Last frame of quicklookup.gif file from visit 12 of HST-GO 17183, with a clear transit visible in the bottom right plot.*
