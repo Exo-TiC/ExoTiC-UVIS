@@ -1,5 +1,5 @@
 ---
-title: 'HUSTLE-tools: a one stop shop for Hubble WFC3-UVIS/G280 spectral reduction'
+title: 'HUSTLE-tools: A One Stop Shop For Hubble WFC3-UVIS/G280 Spectral Reduction'
 tags:
   - Python
   - astronomy
@@ -44,14 +44,14 @@ bibliography: paper.bib
 
 # Summary
 
-Fully understanding the complex physical and chemical processes that shape exoplanet atmospheres requires the complete spectrum from the ultraviolet (UV) to the mid-infrared (IR). In particular, the UV-optical has proven vital to constraining the presence of UV absorbers or scatterers [e.g. @lothringer2022], atmospheric escape [e.g. @bourrier2018], and enhanced scattering due to aerosol opacities [@ohno2020].
+Fully understanding the complex physical and chemical processes that shape exoplanet atmospheres requires the complete spectrum from the ultraviolet (UV) to the mid-infrared (IR). In particular, UV-optical observations have proven vital for identifying UV-absorbing atmospheric species [e.g. @lothringer2022], detecting atmospheric escape [e.g. @bourrier2018], and constraining the presence of aerosols through their opacity and enhanced scattering of UV-optical light [@ohno2020].
 
-The Hubble Space Telescope Wide Field Camera 3 UV Imaging Spectrograph (HST WFC3-UVIS) G280 grism is the only low-resolution spectrograph that gives us access to UV-optical wavelengths (0.2--0.8 microns) simultaneously. With most current instrumentation operating in near- and mid-IR wavelengths, and UV successors to HST still many years away, HST WFC3-UVIS/G280 emerges as the only instrument capable of unveiling the physics and chemistry that takes place in the upper atmospheric layers of exoplanets. Developed in the context of the Hubble Ultraviolet-optical Survey of Transiting Legacy Exoplanets (HUSTLE, GO-17183 PI: Wakeford), HUSTLE-tools is an open-source package of modules designed to easily download, organize, analyze, clean, and extract the target spectrum from HST WFC3-UVIS/G280 spectral images.
+The Hubble Space Telescope Wide Field Camera 3 UV Imaging Spectrograph (HST WFC3-UVIS) G280 grism is the only low-resolution spectrograph that gives us access to UV-optical wavelengths (0.2--0.8 microns) simultaneously. With most current instrumentation operating in near- and mid-IR wavelengths, and UV successors to HST still many years away, HST WFC3-UVIS/G280 emerges as the only instrument capable of unveiling the physics and chemistry that takes place in the upper atmospheric layers of exoplanets. Developed in the context of the Hubble Ultraviolet-optical Survey of Transiting Legacy Exoplanets (HUSTLE, GO-17183 PI: Wakeford), HUSTLE-tools is an open-source package of modules designed to easily download, organize, analyze, clean, and extract the target spectra from HST WFC3-UVIS/G280 spectral images.
 
 
 # Statement of Need
 
-While the Hubble Space Telescope (HST) has been operating for more than 30 years, the WFC3-UVIS/G280 mode saw limited use until the recent surge of application to transmission spectroscopy of exoplanets [@wakeford2020; @lewis2020]. Most current HST WFC3 pipelines [e.g. @eureka; @pacman; @grizli] only service WFC-IR spectroscopy. Existing software tools for WFC3-UVIS data reduction are many years out of date [e.g. @hstaXe], restricted by licensed softwares such as IDL [e.g. @idl1; @idl2], or not specialized for use with this detector [e.g. @exotedrf]. HST WFC3-UVIS/G280 observations offer unique challenges in extracting spectral information: a curved spectral trace with a varied width, overlapping spectral orders, and high cosmic ray counts. These are in addition to potential variations in spectral extraction based on the use of different sub-array sizes and positions on the detector for each observation. Such challenges make current HST pipelines not suitable for reducing UVIS/G280 observations, and therefore a specialized, up-to-date, and fully open source pipeline is needed. 
+While the Hubble Space Telescope (HST) Wide Field Camera 3 (WFC3) has been operating since 2009, the WFC3-UVIS/G280 mode saw limited use until the recent surge of applications to transmission spectroscopy of exoplanets [@wakeford2020; @lewis2020]. Most current HST WFC3 pipelines [e.g. @eureka; @pacman; @grizli] only service WFC-IR spectroscopy. Existing software tools for WFC3-UVIS data reduction are many years out of date [e.g. @hstaXe], restricted by licensed softwares such as IDL [e.g. @idl1; @idl2], or not specialized for use with this detector [e.g. @exotedrf]. HST WFC3-UVIS/G280 observations offer unique challenges in extracting spectral information: a curved spectral trace with a varied width, overlapping spectral orders, and high cosmic ray counts. These are in addition to potential variations in spectral extraction based on the use of different sub-array sizes and positions on the detector for each observation. Such challenges make current HST pipelines not suitable for reducing UVIS/G280 observations, and therefore a specialized, up-to-date, and fully open source pipeline is needed. 
 
 
 # Design and Features
@@ -68,7 +68,7 @@ Each run for each stage is defined through a ".hustle" configuration file, where
 
 Included tutorials and example scripts ensure HUSTLE-tools can be run with minimal prior experience in pipeline development and operation. The modular and user-friendly design of HUSTLE-tools permits users to fine-tune their reduction to obtain optimal results. Users can toggle and tweak their desired processes within each stage and can easily rerun stages to explore different reduction techniques.
 
-HUSTLE-tools is built from the 'Hazelnut' pipeline presented in @Boehm2024 and the 'lluvia' pipeline presented in @Gascon2025. 
+HUSTLE-tools is built from the 'Hazelnut' pipeline presented in [@Boehm2024] and the 'lluvia' pipeline presented in [@Gascon2025]. 
 
 # Acknowledgments
 We acknowledge contributions from the full HUSTLE team, and specifically testing by Ailsa Campbell. 
@@ -76,5 +76,17 @@ V.A.B was funded through program number HST-GO-17183 provided through a grant fr
 C.G. was funded by La Caixa Fellowship and the Agency for Management of University and Research Grants from the Government of Catalonia (FI AGAUR).
 D.G. and H.R.W were funded by UK Research and Innovation (UKRI) under the UK government’s Horizon Europe funding guarantee as part of an ERC Starter Grant [grant number EP/Y006313/1].
 This work benefited from the 2024 Exoplanet Summer Program in the Other Worlds Laboratory (OWL) at the University of California, Santa Cruz, a program funded by the Heising-Simons Foundation and NASA.
+HUSTLE-tools makes use of the following software dependencies:
+- scipy: [@scipy]
+- numpy: [@numpy]
+- xarray: [@xarray]
+- astroquery: [@astroquery]
+- astropy: [@astropy:2013; @astropy:2018; @astropy:2022]
+- photutils: [@photutils]
+- matplotlib: [@matplotlib]
+- tqdm: [@tqdm]
+- grismconf: https://github.com/npirzkal/GRISMCONF
+- wfc3tools: https://github.com/spacetelescope/wfc3tools
+- jwst: [@jwst]
 
 # References
